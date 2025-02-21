@@ -17,7 +17,9 @@ const User = new Schema({
     enum: ['admin', 'client', 'client_approuve'], 
     default: 'client' // Par défaut, un utilisateur inscrit est un client
 },
-    verified: Boolean
+   verified: Boolean,
+   resetPasswordToken: String,          // ✅ Nouveau champ pour le token
+   resetPasswordExpires: Date           // ✅ Nouveau champ pour la date d'expiration
     });
     
 module.exports = mongo.model('users', User);
