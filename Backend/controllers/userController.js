@@ -1,11 +1,14 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const authenticateUser = require("../middleware/authMiddleware");
+const nodemailer = require("nodemailer");
+const crypto = require("node:crypto");  // ✅ Utilisation du module natif
 require("dotenv").config();
 
 const JWT_SECRET = process.env.SESSION_SECRET || "default_secret_key";
+const RESET_PASSWORD_TOKEN_SECRET = process.env.RESET_PASSWORD_TOKEN_SECRET || "default_reset_secret";
 
+// ✅ INSCRIPTION D'UN UTILISATEUR
 exports.signup = async (req, res) => {
   try {
     let { name, surname, email, password, dateOfBirth, Skill } = req.body;
@@ -14,7 +17,6 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ status: "FAILED", message: "All fields are required!" });
     }
 
-    // Nettoyage et validation
     name = name.trim();
     surname = surname.trim();
     email = email.trim();
@@ -38,7 +40,6 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ status: "FAILED", message: "Password must be at least 8 characters long." });
     }
 
-    // Vérifier si l'utilisateur existe déjà
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ status: "FAILED", message: "Email is already in use." });
@@ -53,8 +54,8 @@ exports.signup = async (req, res) => {
       password: hashedPassword,
       dateOfBirth: date,
       Skill,
-      role: "client", // Assignation par défaut
-      isActive: true, // L'utilisateur est activé par défaut
+      role: "client",
+      isActive: true,
     });
 
     await newUser.save();
@@ -68,7 +69,8 @@ exports.signup = async (req, res) => {
     return res.status(500).json({ status: "FAILED", message: "Internal server error." });
   }
 };
-// ✅ Connexion d'un utilisateur
+
+// ✅ CONNEXION D'UN UTILISATEUR
 exports.signin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -105,7 +107,7 @@ exports.signin = async (req, res) => {
         dateOfBirth: user.dateOfBirth,
         Skill: user.Skill,
         role: user.role,
-        isActive: user.isActive,  // Renvoi de l'état du compte
+        isActive: user.isActive,
       }
     });
   } catch (err) {
@@ -114,7 +116,7 @@ exports.signin = async (req, res) => {
   }
 };
 
-// ✅ Upload d'image
+// ✅ UPLOAD D'IMAGE
 exports.uploadImage = (req, res) => {
   try {
     if (!req.file) {
@@ -132,32 +134,28 @@ exports.uploadImage = (req, res) => {
   }
 };
 
-// ✅ Mise à jour du profil d'un utilisateur
+// ✅ MISE À JOUR DU PROFIL D'UN UTILISATEUR
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.params.id;
     const { name, surname, email, password, dateOfBirth, Skill } = req.body;
 
-    // Vérifie que l'utilisateur existe
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ status: "FAILED", message: "User not found." });
     }
 
-    // Mise à jour des champs seulement si ceux-ci sont fournis
     if (name) user.name = name;
     if (surname) user.surname = surname;
     if (email) user.email = email;
     if (dateOfBirth) user.dateOfBirth = new Date(dateOfBirth);
     if (Skill) user.Skill = Skill;
 
-    // Si un nouveau mot de passe est fourni, il est haché avant d'être sauvegardé
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       user.password = hashedPassword;
     }
 
-    // Sauvegarde des modifications
     await user.save();
 
     return res.status(200).json({
@@ -180,19 +178,16 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-
-// ✅ Suppression du profil d'un utilisateur
+// ✅ SUPPRESSION DU PROFIL D'UN UTILISATEUR
 exports.deleteProfile = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    // Vérifie que l'utilisateur existe
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ status: "FAILED", message: "User not found." });
     }
 
-    // Supprimer l'utilisateur
     await User.findByIdAndDelete(userId);
     return res.status(200).json({ status: "SUCCESS", message: "Profile deleted successfully." });
   } catch (err) {
@@ -201,6 +196,7 @@ exports.deleteProfile = async (req, res) => {
   }
 };
 
+// ✅ ACTIVER LE COMPTE D'UN UTILISATEUR
 exports.activateAccount = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -209,7 +205,6 @@ exports.activateAccount = async (req, res) => {
       return res.status(404).json({ status: "FAILED", message: "User not found." });
     }
 
-    // Activation du compte
     user.isActive = true;
     await user.save();
 
@@ -223,7 +218,7 @@ exports.activateAccount = async (req, res) => {
   }
 };
 
-// Désactiver un compte utilisateur
+// ✅ DÉSACTIVER LE COMPTE D'UN UTILISATEUR
 exports.deactivateAccount = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -232,7 +227,6 @@ exports.deactivateAccount = async (req, res) => {
       return res.status(404).json({ status: "FAILED", message: "User not found." });
     }
 
-    // Désactivation du compte
     user.isActive = false;
     await user.save();
 
@@ -242,6 +236,114 @@ exports.deactivateAccount = async (req, res) => {
     });
   } catch (err) {
     console.error("Deactivate account error:", err);
+    return res.status(500).json({ status: "FAILED", message: "Internal server error." });
+  }
+};
+
+// ✅ ENVOI DE L'EMAIL DE RÉINITIALISATION
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ status: "FAILED", message: "User not found." });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 heure
+    await user.save();
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+          user: process.env.AUTH_EMAIL,
+          pass: process.env.AUTH_PASS
+      }
+  });
+
+    const mailOptions = {
+      from: process.env.AUTH_EMAIL,
+      to: user.email,
+      subject: "Réinitialisation de votre mot de passe",
+      html: `
+        <p>Vous avez demandé une réinitialisation de votre mot de passe.</p>
+        <p>Cliquez sur le lien ci-dessous pour créer un nouveau mot de passe :</p>
+        <a href="${process.env.CLIENT_URL}/reset-password/${resetToken}">Réinitialiser mon mot de passe</a>
+        <p>Ce lien est valide pendant 1 heure.</p>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ status: "SUCCESS", message: "Email de réinitialisation envoyé." });
+
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    res.status(500).json({ status: "FAILED", message: "Internal server error." });
+  }
+};
+
+// ✅ RÉINITIALISATION DU MOT DE PASSE
+exports.resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ status: "FAILED", message: "Token invalide ou expiré." });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+
+    await user.save();
+    res.status(200).json({ status: "SUCCESS", message: "Mot de passe réinitialisé avec succès." });
+
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res.status(500).json({ status: "FAILED", message: "Internal server error." });
+  }
+};
+
+// ✅ CONSULTER LE PROFIL D'UN UTILISATEUR
+exports.getProfile = async (req, res) => {
+  try {
+    const userId = req.user.userId; // ID extrait du token JWT
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ status: "FAILED", message: "User not found" });
+    }
+
+    return res.status(200).json({
+      status: "SUCCESS",
+      user: {
+        id: user._id,
+        name: user.name,
+        surname: user.surname,
+        email: user.email,
+        dateOfBirth: user.dateOfBirth,
+        Skill: user.Skill,
+        role: user.role,
+        image: user.image,
+        isActive: user.isActive
+      }
+    });
+  } catch (err) {
+    console.error("Get profile error:", err);
     return res.status(500).json({ status: "FAILED", message: "Internal server error." });
   }
 };

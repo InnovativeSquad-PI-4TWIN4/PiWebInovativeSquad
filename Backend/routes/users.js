@@ -12,5 +12,12 @@ router.put("/updateProfile/:id", authenticateUser, userController.updateProfile)
 router.delete("/deleteProfile/:id", authenticateUser, userController.deleteProfile);
 router.patch('/activateAccount/:id', authenticateUser, userController.activateAccount);
 router.patch('/deactivateAccount/:id', authenticateUser, userController.deactivateAccount);
+router.post("/forgot-password", userController.forgotPassword);   // ✅ Envoi de l'email de réinitialisation
+router.get("/reset-password/:token", (req, res) => {
+    res.send(`Réinitialisation du mot de passe pour le token : ${req.params.token}`);
+});
+  // ✅ Réinitialisation du mot de passe
+router.get("/profile", authenticateUser, userController.getProfile);
+
 
 module.exports = router;
