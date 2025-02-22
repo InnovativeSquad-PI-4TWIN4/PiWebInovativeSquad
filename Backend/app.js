@@ -7,6 +7,7 @@ const logger = require("morgan");
 const mongo = require("mongoose");
 const session = require("express-session");
 const passport = require("passport");
+const cors = require("cors");
 
 // Importation des routes
 const indexRouter = require("./routes/index");
@@ -51,6 +52,12 @@ mongo
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ Could not connect to MongoDB:", err));
 
+  //Active CORS pour le frontend React (http://localhost:5173)
+app.use(cors({
+      origin: 'http://localhost:5173', 
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization']
+    }));
 // ✅ Déclaration des routes (ORDRE IMPORTANT)
 app.use("/", authRouter);
 app.use("/index", indexRouter);

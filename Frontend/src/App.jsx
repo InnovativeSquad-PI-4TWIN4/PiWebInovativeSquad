@@ -1,13 +1,30 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/navbar';
+import Hero from './components/hero';
+import SignIn from './components/signin';
+import SignUp from './components/signup';
+import Courses from './components/courses';
+import Contact from './components/contact';
+import Footer from './components/footer';
 
+import './index.css';
 
-import React from "react";
-
-function App() {
+const App = () => {
   return (
-    <div>
-      <h1>Bienvenue sur la template React ! 🚀</h1>
-    </div>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Hero />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/contact" element={<Contact />} />
+      </Routes>
+      <Footer />
+
+    </Router>
   );
-}
+};
 
 export default App;
