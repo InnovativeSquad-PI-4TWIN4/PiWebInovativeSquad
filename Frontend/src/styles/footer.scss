@@ -1,0 +1,51 @@
+.footer {
+    background: #1a1a1a; // Match the homepage background
+    color: white;
+    padding: 2rem 1rem;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+  
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+  
+        a {
+          color: white;
+          text-decoration: none;
+          transition: color 0.3s;
+  
+          &:hover {
+            color: #00ff88;
+          }
+        }
+      }
+  
+      .social-icons {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+  
+        a {
+          color: white;
+          font-size: 1.5rem;
+          transition: color 0.3s;
+  
+          &:hover {
+            color: #00ff88;
+          }
+        }
+      }
+  
+      p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+  }
