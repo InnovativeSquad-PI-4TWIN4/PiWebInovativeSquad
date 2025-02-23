@@ -9,7 +9,7 @@ const ResetPassword = () => {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { token } = useParams(); // ✅ Capture le token depuis l'URL
+    const { token } = useParams();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -28,7 +28,7 @@ const ResetPassword = () => {
             setMessage(response.data.message);
 
             setTimeout(() => {
-                navigate('/signin'); // ✅ Redirection vers Sign In après succès
+                navigate('/signin'); // ✅ Redirection vers Sign In
             }, 3000);
         } catch (err) {
             setError(err.response?.data?.message || 'Une erreur est survenue.');
@@ -36,27 +36,27 @@ const ResetPassword = () => {
     };
 
     return (
-        <div className="signin-container"> {/* ✅ Style similaire à SignIn */}
+        <div className="signin-container">
             <div className="signin-box">
-                <h2>Réinitialisation Password</h2> {/* ✅ Titre changé */}
+                <h2>Password reset</h2>
                 {message && <p className="success">{message}</p>}
                 {error && <p className="error">{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <input
                         type="password"
-                        placeholder="Nouveau mot de passe"
+                        placeholder="New Password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         required
                     />
                     <input
                         type="password"
-                        placeholder="Confirmer le mot de passe"
+                        placeholder="Confirm Password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                     />
-                    <button type="submit">Confirmer</button> {/* ✅ Bouton confirmé */}
+                    <button type="submit">Confirm</button>
                 </form>
             </div>
         </div>
