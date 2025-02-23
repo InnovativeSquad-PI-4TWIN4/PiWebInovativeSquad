@@ -1,39 +1,134 @@
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
-    background: linear-gradient(90deg, #1a1a1a, #2c3e50);
-    color: white;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  
-    &-logo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: #333;
+  color: white;
+
+  .navbar-logo {
       display: flex;
       align-items: center;
-      font-size: 1.5rem;
+      gap: 8px;
+      font-size: 22px;
       font-weight: bold;
-      text-decoration: none;
       color: white;
-  
+      text-decoration: none;
+
       .logo-icon {
-        margin-right: 0.5rem;
-        color: #00ff88;
+          font-size: 24px;
+          color: #00b894;
       }
-    }
-  
-    &-links {
-      display: flex;
-      list-style: none;
-      gap: 2rem;
-  
-      a {
-        color: white;
-        text-decoration: none;
-        transition: color 0.3s;
-  
-        &:hover {
-          color: #00ff88;
-        }
-      }
-    }
   }
+
+  .navbar-links {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+
+      li {
+          a {
+              color: white;
+              text-decoration: none;
+              font-size: 16px;
+
+              &:hover {
+                  color: #00b894;
+              }
+          }
+
+          .user-menu {
+              position: relative;
+              cursor: pointer;
+
+              .user-initials {
+                  width: 40px;
+                  height: 40px;
+                  border-radius: 50%;
+                  background-color: #00b894;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: white;
+                  font-weight: bold;
+                  font-size: 16px;
+                  text-transform: uppercase;
+              }
+
+              .dropdown-menu {
+                  position: absolute;
+                  right: 0;
+                  margin-top: 10px;
+                  width: 250px;
+                  background-color: white;
+                  border-radius: 10px;
+                  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                  overflow: hidden;
+                  z-index: 100;
+
+                  .user-info {
+                      display: flex;
+                      align-items: center;
+                      padding: 15px;
+                      border-bottom: 1px solid #ddd;
+
+                      .user-initials-lg {
+                          width: 50px;
+                          height: 50px;
+                          border-radius: 50%;
+                          background-color: #00b894;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          color: white;
+                          font-weight: bold;
+                          font-size: 20px;
+                          margin-right: 10px;
+                      }
+
+                      .user-details {
+                          .user-name {
+                              font-size: 16px;
+                              font-weight: bold;
+                              color: #333;
+                              margin-bottom: 5px;
+                          }
+
+                          .user-email {
+                              font-size: 14px;
+                              color: #555;
+                          }
+                      }
+                  }
+
+                  .menu-links {
+                      padding: 10px 0;
+
+                      .menu-item {
+                          display: flex;
+                          align-items: center;
+                          gap: 10px;
+                          padding: 10px 15px;
+                          color: #333;
+                          font-size: 15px;
+                          cursor: pointer;
+
+                          &:hover {
+                              background-color: #f1f1f1;
+                          }
+
+                          .menu-icon {
+                              font-size: 18px;
+                              color: #555;
+                          }
+
+                          .logout-icon {
+                              color: #d63031;
+                          }
+                      }
+                  }
+              }
+          }
+      }
+  }
+}
