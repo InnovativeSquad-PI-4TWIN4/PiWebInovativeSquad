@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/frontoffice/navbar/navbar';
 import SignIn from './components/frontoffice/signin/signin';
 import SignUp from './components/frontoffice/signup/signup';
-import ForgotPassword from './components/frontoffice/forgotpassword/forgotpassword'; // ✅ Import du nouveau composant
+import ForgotPassword from './components/frontoffice/forgotpassword/forgotpassword'; 
+import ResetPassword from './components/frontoffice/resetpassword/resetpassword'; // ✅ Import du nouveau composant
 import Courses from './components/frontoffice/courses/courses';
 import Contact from './components/frontoffice/contact/contact';
 import Footer from './components/frontoffice/footer/footer';
@@ -43,7 +44,8 @@ const App = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
                 <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} /> {/* ✅ Route ajoutée */}
+                <Route path="/forgot-password" element={<ForgotPassword />} /> {/* ✅ Route pour ForgotPassword */}
+                <Route path="/reset-password/:token" element={<ResetPassword />} /> {/* ✅ Route pour ResetPassword */}
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/dashbordAdmin" element={user?.role === 'admin' ? <DashbordAdmin /> : <Home />} />
