@@ -13,7 +13,7 @@ const Navbar = ({ user, onLogout }) => {
 
     const handleLogout = () => {
         onLogout();
-        navigate('/');
+        navigate('/signin'); // ✅ Redirection vers la page Sign In après la déconnexion
     };
 
     return (

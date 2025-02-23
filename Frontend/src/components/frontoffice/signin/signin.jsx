@@ -15,24 +15,20 @@ const SignIn = ({ onLogin }) => {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:3000/users/signin', {
-                email,
-                password
-            });
+            const response = await axios.post('http://localhost:3000/users/signin', { email, password });
 
             if (response.data.token && response.data.user) {
-                // Stocker le token et les infos utilisateur
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
-                onLogin(response.data.user); // Met à jour l'état global
-
-                // ✅ Redirection vers la page Home après connexion
-                navigate('/');
+                onLogin(response.data.user);
+                if (response.data.user.role === 'admin') 
+                navigate('/dashbordAdmin');
+                else navigate ('/profile');
             } else {
-                setError('Identifiants de connexion invalides.');
+                setError('Invalid credentials');
             }
-        } catch (error) {
-            setError(error.response?.data?.message || 'Une erreur est survenue lors de la connexion.');
+        } catch (err) {
+            setError(err.response?.data?.message || 'An error occurred during sign-in.');
         }
     };
 
@@ -43,7 +39,7 @@ const SignIn = ({ onLogin }) => {
     return (
         <div className="signin-container">
             <div className="signin-box">
-                <h2>Sign In </h2>
+                <h2>Sign In</h2>
                 {error && <p className="error">{error}</p>}
                 <form onSubmit={handleSignIn}>
                     <input
@@ -63,11 +59,15 @@ const SignIn = ({ onLogin }) => {
                     <button type="submit">Sign In</button>
                 </form>
                 <p>
-                Don't have an account? ? <Link to="/signup">Sign Up</Link>
-                </p>
-                <button className="google-btn" onClick={handleGoogleSignIn}>
-                    <FcGoogle className="google-icon" /> Sign In With Google
-                </button>
+    <Link to="/forgot-password" className="forgot-password-link">Forgot Password?</Link>
+</p>
+<p>
+    Don't have an account? <Link to="/signup" className="signup-link">Sign Up</Link>
+</p>
+<button className="google-btn" onClick={handleGoogleSignIn}>
+    <FcGoogle className="google-icon" /> Sign In With Google
+</button>
+
             </div>
         </div>
     );

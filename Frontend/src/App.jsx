@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/frontoffice/navbar/navbar';
 import SignIn from './components/frontoffice/signin/signin';
 import SignUp from './components/frontoffice/signup/signup';
+import ForgotPassword from './components/frontoffice/forgotpassword/forgotpassword'; // ✅ Import du nouveau composant
 import Courses from './components/frontoffice/courses/courses';
 import Contact from './components/frontoffice/contact/contact';
 import Footer from './components/frontoffice/footer/footer';
@@ -15,7 +16,6 @@ import './index.css';
 const App = () => {
     const [user, setUser] = useState(null);
 
-    // Vérification du token JWT et récupération des données utilisateur
     useEffect(() => {
         const token = localStorage.getItem('token');
         const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -25,13 +25,11 @@ const App = () => {
         }
     }, []);
 
-    // Gestion de la connexion
     const handleLogin = (userData) => {
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
     };
 
-    // Gestion de la déconnexion
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -45,6 +43,7 @@ const App = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
                 <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} /> {/* ✅ Route ajoutée */}
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/dashbordAdmin" element={user?.role === 'admin' ? <DashbordAdmin /> : <Home />} />
