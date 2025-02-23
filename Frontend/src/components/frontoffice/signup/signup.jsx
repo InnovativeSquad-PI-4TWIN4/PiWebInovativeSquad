@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FcGoogle } from 'react-icons/fc';
-import '../styles/SignUp.scss';
+import './SignUp.scss';
 
 const SignUp = () => {
   const [name, setName] = useState('');
