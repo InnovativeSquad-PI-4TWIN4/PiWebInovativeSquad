@@ -9,7 +9,7 @@ const ResetPassword = () => {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { token } = useParams(); // Capture le token depuis l'URL
+    const { token } = useParams(); // ✅ Capture le token depuis l'URL
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,27 +36,27 @@ const ResetPassword = () => {
     };
 
     return (
-        <div className="reset-password-container">
-            <div className="reset-password-box">
-                <h2>Reset Password</h2>
+        <div className="signin-container"> {/* ✅ Style similaire à SignIn */}
+            <div className="signin-box">
+                <h2>Réinitialisation Password</h2> {/* ✅ Titre changé */}
                 {message && <p className="success">{message}</p>}
                 {error && <p className="error">{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <input
                         type="password"
-                        placeholder="New Password"
+                        placeholder="Nouveau mot de passe"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         required
                     />
                     <input
                         type="password"
-                        placeholder="Confirm Password"
+                        placeholder="Confirmer le mot de passe"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                     />
-                    <button type="submit">Reset Password</button>
+                    <button type="submit">Confirmer</button> {/* ✅ Bouton confirmé */}
                 </form>
             </div>
         </div>
