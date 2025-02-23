@@ -17,7 +17,8 @@ const Profile = ({ user, onLogout }) => {
                     <p className="user-name">{user?.name} {user?.surname}</p>
                     <p className="user-email">{user?.email}</p>
                     <div className="menu-options">
-                        <button onClick={onLogout}>Se déconnecter</button>
+                        <button onClick={onLogout} >Se déconnecter</button>
+                       
                     </div>
                 </div>
             )}
