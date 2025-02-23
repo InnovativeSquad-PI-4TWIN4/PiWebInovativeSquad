@@ -1,93 +1,93 @@
 .signin-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: linear-gradient(135deg, #1a1a1a, #2c3e50);
-    color: white;
-  
-    .signin-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a, #2c3e50);
+  color: white;
+
+  .signin-box {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    width: 300px;
+
+    h2 {
+      margin-bottom: 1rem;
+    }
+
+    .error {
+      color: #ff4444;
+      margin-bottom: 1rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: none;
+      border-radius: 5px;
       background: rgba(255, 255, 255, 0.1);
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      text-align: center;
-      width: 300px;
-  
-      h2 {
-        margin-bottom: 1rem;
+      color: white;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.7);
       }
-  
-      .error {
-        color: #ff4444;
-        margin-bottom: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 5px;
+      background: #ffffff;
+      color: #1a1a1a;
+      cursor: pointer;
+      transition: background 0.3s;
+
+      &:hover {
+        background: #00bfff;
       }
-  
-      input {
-        width: 100%;
-        padding: 0.5rem;
-        margin-bottom: 1rem;
-        border: none;
-        border-radius: 5px;
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-  
-        &::placeholder {
-          color: rgba(255, 255, 255, 0.7);
-        }
+    }
+
+    .google-btn {
+      background: #fcfcfc;
+      margin-top: 1rem;
+
+      &:hover {
+        background: #80dd74;
       }
-  
-      button {
-        width: 100%;
-        padding: 0.5rem;
-        border: none;
-        border-radius: 5px;
-        background: #ffffff;
-        color: #1a1a1a;
-        cursor: pointer;
-        transition: background 0.3s;
-  
+    }
+
+    p {
+      margin-top: 1rem;
+
+      a {
+        color: #00ff88;
+        text-decoration: none;
+
         &:hover {
-          background: #00bfff;
-        }
-      }
-  
-      .google-btn {
-        background: #fcfcfc;
-        margin-top: 1rem;
-  
-        &:hover {
-          background: #80dd74;
-        }
-      }
-  
-      p {
-        margin-top: 1rem;
-  
-        a {
-          color: #00ff88;
-          text-decoration: none;
-  
-          &:hover {
-            text-decoration: underline;
-          }
+          text-decoration: underline;
         }
       }
     }
   }
-  .google-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    background: #4285f4;
-    margin-top: 1rem;
-  
-    &:hover {
-      background: #357abd;
-    }
-  
-    .google-icon {
-      font-size: 1.2rem;
-    }
+}
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #4285f4;
+  margin-top: 1rem;
+
+  &:hover {
+    background: #357abd;
   }
+
+  .google-icon {
+    font-size: 1.2rem;
+  }
+}
