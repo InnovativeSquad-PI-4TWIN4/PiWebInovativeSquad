@@ -25,7 +25,7 @@ const Footer = () => {
             <FaEnvelope />
           </a>
         </div>
-        <p>&copy; 2023 SkillSwap. All rights reserved.</p>
+        <p>&copy; 2025 SkillBridge. All rights reserved.</p>
       </div>
     </footer>
   );

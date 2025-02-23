@@ -62,7 +62,7 @@ const Home = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
         >
-          Join SkillSwap and unlock your potential by learning, teaching, and connecting.
+          Join SkillBridge and unlock your potential by learning, teaching, and connecting.
         </motion.p>
         <motion.button
           whileHover={{ scale: 1.1 }}
@@ -75,7 +75,7 @@ const Home = () => {
 
       {/* Features Section */}
       <div className="features-section">
-        <h2>Why Choose SkillSwap?</h2>
+        <h2>Why Choose SkillBridge?</h2>
         <div className="features-grid">
           {features.map((feature, index) => (
             <motion.div

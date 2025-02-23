@@ -8,7 +8,7 @@ const Navbar = () => {
     <nav className="navbar">
       <Link to="/" className="navbar-logo">
         <FaExchangeAlt className="logo-icon" />
-        <span>SkillSwap</span>
+        <span>SkillBridge</span>
       </Link>
       <ul className="navbar-links">
         <li>
