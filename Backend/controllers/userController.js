@@ -73,53 +73,48 @@ exports.signup = async (req, res) => {
 // ✅ CONNEXION D'UN UTILISATEUR
 exports.signin = async (req, res) => {
   try {
-      const { email, password } = req.body;
+    const { email, password } = req.body;
 
-      // Validation des champs
-      if (!email || !password) {
-          return res.status(400).json({ status: "FAILED", message: "Email et mot de passe sont requis !" });
+    if (!email || !password) {
+      return res.status(400).json({ status: "FAILED", message: "Email and password are required!" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ status: "FAILED", message: "Invalid credentials." });
+    }
+   
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ status: "FAILED", message: "Invalid credentials." });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    return res.json({
+      status: "SUCCESS",
+      message: "Sign-in successful!",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        surname: user.surname,
+        email: user.email,
+        dateOfBirth: user.dateOfBirth,
+        Skill: user.Skill,
+        role: user.role,
+        isActive: user.isActive,
       }
-
-      // Vérification de l'utilisateur
-      const user = await User.findOne({ email });
-      if (!user || !(await bcrypt.compare(password, user.password))) {
-          return res.status(401).json({ status: "FAILED", message: "Identifiants invalides." });
-      }
-
-      // Vérification si l'utilisateur est actif
-      if (!user.isActive) {
-          return res.status(403).json({ status: "FAILED", message: "Votre compte est désactivé. Veuillez contacter l'administrateur." });
-      }
-
-      // Génération du token JWT
-      const token = jwt.sign(
-          { userId: user._id, email: user.email, role: user.role },
-          process.env.JWT_SECRET || "default_secret_key",
-          { expiresIn: "1h" }
-      );
-
-      // Réponse réussie
-      return res.json({
-          status: "SUCCESS",
-          message: "Connexion réussie !",
-          token,
-          user: {
-              id: user._id,
-              name: user.name,
-              surname: user.surname,
-              email: user.email,
-              dateOfBirth: user.dateOfBirth,
-              Skill: user.Skill,
-              role: user.role,
-              isActive: user.isActive,
-          }
-      });
+    });
   } catch (err) {
-      console.error("Erreur lors de la connexion :", err);
-      return res.status(500).json({ status: "FAILED", message: "Erreur interne du serveur." });
+    console.error("Sign-in error:", err);
+    return res.status(500).json({ status: "FAILED", message: "Internal server error." });
   }
 };
-
 
 // ✅ UPLOAD D'IMAGE
 exports.uploadImage = (req, res) => {
