@@ -7,7 +7,7 @@ router.get("/auth/google", passport.authenticate("google", { scope: ["email", "p
 
 router.get(
   "/auth/google/callback",
-  passport.authenticate("google", { session: false }),
+  passport.authenticate("google", { session: false, scope:["email", "profile"] }),
   authController.googleAuthCallback
 );
 

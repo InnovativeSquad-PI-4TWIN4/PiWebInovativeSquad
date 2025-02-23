@@ -56,7 +56,7 @@ mongo
 app.use(cors({
       origin: 'http://localhost:5173', 
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
-      allowedHeaders: ['Content-Type', 'Authorization']
+      allowedHeaders: ['Content-Type', 'Authorization', '*', 'Access-Control-Allow-Origin']
     }));
 // ✅ Déclaration des routes (ORDRE IMPORTANT)
 app.use("/", authRouter);

@@ -4,9 +4,9 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
-import '../styles/Hero.scss';
+import './home.scss';
 
-const Hero = () => {
+const Home = () => {
   const features = [
     {
       icon: '📚',
@@ -136,4 +136,4 @@ const Hero = () => {
   );
 };
 
-export default Hero;
+export default Home;

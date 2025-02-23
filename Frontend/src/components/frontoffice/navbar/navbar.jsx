@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaExchangeAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import '../styles/Navbar.scss';
+import './Navbar.scss';
 
 const Navbar = () => {
   return (
