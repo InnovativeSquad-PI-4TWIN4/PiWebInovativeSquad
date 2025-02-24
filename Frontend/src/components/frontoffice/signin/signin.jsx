@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './SignIn.scss';
 import { FcGoogle } from 'react-icons/fc';
+import { FaFacebook } from 'react-icons/fa';
+
 
 const SignIn = ({ onLogin }) => {
     const [email, setEmail] = useState('');
@@ -21,6 +23,9 @@ const SignIn = ({ onLogin }) => {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
                 onLogin(response.data.user);
+
+
+                
                 if (response.data.user.role === 'admin') 
                 navigate('/dashbordAdmin');
                 else navigate ('/');
@@ -67,6 +72,9 @@ const SignIn = ({ onLogin }) => {
 <button className="google-btn" onClick={handleGoogleSignIn}>
     <FcGoogle className="google-icon" /> Sign In With Google
 </button>
+<button className="facebook-btn" onClick={handleGoogleSignIn}>
+    <FaFacebook className="google-icon" /> Sign In With Facebook
+</button>   
 
             </div>
         </div>
