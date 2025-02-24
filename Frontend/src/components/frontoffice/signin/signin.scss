@@ -60,6 +60,14 @@
         background: #80dd74;
       }
     }
+    .facebook-btn {
+      background: #fcfcfc;
+      margin-top: 1rem;
+
+      &:hover {
+        background: #2200ff;
+      }
+    }
 
     p {
       margin-top: 1rem;
