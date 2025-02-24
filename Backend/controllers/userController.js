@@ -3,72 +3,108 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const crypto = require("node:crypto");  // ✅ Utilisation du module natif
+const multer = require("multer");
+const path = require('path');
+
 require("dotenv").config();
 
 const JWT_SECRET = process.env.SESSION_SECRET || "default_secret_key";
 const RESET_PASSWORD_TOKEN_SECRET = process.env.RESET_PASSWORD_TOKEN_SECRET || "default_reset_secret";
 
-// ✅ INSCRIPTION D'UN UTILISATEUR
-exports.signup = async (req, res) => {
-  try {
-    let { name, surname, email, password, dateOfBirth, Skill } = req.body;
-
-    if (!name || !surname || !email || !password || !dateOfBirth || !Skill) {
-      return res.status(400).json({ status: "FAILED", message: "All fields are required!" });
-    }
-
-    name = name.trim();
-    surname = surname.trim();
-    email = email.trim();
-    password = password.trim();
-    dateOfBirth = dateOfBirth.trim();
-    Skill = Skill.trim();
-
-    if (!/^[a-zA-Z ]+$/.test(name)) {
-      return res.status(400).json({ status: "FAILED", message: "Invalid name format." });
-    }
-    if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-      return res.status(400).json({ status: "FAILED", message: "Invalid email format." });
-    }
-
-    const date = new Date(dateOfBirth);
-    if (isNaN(date.getTime())) {
-      return res.status(400).json({ status: "FAILED", message: "Invalid date format (YYYY-MM-DD)." });
-    }
-
-    if (password.length < 8) {
-      return res.status(400).json({ status: "FAILED", message: "Password must be at least 8 characters long." });
-    }
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ status: "FAILED", message: "Email is already in use." });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = new User({
-      name,
-      surname,
-      email,
-      password: hashedPassword,
-      dateOfBirth: date,
-      Skill,
-      role: "client",
-      isActive: true,
-    });
-
-    await newUser.save();
-
-    return res.status(201).json({
-      status: "SUCCESS",
-      message: "Sign-up successful!",
-    });
-  } catch (err) {
-    console.error("Sign-up error:", err);
-    return res.status(500).json({ status: "FAILED", message: "Internal server error." });
+// Configuration de multer pour l'upload de l'image
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/images/"); // Dossier où l'image sera stockée
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // Générer un nom de fichier unique
   }
-};
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // Limite de taille à 10 Mo
+  fileFilter: function (req, file, cb) {
+    const filetypes = /jpeg|jpg|png|gif/;  // Types de fichiers autorisés
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb("Error: Images only!"); // Message d'erreur si le fichier n'est pas une image
+    }
+  }
+});
+
+// ✅ INSCRIPTION D'UN UTILISATEUR
+exports.signup = [
+  upload.single("image"), // Middleware multer pour gérer l'upload de l'image
+  async (req, res) => {
+    try {
+      let { name, surname, email, password, dateOfBirth, Skill } = req.body;
+
+      if (!name || !surname || !email || !password || !dateOfBirth || !Skill) {
+        return res.status(400).json({ status: "FAILED", message: "All fields are required!" });
+      }
+
+      name = name.trim();
+      surname = surname.trim();
+      email = email.trim();
+      password = password.trim();
+      dateOfBirth = dateOfBirth.trim();
+      Skill = Skill.trim();
+
+      if (!/^[a-zA-Z ]+$/.test(name)) {
+        return res.status(400).json({ status: "FAILED", message: "Invalid name format." });
+      }
+      if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+        return res.status(400).json({ status: "FAILED", message: "Invalid email format." });
+      }
+
+      const date = new Date(dateOfBirth);
+      if (isNaN(date.getTime())) {
+        return res.status(400).json({ status: "FAILED", message: "Invalid date format (YYYY-MM-DD)." });
+      }
+
+      if (password.length < 8) {
+        return res.status(400).json({ status: "FAILED", message: "Password must be at least 8 characters long." });
+      }
+
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ status: "FAILED", message: "Email is already in use." });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Si l'image est téléchargée, on récupère le chemin relatif
+      const image = req.file ? `/public/images/${req.file.filename}` : null;
+      //const image = req.file ? `public/images/${req.file.filename}` : null;
+
+      const newUser = new User({
+        name,
+        surname,
+        email,
+        password: hashedPassword,
+        dateOfBirth: date,
+        Skill,
+        role: "client",
+        isActive: true,
+        image,  // Ajout du chemin de l'image
+      });
+
+      await newUser.save();
+
+      return res.status(201).json({
+        status: "SUCCESS",
+        message: "Sign-up successful!",
+      });
+    } catch (err) {
+      console.error("Sign-up error:", err);
+      return res.status(500).json({ status: "FAILED", message: "Internal server error." });
+    }
+  }]
 
 // ✅ CONNEXION D'UN UTILISATEUR
 exports.signin = async (req, res) => {
@@ -112,24 +148,6 @@ exports.signin = async (req, res) => {
     });
   } catch (err) {
     console.error("Sign-in error:", err);
-    return res.status(500).json({ status: "FAILED", message: "Internal server error." });
-  }
-};
-
-// ✅ UPLOAD D'IMAGE
-exports.uploadImage = (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ status: "FAILED", message: "No file uploaded." });
-    }
-
-    return res.status(200).json({
-      status: "SUCCESS",
-      message: "File uploaded successfully.",
-      filePath: `/images/${req.file.filename}`,
-    });
-  } catch (error) {
-    console.error("Upload error:", error);
     return res.status(500).json({ status: "FAILED", message: "Internal server error." });
   }
 };
