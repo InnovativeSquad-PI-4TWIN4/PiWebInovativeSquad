@@ -11,6 +11,7 @@ import Footer from './components/frontoffice/footer/footer';
 import DashbordAdmin from './components/backoffice/dashbordAdmin';
 import Home from './components/frontoffice/home/home';
 import Profile from './components/frontoffice/profile/profile';
+import UpdateProfile from './components/frontoffice/updateprofile/updateprofile';
 
 import './index.css';
 
@@ -50,6 +51,7 @@ const App = () => {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/dashbordAdmin" element={user?.role === 'admin' ? <DashbordAdmin /> : <Home />} />
                 <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
+                <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} /> {/* ✅ Route ajoutée */}
             </Routes>
             <Footer />
         </Router>

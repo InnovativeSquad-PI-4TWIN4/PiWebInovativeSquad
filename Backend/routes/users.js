@@ -2,21 +2,28 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
 const multerImage = require("../config/multer-picture");
-const authenticateUser = require('../middleware/authMiddleware');  // Import du middleware
+const authenticateUser = require('../middleware/authMiddleware'); // Middleware d'authentification
 
-// Routes
+// ✅ Routes principales
 router.post("/signup", userController.signup);
 router.post("/signin", userController.signin);
 router.post("/upload", multerImage.single("image"), userController.uploadImage);
+
+// ✅ Mise à jour du profil (nécessite d'être connecté)
 router.put("/updateProfile/:id", authenticateUser, userController.updateProfile);
-router.delete("/deleteProfile/:id", authenticateUser, userController.deleteProfile);
-router.patch('/activateAccount/:id', authenticateUser, userController.activateAccount);
-router.patch('/deactivateAccount/:id', authenticateUser, userController.deactivateAccount);
+
+// ✅ Suppression du profil (nécessite d'être connecté)
+router.delete("/delete-profile/:id", authenticateUser, userController.deleteProfile);
+
+// ✅ Activation et désactivation du compte (nécessite d'être connecté)
+router.patch('/activate-account/:id', authenticateUser, userController.activateAccount);
+router.patch('/deactivate-account/:id', authenticateUser, userController.deactivateAccount);
+
+// ✅ Réinitialisation du mot de passe
 router.post("/forgot-password", userController.forgotPassword);    // Envoi de l'email de réinitialisation
-router.post("/reset-password/:token", userController.resetPassword);
+router.post("/reset-password/:token", userController.resetPassword); // Réinitialisation du mot de passe
 
-  // ✅ Réinitialisation du mot de passe
+// ✅ Récupérer le profil de l'utilisateur connecté
 router.get("/profile", authenticateUser, userController.getProfile);
-
 
 module.exports = router;

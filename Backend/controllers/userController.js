@@ -137,44 +137,50 @@ exports.uploadImage = (req, res) => {
 // ✅ MISE À JOUR DU PROFIL D'UN UTILISATEUR
 exports.updateProfile = async (req, res) => {
   try {
-    const userId = req.params.id;
-    const { name, surname, email, password, dateOfBirth, Skill } = req.body;
+      const userId = req.params.id;
+      console.log("Update profile request for user ID:", userId);
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ status: "FAILED", message: "User not found." });
-    }
+      const { name, surname, email, password, dateOfBirth, Skill } = req.body;
+      console.log("Request body:", req.body);
 
-    if (name) user.name = name;
-    if (surname) user.surname = surname;
-    if (email) user.email = email;
-    if (dateOfBirth) user.dateOfBirth = new Date(dateOfBirth);
-    if (Skill) user.Skill = Skill;
+      const user = await User.findById(userId);
+      if (!user) {
+          console.log("User not found");
+          return res.status(404).json({ status: "FAILED", message: "User not found." });
+      }
 
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      user.password = hashedPassword;
-    }
+      // Mise à jour des champs
+      if (name) user.name = name;
+      if (surname) user.surname = surname;
+      if (email) user.email = email;
+      if (dateOfBirth) user.dateOfBirth = new Date(dateOfBirth);
+      if (Skill) user.Skill = Skill;
 
-    await user.save();
+      if (password) {
+          const hashedPassword = await bcrypt.hash(password, 10);
+          user.password = hashedPassword;
+      }
 
-    return res.status(200).json({
-      status: "SUCCESS",
-      message: "Profile updated successfully.",
-      user: {
-        id: user._id,
-        name: user.name,
-        surname: user.surname,
-        email: user.email,
-        dateOfBirth: user.dateOfBirth,
-        Skill: user.Skill,
-        role: user.role,
-        isActive: user.isActive,
-      },
-    });
+      await user.save();
+      console.log("Profile updated successfully");
+
+      return res.status(200).json({
+          status: "SUCCESS",
+          message: "Profile updated successfully.",
+          user: {
+              id: user._id,
+              name: user.name,
+              surname: user.surname,
+              email: user.email,
+              dateOfBirth: user.dateOfBirth,
+              Skill: user.Skill,
+              role: user.role,
+              isActive: user.isActive,
+          },
+      });
   } catch (err) {
-    console.error("Update profile error:", err);
-    return res.status(500).json({ status: "FAILED", message: "Internal server error." });
+      console.error("Update profile error:", err);
+      return res.status(500).json({ status: "FAILED", message: "Internal server error." });
   }
 };
 
