@@ -48,7 +48,7 @@ const Navbar = ({ user, onLogout }) => {
                                     </div>
 
                                     <div className="menu-links">
-                                        <div className="menu-item" onClick={() => navigate('/update-profile')}>
+                                        <div className="menu-item" onClick={() => navigate('/manage-profile')}>
                                             <MdManageAccounts className="menu-icon" />
                                             Manage Profile
                                         </div>
