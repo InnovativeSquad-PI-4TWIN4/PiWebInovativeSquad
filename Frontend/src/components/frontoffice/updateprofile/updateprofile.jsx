@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './UpdateProfile.scss';
-
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 const UpdateProfile = ({ user }) => {
+     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         surname: '',
@@ -39,8 +41,10 @@ const UpdateProfile = ({ user }) => {
             });
 
             const data = await response.json();
+            
             if (response.ok) {
                 alert('Profile updated successfully!');
+                navigate('/')
             } else {
                 alert(data.message || 'An error occurred during the update.');
             }
@@ -60,6 +64,7 @@ const UpdateProfile = ({ user }) => {
                     <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} />
                     <input type="text" name="Skill" value={formData.Skill} onChange={handleChange} placeholder="Skill" />
                     <button type="submit">Update</button>
+            
                 </form>
             </div>
         </div>
