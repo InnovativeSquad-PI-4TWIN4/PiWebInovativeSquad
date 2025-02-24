@@ -7,7 +7,7 @@ const authenticateUser = require('../middleware/authMiddleware'); // Middleware 
 // ✅ Routes principales
 router.post("/signup", userController.signup);
 router.post("/signin", userController.signin);
-router.post("/upload", multerImage.single("image"), userController.uploadImage);
+//router.post("/upload", multerImage.single("image"), userController.uploadImage);
 
 // ✅ Mise à jour du profil (nécessite d'être connecté)
 router.put("/updateProfile/:id", authenticateUser, userController.updateProfile);
@@ -25,5 +25,6 @@ router.post("/reset-password/:token", userController.resetPassword); // Réiniti
 
 // ✅ Récupérer le profil de l'utilisateur connecté
 router.get("/profile", authenticateUser, userController.getProfile);
+
 
 module.exports = router;

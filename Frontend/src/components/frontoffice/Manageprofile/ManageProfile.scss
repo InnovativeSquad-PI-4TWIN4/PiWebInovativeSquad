@@ -1,0 +1,79 @@
+.manage-profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to right, #0f172a, #1e293b);
+  }
+  
+  .manage-profile-box {
+    background-color: #333;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 400px;
+    text-align: center;
+    color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+  
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+  
+    .profile-image {
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      margin-bottom: 1rem;
+    }
+  
+    .profile-image-placeholder {
+      background-color: #aaa;
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1rem;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+  
+    .update-btn, .delete-btn {
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      width: 100%;
+    }
+  
+    .update-btn {
+      background-color: #10b981;
+      color: #fff;
+      border: none;
+  
+      &:hover {
+        background-color: #059669;
+      }
+    }
+  
+    .delete-btn {
+      background-color: #ef4444;
+      color: #fff;
+      border: none;
+  
+      &:hover {
+        background-color: #dc2626;
+      }
+    }
+  }
+  

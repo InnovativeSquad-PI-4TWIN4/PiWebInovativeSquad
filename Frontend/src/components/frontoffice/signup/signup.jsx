@@ -11,6 +11,7 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [Skill, setSkill] = useState('');
+  const [image, setImage] = useState(null); // État pour l'image
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -18,14 +19,25 @@ const SignUp = () => {
     e.preventDefault();
     setError('');
 
+    // Créer une instance de FormData
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('surname', surname);
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('dateOfBirth', dateOfBirth);
+    formData.append('Skill', Skill);
+
+    // Si une image est sélectionnée, on l'ajoute au FormData
+    if (image) {
+      formData.append('image', image);
+    }
+
     try {
-      const response = await axios.post('http://localhost:3000/users/signup', {
-        name,
-        surname,
-        email,
-        password,
-        dateOfBirth,
-        Skill
+      const response = await axios.post('http://localhost:3000/users/signup', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       // Supposons que l'API retourne un token après l'inscription
@@ -87,6 +99,11 @@ const SignUp = () => {
             value={Skill}
             onChange={(e) => setSkill(e.target.value)}
             required
+          />
+          <input
+            type="file"
+            accept="image/png, image/jpeg, image/jpg"
+            onChange={(e) => setImage(e.target.files[0])} // Mettre à jour l'état image
           />
           <button type="submit">Sign Up</button>
         </form>
