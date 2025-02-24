@@ -13,7 +13,7 @@ const Navbar = ({ user, onLogout }) => {
 
     const handleLogout = () => {
         onLogout();
-        navigate('/signin'); // ✅ Redirection vers la page Sign In après la déconnexion
+        navigate('/signin'); // Redirection après déconnexion
     };
 
     return (
@@ -24,47 +24,55 @@ const Navbar = ({ user, onLogout }) => {
             </Link>
 
             <ul className="navbar-links">
-                <li><Link to="/courses">Courses</Link></li>
-                <li><Link to="/contact">Contact</Link></li>
-                <li>
-                    {user ? (
-                        <div className="user-menu">
-                            <div className="user-initials" onClick={toggleDropdown}>
-                                {user.name.charAt(0).toUpperCase()}
-                                {user.surname.charAt(0).toUpperCase()}
-                            </div>
-
-                            {isOpen && (
-                                <div className="dropdown-menu">
-                                    <div className="user-info">
-                                        <div className="user-initials-lg">
-                                            {user.name.charAt(0).toUpperCase()}
-                                            {user.surname.charAt(0).toUpperCase()}
-                                        </div>
-                                        <div className="user-details">
-                                            <p className="user-name">{user.name} {user.surname}</p>
-                                            <p className="user-email">{user.email}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="menu-links">
-                                        <div className="menu-item" onClick={() => navigate('/manage-profile')}>
-                                            <MdManageAccounts className="menu-icon" />
-                                            Manage Profile
-                                        </div>
-
-                                        <div className="menu-item" onClick={handleLogout}>
-                                            <FiLogOut className="menu-icon logout-icon" />
-                                            Log out
-                                        </div>
-                                    </div>
+                {user ? (
+                    // Afficher tous les liens si l'utilisateur est connecté
+                    <>
+                        <li><Link to="/">Home</Link></li>
+                        <li><Link to="/courses">Courses</Link></li>
+                        <li><Link to="/contact">Contact</Link></li>
+                        <li>
+                            <div className="user-menu">
+                                <div className="user-initials" onClick={toggleDropdown}>
+                                    {user.name.charAt(0).toUpperCase()}
+                                    {user.surname.charAt(0).toUpperCase()}
                                 </div>
-                            )}
-                        </div>
-                    ) : (
-                        <Link to="/signin">Sign In</Link>
-                    )}
-                </li>
+
+                                {isOpen && (
+                                    <div className="dropdown-menu">
+                                        <div className="user-info">
+                                            <div className="user-initials-lg">
+                                                {user.name.charAt(0).toUpperCase()}
+                                                {user.surname.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div className="user-details">
+                                                <p className="user-name">{user.name} {user.surname}</p>
+                                                <p className="user-email">{user.email}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="menu-links">
+                                            <div className="menu-item" onClick={() => navigate('/manage-profile')}>
+                                                <MdManageAccounts className="menu-icon" />
+                                                Manage Profile
+                                            </div>
+
+                                            <div className="menu-item" onClick={handleLogout}>
+                                                <FiLogOut className="menu-icon logout-icon" />
+                                                Log out
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </li>
+                    </>
+                ) : (
+                    // Si l'utilisateur n'est pas connecté, afficher "Sign In" et "Sign Up"
+                    <>
+                        <li><Link to="/signin">Sign In</Link></li>
+                        <li><Link to="/signup" className="signup-btn">Sign Up</Link></li>
+                    </>
+                )}
             </ul>
         </nav>
     );
