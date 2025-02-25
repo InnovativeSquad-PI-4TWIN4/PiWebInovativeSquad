@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
@@ -46,6 +46,44 @@ const Home = () => {
     },
   ];
 
+  const [text, setText] = useState('');
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const texts = [
+    'Exchange Skills, Grow Together',
+    'Build Your Network',
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTextIndex((prevIndex) => (prevIndex + 1) % texts.length);
+    }, 5000); // Change text every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    let currentText = texts[currentTextIndex];
+    let currentCharIndex = 0;
+    let timeout;
+
+    const typeText = () => {
+      if (currentCharIndex < currentText.length) {
+        setText(currentText.substring(0, currentCharIndex + 1));
+        currentCharIndex++;
+        timeout = setTimeout(typeText, 120); // Adjust typing speed here
+      } else {
+        timeout = setTimeout(() => {
+          setText('');
+          setCurrentTextIndex((prevIndex) => (prevIndex + 1) % texts.length);
+        }, 4000); // Wait 2 seconds before starting to type the next text
+      }
+    };
+
+    typeText();
+
+    return () => clearTimeout(timeout);
+  }, [currentTextIndex]);
+
   return (
     <section className="hero">
       {/* Hero Section */}
@@ -55,7 +93,8 @@ const Home = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
         >
-          Exchange Skills, Grow Together
+          {text}
+          <span className="cursor">|</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 50 }}
