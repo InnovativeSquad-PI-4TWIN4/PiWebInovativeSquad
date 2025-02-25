@@ -1,87 +1,91 @@
-import React from "react";
-import { FaChartBar, FaUsers, FaCog, FaDollarSign } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaUsers, FaCog, FaChartBar } from "react-icons/fa";
+import ManageUsers from "../ManageUsers/ManageUsers";
 import "./dashbordAdmin.scss";
 
 const DashbordAdmin = () => {
-  return (
-    <div className="dashboard-admin">
-      {/* Barre latérale */}
-      <div className="sidebar">
-        <h2>Admin Panel</h2>
-        <ul>
-          <li><FaChartBar /> Dashboard</li>
-          <li><FaUsers /> Manage Users</li>
-          <li><FaCog /> Settings</li>
-        </ul>
-      </div>
+    const [activeTab, setActiveTab] = useState("dashboard");
 
-      {/* Contenu principal */}
-      <div className="content">
-        {/* Cards */}
-        <div className="cards">
-          <div className="card">
-            <h3>Profit & Expenses</h3>
-            <p>$36,358</p>
-          </div>
-          <div className="card">
-            <h3>Top Clients</h3>
-            <p>243</p>
-          </div>
-          <div className="card">
-            <h3>Product Sales</h3>
-            <p>$6,820</p>
-          </div>
-        </div>
+    return (
+        <div className="admin-container">
+            {/* Sidebar */}
+            <div className="sidebar">
+                <h1>Admin Panel</h1>
+                <ul>
+                    <li onClick={() => setActiveTab("dashboard")}>
+                        <FaChartBar /> Dashboard
+                    </li>
+                    <li onClick={() => setActiveTab("manageUsers")}>
+                        <FaUsers /> Manage Users
+                    </li>
+                    <li onClick={() => setActiveTab("settings")}>
+                        <FaCog /> Settings
+                    </li>
+                </ul>
+            </div>
 
-        {/* Graphiques */}
-        <div className="charts">
-          <div className="chart">
-            <h3>Profit Over Time</h3>
-            <img src="https://via.placeholder.com/600x300" alt="Chart" />
-          </div>
-          <div className="chart">
-            <h3>Sales Distribution</h3>
-            <img src="https://via.placeholder.com/300x300" alt="Chart" />
-          </div>
+            {/* Main Content */}
+            <div className="main-content">
+                {activeTab === "dashboard" && (
+                    <div className="dashboard-content">
+                        <div className="cards">
+                            <div className="card">
+                                <h3>Profit & Expenses</h3>
+                                <p>$36,358</p>
+                            </div>
+                            <div className="card">
+                                <h3>Top Clients</h3>
+                                <p>243</p>
+                            </div>
+                            <div className="card">
+                                <h3>Product Sales</h3>
+                                <p>$6,820</p>
+                            </div>
+                        </div>
+                        <div className="charts">
+                            <div className="chart">Profit Over Time</div>
+                            <div className="chart">Sales Distribution</div>
+                        </div>
+                        <div className="clients">
+                            <h2>Top Paying Clients</h2>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Service</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>Sunil Joshi</td>
+                                        <td>Elite Admin</td>
+                                        <td>$3.9k</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>Andrew McDonald</td>
+                                        <td>Real Homes WP</td>
+                                        <td>$24.5k</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>Christopher Jamil</td>
+                                        <td>MedicalPro WP</td>
+                                        <td>$12.8k</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+                {activeTab === "manageUsers" && <ManageUsers />}
+                {activeTab === "settings" && <div>Settings Content</div>}
+            </div>
         </div>
-
-        {/* Tableau */}
-        <div className="table">
-          <h3>Top Paying Clients</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Service</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>1</td>
-                <td>Sunil Joshi</td>
-                <td>Elite Admin</td>
-                <td>$3.9k</td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td>Andrew McDonald</td>
-                <td>Real Homes WP</td>
-                <td>$24.5k</td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td>Christopher Jamil</td>
-                <td>MedicalPro WP</td>
-                <td>$12.8k</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default DashbordAdmin;
