@@ -13,6 +13,7 @@ const Home = () => {
       title: 'Learn New Skills',
       description: 'Join thousands of learners and exchange skills with experts.',
     },
+    
     {
       icon: '🎓',
       title: 'Teach What You Know',
