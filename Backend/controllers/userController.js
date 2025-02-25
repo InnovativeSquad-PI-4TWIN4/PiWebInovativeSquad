@@ -371,3 +371,19 @@ exports.getProfile = async (req, res) => {
     return res.status(500).json({ status: "FAILED", message: "Internal server error." });
   }
 };
+exports.getAllUsers = async (req, res) => {
+  try {
+      // Récupérer tous les utilisateurs sauf ceux ayant le rôle 'admin'
+      const users = await User.find({ role: { $ne: 'admin' } });
+
+      if (!users) {
+          return res.status(404).json({ message: 'Aucun utilisateur trouvé' });
+      }
+
+      // Retourner les utilisateurs trouvés
+      return res.status(200).json(users);
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Erreur du serveur' });
+  }
+};

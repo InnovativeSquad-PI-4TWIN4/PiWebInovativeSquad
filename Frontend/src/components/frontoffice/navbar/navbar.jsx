@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.scss';
 import { FiLogOut } from 'react-icons/fi';
 import { MdManageAccounts } from 'react-icons/md';
+import AdminNavbar from '../../backoffice/Adminnavbar/adminnavbar';
 
 const Navbar = ({ user, onLogout }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -16,6 +17,11 @@ const Navbar = ({ user, onLogout }) => {
         navigate('/signin'); // Redirection après déconnexion
     };
 
+    // Si l'utilisateur est un admin, afficher la navbar admin
+    if (user && user.role === "admin") {
+        return <AdminNavbar user={user} onLogout={onLogout} />;
+    }
+
     return (
         <nav className="navbar">
             <Link to="/" className="navbar-logo">
@@ -25,7 +31,6 @@ const Navbar = ({ user, onLogout }) => {
 
             <ul className="navbar-links">
                 {user ? (
-                    // Afficher tous les liens si l'utilisateur est connecté
                     <>
                         <li><Link to="/">Home</Link></li>
                         <li><Link to="/courses">Courses</Link></li>
@@ -67,7 +72,6 @@ const Navbar = ({ user, onLogout }) => {
                         </li>
                     </>
                 ) : (
-                    // Si l'utilisateur n'est pas connecté, afficher "Sign In" et "Sign Up"
                     <>
                         <li><Link to="/signin">Sign In</Link></li>
                         <li><Link to="/signup" className="signup-btn">Sign Up</Link></li>
