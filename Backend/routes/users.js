@@ -3,6 +3,7 @@ const router = express.Router();
 const userController = require("../controllers/userController");
 const multerImage = require("../config/multer-picture");
 const authenticateUser = require('../middleware/authMiddleware'); // Middleware d'authentification
+const User = require("../models/User");
 
 // ✅ Routes principales
 router.post("/signup", userController.signup);
@@ -25,6 +26,7 @@ router.post("/reset-password/:token", userController.resetPassword); // Réiniti
 
 // ✅ Récupérer le profil de l'utilisateur connecté
 router.get("/profile", authenticateUser, userController.getProfile);
+router.get("/getAllUsers",authenticateUser,userController.getAllUsers);
 
 
 module.exports = router;
