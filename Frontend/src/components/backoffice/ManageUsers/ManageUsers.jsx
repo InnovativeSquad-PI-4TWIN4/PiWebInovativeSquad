@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTrash, FaEye, FaToggleOn, FaToggleOff, FaSearch, FaUserAlt } from "react-icons/fa";
+import UserDetails from './UserDetails';  // Importation du nouveau composant
 import './MangeUsers.scss';
 
 const ManageUsers = () => {
@@ -8,6 +9,7 @@ const ManageUsers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null); // État pour l'utilisateur sélectionné
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -72,12 +74,10 @@ const ManageUsers = () => {
         throw new Error("Utilisateur non authentifié. Veuillez vous connecter.");
       }
 
-      // Déterminer l'URL en fonction du statut actuel (activer ou désactiver)
       const url = isActive
         ? `http://localhost:3000/users/deactivate-account/${id}`
         : `http://localhost:3000/users/activate-account/${id}`;
 
-      // Envoyer la requête PATCH
       const response = await fetch(url, {
         method: "PATCH",
         headers: {
@@ -88,19 +88,16 @@ const ManageUsers = () => {
 
       const result = await response.json();
 
-      // Vérifier si la requête a réussi
       if (!response.ok || result.status === "FAILED") {
         throw new Error(result.message || "Erreur lors de la mise à jour du statut de l'utilisateur");
       }
 
-      // Mettre à jour l'état local des utilisateurs
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user._id === id ? { ...user, isActive: !isActive } : user
         )
       );
 
-      // Afficher un message de succès
       alert(result.message || `Utilisateur ${isActive ? "désactivé" : "activé"} avec succès !`);
     } catch (err) {
       console.error(err);
@@ -108,23 +105,31 @@ const ManageUsers = () => {
     }
   };
 
-  const filteredUsers = users.filter(user => 
+  const handleViewUserDetails = (user) => {
+    setSelectedUser(user); // Ouvrir le modal avec les détails de l'utilisateur
+  };
+
+  const handleCloseModal = () => {
+    setSelectedUser(null); // Fermer le modal
+  };
+
+  const filteredUsers = users.filter(user =>
     `${user.name} ${user.surname}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
-      transition: { 
-        staggerChildren: 0.1
-      }
-    }
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 }
+    visible: { y: 0, opacity: 1 },
   };
 
   return (
@@ -182,29 +187,27 @@ const ManageUsers = () => {
                   >
                     <div className="user-info">
                       <img
-                        src={user.image || "https://via.placeholder.com/50"}
-                        alt={`${user.name} ${user.surname}`}
+                        src={user.image ? `http://localhost:3000${user.image}` : "/path/to/default-image.jpg"}
+                        alt="Profil"
+                        className="profile-image"
                       />
                       <div className="details">
                         <div className="name">{user.name} {user.surname}</div>
                         <div className="email">{user.email || "Email non disponible"}</div>
                       </div>
                     </div>
-                    
+
                     <div className="actions">
-                      <button 
+                      <button
                         className="toggle-btn"
                         onClick={() => handleToggleStatus(user._id, user.isActive)}
                       >
-                        {user.isActive ? 
-                          <FaToggleOn size={20} /> : 
-                          <FaToggleOff size={20} className="inactive" />
-                        }
+                        {user.isActive ? <FaToggleOn size={20} /> : <FaToggleOff size={20} className="inactive" />}
                       </button>
-                      <button className="view-btn">
+                      <button className="view-btn" onClick={() => handleViewUserDetails(user)}>
                         <FaEye size={20} />
                       </button>
-                      <button 
+                      <button
                         className="delete-btn"
                         onClick={() => handleDelete(user._id)}
                       >
@@ -218,6 +221,11 @@ const ManageUsers = () => {
           )}
         </div>
       </div>
+
+      {/* Affichage du composant UserDetails si un utilisateur est sélectionné */}
+      {selectedUser && (
+        <UserDetails user={selectedUser} onClose={handleCloseModal} />
+      )}
     </div>
   );
 };

@@ -27,7 +27,7 @@ const SignIn = ({ onLogin }) => {
 
                 
                 if (response.data.user.role === 'admin') 
-                navigate('/dashbordAdmin');
+                navigate('/admin/dashboard');
                 else navigate ('/');
             } else {
                 setError('Invalid credentials');
