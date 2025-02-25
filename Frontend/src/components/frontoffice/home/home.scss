@@ -1,198 +1,259 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
 .hero {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: #1a1a1a;
-    color: white;
-    overflow: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a1a;
+  color: white;
+  overflow: hidden;
+
+  .hero-section {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, #1a1a1a, #2c3e50);
+    width: 100%;
+    position: relative; // Required for the pseudo-element positioning
+    overflow: hidden; // Ensure the blurred image doesn't overflow
   
-    .hero-section {
-      text-align: center;
-      padding: 4rem 2rem;
-      background: linear-gradient(135deg, #1a1a1a, #2c3e50);
+    // Add a pseudo-element for the blue blurred image
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
+      height: 100%;
+      background-image: url('../../../assets/img1.jpg'); // Replace with your image path
+      background-size: cover;
+      background-position: center;
+      filter: blur(10px) brightness(0.5); // Adjust blur and brightness as needed
+      z-index: 1; // Place it behind the content
+      opacity: 0.5; // Adjust opacity to make it subtle
+    }
   
-      h1 {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        background: linear-gradient(90deg, #00ff88, #00bfff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
+    // Ensure all content inside .hero-section is above the blurred image
+    h1,
+    p,
+    .cta-button {
+      position: relative;
+      z-index: 2; // Place content above the pseudo-element
+    }
   
-      p {
-        font-size: 1.2rem;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 2rem;
-      }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(90deg, #00ff88, #00bfff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+      position: relative;
+      font-family: "Bebas Neue", serif;
+      font-weight: 200;
+      letter-spacing: 0.5px;
   
-      .cta-button {
-        padding: 1rem 2rem;
-        font-size: 1rem;
+      .cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1em;
         background: #00ff88;
-        color: #1a1a1a;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background 0.3s;
+        margin-left: 4px;
+        animation: blink 1s infinite;
+      }
   
-        &:hover {
-          background: #00bfff;
+      @keyframes blink {
+        0%,
+        50% {
+          opacity: 1;
+        }
+        51%,
+        100% {
+          opacity: 0;
         }
       }
     }
   
-    .features-section {
-      padding: 4rem 2rem;
-      text-align: center;
-  
-      h2 {
-        font-size: 2.5rem;
-        margin-bottom: 2rem;
-        background: linear-gradient(90deg, #00ff88, #00bfff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
-  
-      .features-grid {
-        display: flex;
-        gap: 2rem;
-        flex-wrap: wrap;
-        justify-content: center;
-  
-        .feature-card {
-          background: rgba(255, 255, 255, 0.1);
-          padding: 2rem;
-          border-radius: 10px;
-          width: 300px;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-          transition: transform 0.3s, box-shadow 0.3s;
-  
-          &:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-          }
-  
-          .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-          }
-  
-          h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(90deg, #00ff88, #00bfff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-          }
-  
-          p {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.8);
-          }
-        }
-      }
+    p {
+      font-size: 2.2rem;
+      font-family: "Bebas Neue", serif;
+      font-weight: 200;
+      letter-spacing: 0.5px;
+      font-style: normal;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 2rem;
     }
   
-    .testimonials-section {
-      padding: 4rem 2rem;
-      text-align: center;
-      width: 100%;
+    .cta-button {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      background: #00ff88;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-family: "Bebas Neue", serif;
+      font-weight: 200;
+      letter-spacing: 0.5px;
   
-      h2 {
-        font-size: 2.5rem;
-        margin-bottom: 2rem;
-        background: linear-gradient(90deg, #00ff88, #00bfff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+      &:hover {
+        background: #00bfff;
       }
-  
-      .mySwiper {
-        width: 100%;
-        height: 400px; // Set a fixed height for the Swiper container
-        padding-bottom: 50px; // Space for pagination dots
-      }
-  
-      .testimonial-card {
+    }
+  }
+
+  .features-section {
+    padding: 4rem 2rem;
+    text-align: center;
+
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      background: linear-gradient(90deg, #00ff88, #00bfff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .features-grid {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+
+      .feature-card {
         background: rgba(255, 255, 255, 0.1);
         padding: 2rem;
         border-radius: 10px;
-        max-width: 600px;
-        margin: 0 auto;
+        width: 300px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  
-        img {
-          width: 80px;
-          height: 80px;
-          border-radius: 50%;
+        transition: transform 0.3s, box-shadow 0.3s;
+
+        &:hover {
+          transform: translateY(-10px);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .feature-icon {
+          font-size: 3rem;
           margin-bottom: 1rem;
         }
-  
+
         h3 {
           font-size: 1.5rem;
-          margin-bottom: 0.5rem;
+          margin-bottom: 1rem;
+          background: linear-gradient(90deg, #00ff88, #00bfff);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
         }
-  
+
         p {
           font-size: 1rem;
           color: rgba(255, 255, 255, 0.8);
         }
       }
     }
-  
-    .cta-section {
-      padding: 4rem 2rem;
-      text-align: center;
-  
-      h2 {
-        font-size: 2.5rem;
+  }
+
+  .testimonials-section {
+    padding: 4rem 2rem;
+    text-align: center;
+    width: 100%;
+
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      background: linear-gradient(90deg, #00ff88, #00bfff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .mySwiper {
+      width: 100%;
+      height: 400px; // Set a fixed height for the Swiper container
+      padding-bottom: 50px; // Space for pagination dots
+    }
+
+    .testimonial-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: 0 auto;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+
+      img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
         margin-bottom: 1rem;
-        background: linear-gradient(90deg, #00ff88, #00bfff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
       }
-  
+
+      h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+      }
+
       p {
-        font-size: 1.2rem;
+        font-size: 1rem;
         color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 2rem;
       }
-  
-      .cta-form {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-  
-        input {
-          padding: 0.75rem 1rem;
-          border: none;
-          border-radius: 5px;
-          background: rgba(255, 255, 255, 0.1);
-          color: white;
-          font-size: 1rem;
-          width: 300px;
-  
-          &::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-          }
+    }
+  }
+
+  .cta-section {
+    padding: 4rem 2rem;
+    text-align: center;
+
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(90deg, #00ff88, #00bfff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 2rem;
+    }
+
+    .cta-form {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+
+      input {
+        padding: 0.75rem 1rem;
+        border: none;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-size: 1rem;
+        width: 300px;
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.7);
         }
-  
-        button {
-          padding: 0.75rem 1.5rem;
-          border: none;
-          border-radius: 5px;
-          background: #00ff88;
-          color: #1a1a1a;
-          font-size: 1rem;
-          cursor: pointer;
-          transition: background 0.3s;
-  
-          &:hover {
-            background: #00bfff;
-          }
+      }
+
+      button {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 5px;
+        background: #00ff88;
+        color: #1a1a1a;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.3s;
+
+        &:hover {
+          background: #00bfff;
         }
       }
     }
   }
+}
