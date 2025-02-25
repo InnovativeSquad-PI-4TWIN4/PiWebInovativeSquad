@@ -12,13 +12,13 @@ const DashbordAdmin = () => {
             <div className="sidebar">
                 <h1>Admin Panel</h1>
                 <ul>
-                    <li onClick={() => setActiveTab("dashboard")}>
+                    <li className={activeTab === "dashboard" ? "active" : ""} onClick={() => setActiveTab("dashboard")}>
                         <FaChartBar /> Dashboard
                     </li>
-                    <li onClick={() => setActiveTab("manageUsers")}>
+                    <li className={activeTab === "manageUsers" ? "active" : ""} onClick={() => setActiveTab("manageUsers")}>
                         <FaUsers /> Manage Users
                     </li>
-                    <li onClick={() => setActiveTab("settings")}>
+                    <li className={activeTab === "settings" ? "active" : ""} onClick={() => setActiveTab("settings")}>
                         <FaCog /> Settings
                     </li>
                 </ul>
@@ -28,7 +28,7 @@ const DashbordAdmin = () => {
             <div className="main-content">
                 {activeTab === "dashboard" && (
                     <div className="dashboard-content">
-                        <div className="cards">
+                        <div className="top-cards">
                             <div className="card">
                                 <h3>Profit & Expenses</h3>
                                 <p>$36,358</p>
@@ -42,10 +42,12 @@ const DashbordAdmin = () => {
                                 <p>$6,820</p>
                             </div>
                         </div>
+
                         <div className="charts">
                             <div className="chart">Profit Over Time</div>
                             <div className="chart">Sales Distribution</div>
                         </div>
+
                         <div className="clients">
                             <h2>Top Paying Clients</h2>
                             <table>
@@ -81,6 +83,7 @@ const DashbordAdmin = () => {
                         </div>
                     </div>
                 )}
+
                 {activeTab === "manageUsers" && <ManageUsers />}
                 {activeTab === "settings" && <div>Settings Content</div>}
             </div>
