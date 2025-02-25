@@ -8,7 +8,7 @@ import ResetPassword from './components/frontoffice/resetpassword/resetpassword'
 import Courses from './components/frontoffice/courses/courses';
 import Contact from './components/frontoffice/contact/contact';
 import Footer from './components/frontoffice/footer/footer';
-import DashbordAdmin from './components/backoffice/dashbordAdmin';
+import DashbordAdmin from './components/backoffice/dashbordAdmin/dashbordAdmin';
 import Home from './components/frontoffice/home/home';
 import Profile from './components/frontoffice/profile/profile';
 import UpdateProfile from './components/frontoffice/updateprofile/updateprofile';
