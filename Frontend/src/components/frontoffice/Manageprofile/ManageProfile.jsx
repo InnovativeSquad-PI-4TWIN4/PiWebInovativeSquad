@@ -40,7 +40,8 @@ const ManageProfile = () => {
   const handleDelete = async () => {
     if (window.confirm("Voulez-vous vraiment supprimer votre compte ?")) {
       try {
-        const response = await fetch("http://localhost:3000/users/profile", {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`http://localhost:3000/users/delete-profile/${id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
         });
