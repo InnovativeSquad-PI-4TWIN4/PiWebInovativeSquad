@@ -80,7 +80,7 @@ exports.signup = [
 
       // Si l'image est téléchargée, on récupère le chemin relatif
       const image = req.file ? `/public/images/${req.file.filename}` : null;
-      //const image = req.file ? `public/images/${req.file.filename}` : null;
+      //const image = req.file ? `images/${req.file.filename}` : null;
 
       const newUser = new User({
         name,
@@ -95,11 +95,14 @@ exports.signup = [
       });
 
       await newUser.save();
+      const token = jwt.sign({ userId: newUser._id }, 'secret_key', { expiresIn: '1h' });
 
       return res.status(201).json({
         status: "SUCCESS",
         message: "Sign-up successful!",
+        token,
       });
+      
     } catch (err) {
       console.error("Sign-up error:", err);
       return res.status(500).json({ status: "FAILED", message: "Internal server error." });
