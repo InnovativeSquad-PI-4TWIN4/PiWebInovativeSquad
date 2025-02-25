@@ -155,8 +155,14 @@ const SignUp = () => {
   onChange={handleImageUpload}
 />
 
-          {image && <img src={URL.createObjectURL(image)} alt="Selected" className="preview-image" />}
-          {capturedImage && <img src={URL.createObjectURL(capturedImage)} alt="Captured" className="preview-image" />}
+{(capturedImage || image) && (
+  <img
+    src={URL.createObjectURL(capturedImage || image)}
+    alt="Selected"
+    className="preview-image"
+  />
+)}
+
 
           <button type="button" onClick={openCamera}>📷 Ouvrir la Caméra</button>
           {videoRef.current && videoRef.current.srcObject && (
