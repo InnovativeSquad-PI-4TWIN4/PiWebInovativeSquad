@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/frontoffice/navbar/navbar';
 import SignIn from './components/frontoffice/signin/signin';
 import SignUp from './components/frontoffice/signup/signup';
-import ForgotPassword from './components/frontoffice/forgotpassword/forgotpassword'; 
+import ForgotPassword from './components/frontoffice/forgotpassword/forgotpassword';
 import ResetPassword from './components/frontoffice/resetpassword/resetpassword';
 import Courses from './components/frontoffice/courses/courses';
 import Contact from './components/frontoffice/contact/contact';
@@ -42,30 +42,37 @@ const App = () => {
 
     return (
         <Router>
-            {user?.role === 'admin' ? <AdminNavbar user={user} onLogout={handleLogout} /> : <Navbar user={user} onLogout={handleLogout} />}
+            {user?.role === 'admin' ? (
+                <AdminNavbar user={user} onLogout={handleLogout} />
+            ) : (
+                <Navbar user={user} onLogout={handleLogout} />
+            )}
             <Routes>
-                {/* FRONT-OFFICE ROUTES */}
-                <Route path="/" element={<Home />} />
-                <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
-                <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password/:token" element={<ResetPassword />} />
-                <Route path="/courses" element={<Courses />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
-                <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
-                <Route path="/manage-profile" element={<ManageProfile />} />
-
-                {/* BACK-OFFICE ROUTES */}
-                {user?.role === 'admin' && (
+                {/* REDIRECTION AUTOMATIQUE SI ADMIN */}
+                {user?.role === 'admin' ? (
                     <>
+                        <Route path="/" element={<Navigate to="/admin/dashboard" />} />
                         <Route path="/admin/dashboard" element={<DashbordAdmin />} />
                         <Route path="/admin/manage-users" element={<ManageUsers />} />
                         <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
                     </>
+                ) : (
+                    <>
+                        {/* FRONT-OFFICE ROUTES */}
+                        <Route path="/" element={<Home />} />
+                        <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
+                        <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/reset-password/:token" element={<ResetPassword />} />
+                        <Route path="/courses" element={<Courses />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
+                        <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
+                        <Route path="/manage-profile" element={<ManageProfile />} />
+                    </>
                 )}
 
-                {/* REDIRECTION SI L'UTILISATEUR N'A PAS LES DROITS */}
+                {/* REDIRECTION PAR DÉFAUT */}
                 <Route path="*" element={<Home />} />
             </Routes>
             <Footer />
