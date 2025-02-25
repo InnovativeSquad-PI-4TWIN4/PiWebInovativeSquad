@@ -14,6 +14,7 @@ import Profile from './components/frontoffice/profile/profile';
 import UpdateProfile from './components/frontoffice/updateprofile/updateprofile';
 import ManageProfile from './components/frontoffice/Manageprofile/ManageProfile';
 import './index.css';
+import ManageUsers from './components/backoffice/ManageUsers/ManageUsers';
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -53,6 +54,7 @@ const App = () => {
                 <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
                 <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} /> {/* ✅ Route ajoutée */}
                 <Route path="/manage-profile" element={<ManageProfile/>} />
+                <Route path="/ManageUsers" element={<ManageUsers/>} />
             </Routes>
             <Footer />
         </Router>
