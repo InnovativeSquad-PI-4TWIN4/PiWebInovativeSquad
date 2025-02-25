@@ -17,6 +17,9 @@ import ManageUsers from './components/backoffice/ManageUsers/ManageUsers';
 import AdminNavbar from './components/backoffice/Adminnavbar/adminnavbar';
 import './index.css';
 
+import Chatbot from './components/frontoffice/chatbot/chatBot'; // Corrected import
+
+
 const App = () => {
     const [user, setUser] = useState(null);
 
@@ -76,6 +79,7 @@ const App = () => {
                 <Route path="*" element={<Home />} />
             </Routes>
             <Footer />
+            <Chatbot />
         </Router>
     );
 };
