@@ -28,8 +28,9 @@ const Navbar = ({ user, onLogout }) => {
                 <FaExchangeAlt className="logo-icon" />
                 <span>SkillBridge</span>
             </Link>
-
             <ul className="navbar-links">
+            <li><Link to="/overview" className="overview">OverView</Link></li>
+
                 {user ? (
                     <>
                         <li><Link to="/">Home</Link></li>
@@ -75,7 +76,7 @@ const Navbar = ({ user, onLogout }) => {
                     <>
                         <li><Link to="/signin">Sign In</Link></li>
                         <li><Link to="/signup" className="signup-btn">Sign Up</Link></li>
-                        <li><Link to="/overview" className="overview">OverView</Link></li>
+                       
                     </>
                 )}
             </ul>
