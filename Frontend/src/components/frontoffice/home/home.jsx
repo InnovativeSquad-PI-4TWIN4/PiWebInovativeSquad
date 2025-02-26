@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom'; 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -7,6 +8,11 @@ import 'swiper/css/pagination';
 import './home.scss';
 
 const Home = () => {
+  const navigate = useNavigate(); 
+
+  const handleClick = () => {
+      navigate('/overview'); 
+    };
   const features = [
     {
       icon: '📚',
@@ -108,6 +114,7 @@ const Home = () => {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           className="cta-button"
+          onClick={handleClick}
         >
           Get Started
         </motion.button>
