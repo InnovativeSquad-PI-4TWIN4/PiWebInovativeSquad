@@ -16,7 +16,7 @@ import ManageProfile from './components/frontoffice/Manageprofile/ManageProfile'
 import ManageUsers from './components/backoffice/ManageUsers/ManageUsers';
 import AdminNavbar from './components/backoffice/Adminnavbar/adminnavbar';
 import './index.css';
-
+import Overview from './components/frontoffice/OverView/overview';
 import Chatbot from './components/frontoffice/chatbot/chatBot'; // Corrected import
 
 
@@ -65,6 +65,7 @@ const App = () => {
                         <Route path="/" element={<Home />} />
                         <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
                         <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
+                        <Route path="/overview" element={<Overview />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/reset-password/:token" element={<ResetPassword />} />
                         <Route path="/courses" element={<Courses />} />
