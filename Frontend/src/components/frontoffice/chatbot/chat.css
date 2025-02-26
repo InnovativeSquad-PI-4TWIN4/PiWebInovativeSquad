@@ -22,7 +22,7 @@
 .chat-icon {
   position: fixed;
   bottom: 20px;
-  right: 20px;
+  right: 35px;
   background-color: var(--primary-color);
   color: var(--text-color);
   border-radius: 50%;
