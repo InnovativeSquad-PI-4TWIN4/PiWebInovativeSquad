@@ -3,150 +3,176 @@ import { useNavigate } from "react-router-dom";
 import './ManageProfile.scss';
 
 const ManageProfile = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false); // État pour gérer l'affichage du modal
-  const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const navigate = useNavigate();
+    const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/users/profile", {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!response.ok) {
-          throw new Error("Erreur lors de la récupération du profil");
-        }
-
-        const data = await response.json();
-        setUser(data.user);
-      } catch (error) {
-        console.error(error.message);
-      } finally {
-        setLoading(false);
+    // ✅ Récupérer le profil utilisateur
+    useEffect(() => {
+      const fetchUser = async () => {
+          try {
+              const response = await fetch("http://localhost:3000/users/profile", {
+                  method: "GET",
+                  headers: { Authorization: `Bearer ${token}` },
+              });
+  
+              if (!response.ok) {
+                  throw new Error("Erreur lors de la récupération du profil");
+              }
+  
+              const data = await response.json();
+              console.log("Données utilisateur récupérées :", data.user);
+  
+              if (data.user && data.user._id) {
+                  setUser(data.user);
+              } else {
+                  console.error("ID utilisateur manquant");
+                  alert("Erreur : L'ID de l'utilisateur est manquant.");
+              }
+          } catch (error) {
+              console.error(error.message);
+          } finally {
+              setLoading(false);
+          }
+      };
+  
+      if (token) {
+          fetchUser();
+      } else {
+          navigate("/signin");
       }
-    };
-
-    if (token) {
-      fetchUser();
-    } else {
-      navigate("/login");
-    }
   }, [navigate, token]);
 
-  const handleDelete = async () => {
-    if (window.confirm("Voulez-vous vraiment supprimer votre compte ?")) {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`http://localhost:3000/users/delete-profile/${id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!response.ok) {
-          throw new Error("Erreur lors de la suppression du compte");
+    // ✅ Suppression de l'utilisateur
+    const handleDelete = async () => {
+        if (!user || !user._id) {
+            console.error("L'ID de l'utilisateur est manquant.");
+            alert("Erreur : L'ID de l'utilisateur est manquant.");
+            return;
         }
 
-        localStorage.removeItem("token"); // Supprimer le token
-        navigate("/login"); // Rediriger vers la page de connexion
-      } catch (error) {
-        console.error(error.message);
-      }
-    }
-  };
+        if (window.confirm("Voulez-vous vraiment supprimer votre compte ?")) {
+            try {
+                console.log("Suppression en cours pour l'ID :", user._id);
 
-  const openImageModal = () => {
-    setIsImageModalOpen(true); // Ouvre le modal
-  };
+                const response = await fetch(`http://localhost:3000/users/delete-profile/${user._id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
 
-  const closeImageModal = () => {
-    setIsImageModalOpen(false); // Ferme le modal
-  };
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || "Erreur lors de la suppression du compte");
+                }
 
-  if (loading) return <p>Chargement des informations...</p>;
+                console.log("Compte supprimé avec succès !");
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                alert("Compte supprimé avec succès !");
+                navigate("/signin");
+            } catch (error) {
+                console.error("Erreur de suppression :", error.message);
+                alert(error.message || "Erreur lors de la suppression du compte");
+            }
+        }
+    };
 
-  return (
-    <div className="manage-profile-container">
-      {/* Carte de profil à gauche */}
-      <div className="manage-profile-box">
-        {user.image ? (
-          <>
-            <div className="image-light"></div>
-            <img 
-              src={`http://localhost:3000${user.image}`} 
-              alt="Profil" 
-              className="profile-image" 
-              onClick={openImageModal} // Ajout de l'événement au clic
-            />
-          </>
-        ) : (
-          <div className="profile-image-placeholder">Pas d'image</div>
-        )}
-        <h2>{user.name} {user.surname}</h2>
-        <p>Email : {user.email}</p>
-        <p>Rôle : {user.role}</p>
-        <p>Skill : {user.Skill}</p>
+    // ✅ Ouvrir le modal d'image
+    const openImageModal = () => {
+        setIsImageModalOpen(true);
+    };
 
-        <button onClick={() => navigate("/update-profile")} className="update-btn">Modifier</button>
-        <button onClick={handleDelete} className="delete-btn">Supprimer</button>
-      </div>
+    // ✅ Fermer le modal d'image
+    const closeImageModal = () => {
+        setIsImageModalOpen(false);
+    };
 
-      {/* Section à droite */}
-      <div className="right-section">
-        <h3>Compétences de l'utilisateur :</h3>
-        <ul>
-          {user.skills && user.skills.length > 0 ? (
-            user.skills.map((skill, index) => (
-              <li key={index}>{skill}</li>
-            ))
-          ) : (
-            <p>Aucune compétence ajoutée.</p>
-          )}
-        </ul>
+    if (loading) return <p>Chargement des informations...</p>;
 
-        <h3>Cours souhaités :</h3>
-        <ul>
-          {user.courses && user.courses.length > 0 ? (
-            user.courses.map((course, index) => (
-              <li key={index}>{course}</li>
-            ))
-          ) : (
-            <p>Aucun cours souhaité ajouté.</p>
-          )}
-        </ul>
+    return (
+        <div className="manage-profile-container">
+            {/* ✅ Carte de profil à gauche */}
+            <div className="manage-profile-box">
+                {user.image ? (
+                    <>
+                        <div className="image-light"></div>
+                        <img
+                            src={`http://localhost:3000${user.image}`}
+                            alt="Profil"
+                            className="profile-image"
+                            onClick={openImageModal}
+                        />
+                    </>
+                ) : (
+                    <div className="profile-image-placeholder">Pas d'image</div>
+                )}
+                <h2>{user.name} {user.surname}</h2>
+                <p>Email : {user.email}</p>
+                <p>Rôle : {user.role}</p>
+                <p>Skill : {user.Skill}</p>
 
-        {/* Nouvelle section : Liste additionnelle */}
-        <div className="additional-list">
-          <h4>Liste de projets ou activités :</h4>
-          <ul>
-            {user.projects && user.projects.length > 0 ? (
-              user.projects.map((project, index) => (
-                <li key={index}>{project}</li>
-              ))
-            ) : (
-              <p>Aucun projet ajouté.</p>
+                <button onClick={() => navigate("/update-profile")} className="update-btn">Modifier</button>
+                <button onClick={handleDelete} className="delete-btn">Supprimer</button>
+            </div>
+
+            {/* ✅ Section à droite */}
+            <div className="right-section">
+                <h3>Compétences de l'utilisateur :</h3>
+                <ul>
+                    {user.skills && user.skills.length > 0 ? (
+                        user.skills.map((skill, index) => (
+                            <li key={index}>{skill}</li>
+                        ))
+                    ) : (
+                        <p>Aucune compétence ajoutée.</p>
+                    )}
+                </ul>
+
+                <h3>Cours souhaités :</h3>
+                <ul>
+                    {user.courses && user.courses.length > 0 ? (
+                        user.courses.map((course, index) => (
+                            <li key={index}>{course}</li>
+                        ))
+                    ) : (
+                        <p>Aucun cours souhaité ajouté.</p>
+                    )}
+                </ul>
+
+                {/* ✅ Liste additionnelle */}
+                <div className="additional-list">
+                    <h4>Liste de projets ou activités :</h4>
+                    <ul>
+                        {user.projects && user.projects.length > 0 ? (
+                            user.projects.map((project, index) => (
+                                <li key={index}>{project}</li>
+                            ))
+                        ) : (
+                            <p>Aucun projet ajouté.</p>
+                        )}
+                    </ul>
+                </div>
+            </div>
+
+            {/* ✅ Modal d'image agrandie */}
+            {isImageModalOpen && (
+                <div className="image-modal" onClick={closeImageModal}>
+                    <div className="modal-content">
+                        <img
+                            src={`http://localhost:3000${user.image}`}
+                            alt="Profil Agrandi"
+                            className="expanded-image"
+                        />
+                    </div>
+                </div>
             )}
-          </ul>
         </div>
-      </div>
-
-      {/* Modal d'image agrandie */}
-      {isImageModalOpen && (
-        <div className="image-modal" onClick={closeImageModal}>
-          <div className="modal-content">
-            <img 
-              src={`http://localhost:3000${user.image}`} 
-              alt="Profil Agrandi" 
-              className="expanded-image" 
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default ManageProfile;
