@@ -1,0 +1,157 @@
+.user-management {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h1 {
+      font-size: 24px;
+      color: #333;
+    }
+  }
+
+  &__top {
+    display: flex;
+    flex-direction: column; /* Affichage en colonne pour le positionnement correct */
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+
+  &__search {
+    width: 100%; /* La barre de recherche prend toute la largeur */
+    display: flex;
+    align-items: center;
+
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+
+      input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+
+        &:focus {
+          border-color: #007bff;
+          outline: none;
+        }
+      }
+
+      .search-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .add-admin-btn {
+    width: auto; /* Taille normale */
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px; /* Espace entre la barre de recherche et le bouton */
+    align-self: flex-start; /* Aligné à gauche */
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+
+  &__content {
+    margin-top: 20px;
+
+    .list-view {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .user-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #fff;
+        transition: box-shadow 0.3s ease;
+
+        &:hover {
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-info {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+
+          img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ccc;
+          }
+
+          .details {
+            .name {
+              font-size: 16px;
+              font-weight: bold;
+              color: #333;
+            }
+
+            .email {
+              font-size: 14px;
+              color: #666;
+            }
+          }
+        }
+
+        .actions {
+          display: flex;
+          gap: 10px;
+
+          button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s ease;
+
+            &:hover {
+              color: #007bff;
+            }
+
+            &.delete-btn:hover {
+              color: #dc3545;
+            }
+          }
+        }
+      }
+    }
+  }
+}
