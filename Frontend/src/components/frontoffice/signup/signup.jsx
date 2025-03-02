@@ -2,6 +2,7 @@ import React, { useState,useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FcGoogle } from 'react-icons/fc';
+import ReCAPTCHA from "react-google-recaptcha";  // ✅ Ajout de reCAPTCHA
 import { FaFacebook } from 'react-icons/fa';
 import './SignUp.scss';
 
@@ -17,11 +18,16 @@ const SignUp = () => {
   const [capturedImage, setCapturedImage] = useState(null);
 
   const [error, setError] = useState('');
-  
+  const [recaptchaToken, setRecaptchaToken] = useState(null); // ✅ Ajout d'un état pour reCAPTCHA
+
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
   const navigate = useNavigate();
+  const handleRecaptchaChange = (token) => {
+    setRecaptchaToken(token);  // ✅ Stocke le token reCAPTCHA
+  };
+
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -32,6 +38,12 @@ const SignUp = () => {
   setError('Please upload or capture an image before signing up.');
   return;
 }
+if (!recaptchaToken) {
+  setError("Please complete the reCAPTCHA verification.");
+  return;
+}
+
+
 
     const formData = new FormData();
     formData.append('name', name);
@@ -40,6 +52,8 @@ const SignUp = () => {
     formData.append('password', password);
     formData.append('dateOfBirth', dateOfBirth);
     formData.append('Skill', skill);
+    formData.append('recaptchaToken', recaptchaToken); // ✅ Ajout du token reCAPTCHA
+
 
    
     if (image) {
@@ -50,7 +64,7 @@ const SignUp = () => {
 
     // Affichez les données pour vérifier
     for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
+      console.log('${key}:', value);
     }
 
     // Arrêter la caméra avant d'envoyer le formulaire
@@ -171,6 +185,7 @@ const SignUp = () => {
           <video ref={videoRef} autoPlay className="camera-view"></video>
           <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
           <button type="button" onClick={capturePhoto}>📸 Prendre une photo</button>
+          <ReCAPTCHA sitekey="6LeiZ-QqAAAAAFjqeHfNgCeTBBzRVfwta1SgRx4v" onChange={handleRecaptchaChange} />  {/* ✅ Ajout du reCAPTCHA */}
 
           <button type="submit">Sign Up</button>
         </form>
