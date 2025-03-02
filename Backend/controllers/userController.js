@@ -5,6 +5,8 @@ const nodemailer = require("nodemailer");
 const crypto = require("node:crypto");  // ✅ Utilisation du module natif
 const multer = require("multer");
 const path = require('path');
+const axios = require('axios');
+
 
 require("dotenv").config();
 
@@ -39,15 +41,33 @@ const upload = multer({
 
 // ✅ INSCRIPTION D'UN UTILISATEUR
 exports.signup = [
-  upload.single("image"), // Middleware multer pour gérer l'upload de l'image
+  upload.single("image"),
   async (req, res) => {
     try {
-      let { name, surname, email, password, dateOfBirth, Skill } = req.body;
+      let { name, surname, email, password, dateOfBirth, Skill, recaptchaToken } = req.body;
 
-      if (!name || !surname || !email || !password || !dateOfBirth || !Skill) {
+      if (!name || !surname || !email || !password || !dateOfBirth || !Skill || !recaptchaToken) {
         return res.status(400).json({ status: "FAILED", message: "All fields are required!" });
       }
 
+      // ✅ Vérification reCAPTCHA avec Google
+      const googleVerifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
+      const recaptchaSecretKey = process.env.RECAPTCHA_SECRET_KEY; // ✅ Récupérer la clé secrète depuis .env
+
+      const recaptchaResponse = await axios.post(googleVerifyUrl, null, {
+        params: {
+          secret: recaptchaSecretKey,
+          response: recaptchaToken
+        }
+      });
+
+      if (!recaptchaResponse.data.success) {
+        return res.status(400).json({ status: "FAILED", message: "reCAPTCHA verification failed!" });
+      }
+
+      console.log("✅ reCAPTCHA validé !");
+
+      // Vérification et nettoyage des inputs
       name = name.trim();
       surname = surname.trim();
       email = email.trim();
@@ -58,18 +78,6 @@ exports.signup = [
       if (!/^[a-zA-Z ]+$/.test(name)) {
         return res.status(400).json({ status: "FAILED", message: "Invalid name format." });
       }
-      if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-        return res.status(400).json({ status: "FAILED", message: "Invalid email format." });
-      }
-
-      const date = new Date(dateOfBirth);
-      if (isNaN(date.getTime())) {
-        return res.status(400).json({ status: "FAILED", message: "Invalid date format (YYYY-MM-DD)." });
-      }
-
-      if (password.length < 8) {
-        return res.status(400).json({ status: "FAILED", message: "Password must be at least 8 characters long." });
-      }
 
       const existingUser = await User.findOne({ email });
       if (existingUser) {
@@ -77,37 +85,73 @@ exports.signup = [
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Si l'image est téléchargée, on récupère le chemin relatif
       const image = req.file ? `/public/images/${req.file.filename}` : null;
-      //const image = req.file ? `images/${req.file.filename}` : null;
 
       const newUser = new User({
         name,
         surname,
         email,
         password: hashedPassword,
-        dateOfBirth: date,
+        dateOfBirth: new Date(dateOfBirth),
         Skill,
         role: "client",
         isActive: true,
-        image,  // Ajout du chemin de l'image
+        image,
       });
 
       await newUser.save();
-      const token = jwt.sign({ userId: newUser._id }, 'secret_key', { expiresIn: '1h' });
+      const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '1h' });
 
-      return res.status(201).json({
-        status: "SUCCESS",
-        message: "Sign-up successful!",
-        token,
-      });
-      
+      return res.status(201).json({ status: "SUCCESS", message: "Sign-up successful!", token });
+
     } catch (err) {
-      console.error("Sign-up error:", err);
+      console.error("❌ Sign-up error:", err);
       return res.status(500).json({ status: "FAILED", message: "Internal server error." });
     }
-  }]
+  }
+];
+exports.addClient = async (req, res) => {
+  try {
+    const { firstName, lastName, email, password, dateOfBirth, skill } = req.body;
+
+    // Vérification des champs
+    if (!firstName || !lastName || !email || !password || !dateOfBirth || !skill) {
+      return res.status(400).json({ message: "All fields are required!" });
+    }
+
+    // Hachage du mot de passe
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newClient = new User({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      dateOfBirth: new Date(dateOfBirth),
+      skill,
+      role: "client",
+      isActive: true,
+    });
+
+    await newClient.save();
+    
+    // ✅ Assurer une réponse JSON valide
+    return res.status(201).json({
+      message: "Client added successfully!",
+      client: newClient,
+    });
+
+  } catch (error) {
+    console.error("Error in addClient:", error);
+
+    // ✅ Toujours envoyer du JSON
+    return res.status(500).json({
+      message: "Internal server error!",
+      error: error.message,
+    });
+  }
+};
+
 
 // ✅ CONNEXION D'UN UTILISATEUR
 exports.signin = async (req, res) => {
@@ -208,20 +252,25 @@ exports.updateProfile = async (req, res) => {
 // ✅ SUPPRESSION DU PROFIL D'UN UTILISATEUR
 exports.deleteProfile = async (req, res) => {
   try {
-    const userId = req.params.id;
+      const userId = req.params.id;
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ status: "FAILED", message: "User not found." });
-    }
+      if (!userId) {
+          return res.status(400).json({ status: "FAILED", message: "ID utilisateur manquant." });
+      }
 
-    await User.findByIdAndDelete(userId);
-    return res.status(200).json({ status: "SUCCESS", message: "Profile deleted successfully." });
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).json({ status: "FAILED", message: "Utilisateur introuvable." });
+      }
+
+      await User.findByIdAndDelete(userId);
+      return res.status(200).json({ status: "SUCCESS", message: "Compte supprimé avec succès." });
   } catch (err) {
-    console.error("Delete profile error:", err);
-    return res.status(500).json({ status: "FAILED", message: "Internal server error." });
+      console.error("Delete profile error:", err);
+      return res.status(500).json({ status: "FAILED", message: "Erreur interne du serveur." });
   }
 };
+
 
 // ✅ ACTIVER LE COMPTE D'UN UTILISATEUR
 exports.activateAccount = async (req, res) => {
@@ -346,34 +395,36 @@ exports.resetPassword = async (req, res) => {
 };
 
 // ✅ CONSULTER LE PROFIL D'UN UTILISATEUR
+// userController.js
 exports.getProfile = async (req, res) => {
   try {
-    const userId = req.user.userId; // ID extrait du token JWT
-    const user = await User.findById(userId).select("-password");
+      const userId = req.user.userId;
+      const user = await User.findById(userId).select("-password");
 
-    if (!user) {
-      return res.status(404).json({ status: "FAILED", message: "User not found" });
-    }
-
-    return res.status(200).json({
-      status: "SUCCESS",
-      user: {
-        id: user._id,
-        name: user.name,
-        surname: user.surname,
-        email: user.email,
-        dateOfBirth: user.dateOfBirth,
-        Skill: user.Skill,
-        role: user.role,
-        image: user.image,
-        isActive: user.isActive
+      if (!user) {
+          return res.status(404).json({ status: "FAILED", message: "User not found" });
       }
-    });
+
+      return res.status(200).json({
+          status: "SUCCESS",
+          user: {
+              _id: user._id.toString(),  // ✅ Assurez-vous que l'ID est une chaîne de caractères
+              name: user.name,
+              surname: user.surname,
+              email: user.email,
+              dateOfBirth: user.dateOfBirth,
+              Skill: user.Skill,
+              role: user.role,
+              image: user.image,
+              isActive: user.isActive
+          }
+      });
   } catch (err) {
-    console.error("Get profile error:", err);
-    return res.status(500).json({ status: "FAILED", message: "Internal server error." });
+      console.error("Get profile error:", err);
+      return res.status(500).json({ status: "FAILED", message: "Internal server error." });
   }
 };
+
 exports.getAllUsers = async (req, res) => {
   try {
       // Récupérer tous les utilisateurs sauf ceux ayant le rôle 'admin'

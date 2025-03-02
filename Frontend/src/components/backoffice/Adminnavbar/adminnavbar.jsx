@@ -24,7 +24,7 @@ const AdminNavbar = ({ user, onLogout }) => {
             </Link>
 
             <ul className="navbar-links">
-                <li><Link to="/admin/dashboard">Dashboard</Link></li>
+                
                
                 
                 {user && (
