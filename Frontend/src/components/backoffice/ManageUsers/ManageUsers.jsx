@@ -148,10 +148,12 @@ const ManageUsers = () => {
                 {filteredUsers.map(user => (
                   <motion.div key={user._id} className="user-row">
                     <div className="user-info">
-                      <img src={user.image || "https://via.placeholder.com/50"} 
-                           alt={user.name} 
+                      <img src={`http://localhost:3000${user.image}`}
+                          alt={user.name} 
                            className="user-avatar"
                            onError={(e) => { e.target.src = "https://via.placeholder.com/50"; }} />
+
+
                       <div className="details">
                         <div className="name">{user.name} {user.surname}</div>
                         <div className="email">{user.email || "Email non disponible"}</div>

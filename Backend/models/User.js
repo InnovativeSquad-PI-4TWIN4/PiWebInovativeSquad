@@ -17,6 +17,7 @@ const User = new Schema({
     enum: ['admin', 'client', 'client_approuve'], 
     default: 'client' // Par défaut, un utilisateur inscrit est un client
 },
+status: { type: String, enum: ['unapproved', 'pending', 'approved'], default: 'unapproved' },
    verified: Boolean,
    resetPasswordToken: String,          // ✅ Nouveau champ pour le token
    resetPasswordExpires: Date           // ✅ Nouveau champ pour la date d'expiration
