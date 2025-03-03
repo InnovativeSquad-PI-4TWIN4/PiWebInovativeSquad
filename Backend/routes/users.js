@@ -27,6 +27,12 @@ router.post("/reset-password/:token", userController.resetPassword); // Réiniti
 // ✅ Récupérer le profil de l'utilisateur connecté
 router.get("/profile", authenticateUser, userController.getProfile);
 router.get("/getAllUsers",authenticateUser,userController.getAllUsers);
+//Approuve un client 
+router.post("/request-approval", authenticateUser, userController.requestApproval);
+router.get("/pending", authenticateUser,userController.getPendingUsers);
+router.post("/approve/:id", authenticateUser, userController.approveUser);
+router.post("/reject/:id", authenticateUser, userController.rejectUser);
+
 
 
 module.exports = router;
