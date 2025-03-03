@@ -94,6 +94,28 @@ const ManageProfile = () => {
 
     if (loading) return <p>Chargement des informations...</p>;
 
+    const handleRequestApproval = async () => {
+        try {
+            const response = await fetch("http://localhost:3000/users/request-approval", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ userId: user._id }),
+            });
+    
+            if (!response.ok) {
+                throw new Error("Erreur lors de la demande d'approbation");
+            }
+    
+            alert("Votre demande a été envoyée avec succès !");
+        } catch (error) {
+            console.error("Erreur:", error.message);
+            alert("Échec de l'envoi de la demande.");
+        }
+    };
+    
     return (
         <div className="manage-profile-container">
             {/* ✅ Carte de profil à gauche */}
@@ -118,6 +140,8 @@ const ManageProfile = () => {
 
                 <button onClick={() => navigate("/update-profile")} className="update-btn">Modifier</button>
                 <button onClick={handleDelete} className="delete-btn">Supprimer</button>
+                <button onClick={handleRequestApproval} className="request-btn"> Demander l'approbation</button>
+
             </div>
 
             {/* ✅ Section à droite */}

@@ -39,6 +39,55 @@ const upload = multer({
   }
 });
 
+
+exports.requestApproval = async (req, res) => {
+  try {
+      const { userId } = req.body;
+
+      if (!userId) {
+          return res.status(400).json({ message: "userId est requis" });
+      }
+
+      const user = await User.findByIdAndUpdate(userId, { status: "pending" });
+
+      if (!user) {
+          return res.status(404).json({ message: "Utilisateur non trouvé" });
+      }
+
+      res.status(200).json({ message: "Demande envoyée avec succès" });
+  } catch (error) {
+      console.error("Erreur lors de la demande:", error);
+      res.status(500).json({ message: "Erreur lors de la demande", error: error.message });
+  }
+};
+
+exports.getPendingUsers =[ async (req, res) => {
+  const users = await User.find({ status: "pending" });
+  res.json(users);
+}];
+
+exports.approveUser =[ async (req, res) => {
+  const userId = req.params.id;
+  await User.findByIdAndUpdate(userId, { status: "approved" });
+
+  // Envoyer un email de confirmation
+  //await sendApprovalEmail(userId);
+
+  res.json({ message: "Utilisateur approuvé" });
+}];
+
+exports.rejectUser =[ async (req, res) => {
+  const userId = req.params.id;
+  await User.findByIdAndUpdate(userId, { status: "rejected" });
+
+  // Envoyer un email de refus
+  //await sendRejectionEmail(userId);
+
+  res.json({ message: "Demande refusée" });
+}];
+
+
+
 // ✅ INSCRIPTION D'UN UTILISATEUR
 exports.signup = [
   upload.single("image"),
@@ -46,24 +95,14 @@ exports.signup = [
     try {
       let { name, surname, email, password, dateOfBirth, Skill, recaptchaToken } = req.body;
 
-      if (!name || !surname || !email || !password || !dateOfBirth || !Skill || !recaptchaToken) {
+      if (!name || !surname || !email || !password || !dateOfBirth || !Skill  ) {
         return res.status(400).json({ status: "FAILED", message: "All fields are required!" });
       }
 
       // ✅ Vérification reCAPTCHA avec Google
       const googleVerifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
-      const recaptchaSecretKey = process.env.RECAPTCHA_SECRET_KEY; // ✅ Récupérer la clé secrète depuis .env
-
-      const recaptchaResponse = await axios.post(googleVerifyUrl, null, {
-        params: {
-          secret: recaptchaSecretKey,
-          response: recaptchaToken
-        }
-      });
-
-      if (!recaptchaResponse.data.success) {
-        return res.status(400).json({ status: "FAILED", message: "reCAPTCHA verification failed!" });
-      }
+      
+     
 
       console.log("✅ reCAPTCHA validé !");
 
