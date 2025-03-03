@@ -20,7 +20,7 @@ const UserDetails = ({ user, onClose }) => {
           <div className="details">
             <p><strong>Nom:</strong> {user.name} {user.surname}</p>
             <p><strong>Email:</strong> {user.email || "Email non disponible"}</p>
-            <p><strong>Statut:</strong> {user.isActive ? "Actif" : "Inactif"}</p>
+            <p><strong>Statut:</strong> {user.status}</p>
             <p><strong>Date de naissance:</strong> {user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : "Non renseignée"}</p>
             <p><strong>Compétence:</strong> {user.Skill || "Non spécifiée"}</p>
             <p><strong>Rôle:</strong> {user.role}</p>

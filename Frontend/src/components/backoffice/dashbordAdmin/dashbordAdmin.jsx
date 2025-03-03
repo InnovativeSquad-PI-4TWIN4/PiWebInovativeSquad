@@ -26,12 +26,40 @@ const trafficData = [
   { name: "Tablet", value: 15, color: "#F59E0B" },
   { name: "Phone", value: 22, color: "#10B981" },
 ];
+// const [pendingUsers, setPendingUsers] = useState([]);
 
+//   useEffect(() => {
+//       const fetchPendingUsers = async () => {
+//           const response = await fetch("http://localhost:3000/users/pending", {
+//               headers: { Authorization: `Bearer ${token}` },
+//           });
+//           const data = await response.json();
+//           setPendingUsers(data);
+//       };
+//       fetchPendingUsers();
+//   }, []);
+  
 const DashbordAdmin = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
-
+  
+  
   return (
     <div className="admin-container">
+      {/* {activeTab === "manageApprovals" && (
+    <div>
+        <h2>Demandes en attente</h2>
+        <ul>
+            {pendingUsers.map((user) => (
+                <li key={user._id}>
+                    {user.name} {user.surname} - {user.email}
+                    <button onClick={() => handleApprove(user._id)}>✅ Accepter</button>
+                    <button onClick={() => handleReject(user._id)}>❌ Refuser</button>
+                </li>
+            ))}
+        </ul>
+    </div>
+)} */}
+
       {/* Sidebar */}
       <div className="sidebar">
         <h1>Admin Panel</h1>
