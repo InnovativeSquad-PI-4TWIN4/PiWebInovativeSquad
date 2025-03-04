@@ -39,7 +39,6 @@ const upload = multer({
   }
 });
 
-
 exports.requestApproval = async (req, res) => {
   try {
       const { userId } = req.body;
@@ -66,19 +65,33 @@ exports.getPendingUsers =[ async (req, res) => {
   res.json(users);
 }];
 
-exports.approveUser =[ async (req, res) => {
-  const userId = req.params.id;
-  await User.findByIdAndUpdate(userId, { status: "approved" });
+exports.approveUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { status: "approved", role: "client_approuve" }, // Mise à jour du statut et du rôle
+      { new: true } // Retourner l'utilisateur mis à jour
+    );
 
-  // Envoyer un email de confirmation
-  //await sendApprovalEmail(userId);
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
 
-  res.json({ message: "Utilisateur approuvé" });
-}];
+    // Envoyer un email de confirmation (si nécessaire)
+    //await sendApprovalEmail(userId);
+
+    res.json({ message: "Utilisateur approuvé", user: updatedUser });
+  } catch (error) {
+    console.error("Erreur lors de l'approbation de l'utilisateur :", error);
+    res.status(500).json({ message: "Erreur interne du serveur" });
+  }
+};
 
 exports.rejectUser =[ async (req, res) => {
   const userId = req.params.id;
-  await User.findByIdAndUpdate(userId, { status: "rejected" });
+  await User.findByIdAndUpdate(userId, { status: "unapproved" });
 
   // Envoyer un email de refus
   //await sendRejectionEmail(userId);
@@ -461,6 +474,19 @@ exports.getProfile = async (req, res) => {
   } catch (err) {
       console.error("Get profile error:", err);
       return res.status(500).json({ status: "FAILED", message: "Internal server error." });
+  }
+};
+
+// Route pour récupérer les statistiques des utilisateurs
+exports.getClientStats = async (req, res) => {
+  try {
+    const totalClients = await User.countDocuments(); // Nombre total de clients
+    const approvedClients = await User.countDocuments({ status: "approved" }); // Nombre de clients approuvés
+
+    res.json({ totalClients, approvedClients });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des statistiques des clients :", error);
+    res.status(500).json({ message: "Erreur interne du serveur" });
   }
 };
 

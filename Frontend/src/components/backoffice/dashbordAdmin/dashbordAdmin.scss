@@ -1,3 +1,41 @@
+button {
+    padding: 4px 25px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+  
+    &:hover {
+      transform: scale(1.05);
+    }
+    
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+  
+  // Style pour le bouton "Accepter"
+  .accept-button {
+    background-color: #52d871;
+    color: white;
+  
+    &:hover {
+      background-color: #218838;
+    }
+  }
+  
+  // Style pour le bouton "Refuser"
+  .reject-button {
+    background-color: #cf7a82;
+    color: white;
+  
+    &:hover {
+      background-color: #c82333;
+    }
+  }
+  
 .admin-container {
     display: flex;
     height: 100vh;
