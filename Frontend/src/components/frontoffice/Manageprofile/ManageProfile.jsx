@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import './ManageProfile.scss';
-
+import { FaCheckCircle } from "react-icons/fa";
 const ManageProfile = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -133,14 +133,19 @@ const ManageProfile = () => {
                 ) : (
                     <div className="profile-image-placeholder">Pas d'image</div>
                 )}
-                <h2>{user.name} {user.surname}</h2>
+                
+                <h2>{user.name} {user.surname} {user.role === "client_approuve" &&    (
+                 <FaCheckCircle style={{ color: "#1DA1F2", marginLeft: "8px" }} />)}</h2>
+
                 <p>Email : {user.email}</p>
                 <p>Rôle : {user.role}</p>
                 <p>Skill : {user.Skill}</p>
 
                 <button onClick={() => navigate("/update-profile")} className="update-btn">Modifier</button>
                 <button onClick={handleDelete} className="delete-btn">Supprimer</button>
-                <button onClick={handleRequestApproval} className="request-btn"> Demander l'approbation</button>
+                {user.role !== "client_approuve" && (<button onClick={handleRequestApproval} className="request-btn">
+        <FaCheckCircle style={{ marginRight: "8px" }} /> Demander l'approbation</button>)}
+
 
             </div>
 
