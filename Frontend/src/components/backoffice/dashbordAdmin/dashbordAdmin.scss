@@ -1,3 +1,41 @@
+button {
+    padding: 4px 25px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+  
+    &:hover {
+      transform: scale(1.05);
+    }
+    
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+  
+  // Style pour le bouton "Accepter"
+  .accept-button {
+    background-color: #52d871;
+    color: white;
+  
+    &:hover {
+      background-color: #218838;
+    }
+  }
+  
+  // Style pour le bouton "Refuser"
+  .reject-button {
+    background-color: #cf7a82;
+    color: white;
+  
+    &:hover {
+      background-color: #c82333;
+    }
+  }
+  
 .admin-container {
     display: flex;
     height: 100vh;
@@ -36,7 +74,92 @@
             }
         }
     }
-
+    .pending-requests {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+    
+        h2 {
+            font-size: 1.5rem;
+            color: #374151;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+    
+        .request-list {
+            list-style: none;
+            padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+    
+            li {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: #f9fafb;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 10px;
+                transition: background 0.3s ease-in-out;
+    
+                &:hover {
+                    background: #e5e7eb;
+                }
+    
+                .user-info {
+                    flex: 1;
+                    font-size: 1rem;
+                    font-weight: 500;
+                    color: #1f2937;
+                }
+    
+                .actions {
+                    display: flex;
+                    gap: 10px;
+    
+                    button {
+                        border: none;
+                        padding: 8px 12px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 0.9rem;
+                        font-weight: bold;
+                        transition: all 0.3s ease-in-out;
+    
+                        &.approve {
+                            background: #10b981;
+                            color: white;
+    
+                            &:hover {
+                                background: #059669;
+                            }
+                        }
+    
+                        &.reject {
+                            background: #ef4444;
+                            color: white;
+    
+                            &:hover {
+                                background: #dc2626;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    
+        .empty-message {
+            text-align: center;
+            font-size: 1rem;
+            color: #6b7280;
+            padding: 20px;
+            background: #f3f4f6;
+            border-radius: 8px;
+        }
+    }
+    
     .main-content {
         flex: 1;
         display: flex;

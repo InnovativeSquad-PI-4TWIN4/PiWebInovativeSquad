@@ -80,7 +80,7 @@ const App = () => {
                 <Route path="*" element={<Home />} />
             </Routes>
             <Footer />
-            <Chatbot />
+            {/* <Chatbot /> */}
         </Router>
     );
 };
