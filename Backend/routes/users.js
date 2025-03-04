@@ -34,6 +34,7 @@ router.post("/approve/:id", authenticateUser, userController.approveUser);
 router.post("/reject/:id", authenticateUser, userController.rejectUser);
 
 router.get("/stats", userController.getClientStats);
-
+// ✅ Ajout d'un administrateur
+router.post("/add-admin", authenticateUser, userController.addAdmin);
 
 module.exports = router;

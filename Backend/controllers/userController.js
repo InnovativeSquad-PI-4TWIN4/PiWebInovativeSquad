@@ -506,3 +506,68 @@ exports.getAllUsers = async (req, res) => {
       return res.status(500).json({ message: 'Erreur du serveur' });
   }
 };
+exports.sendAdminEmail = async (email, password) => { 
+  try {
+    console.log("📩 Envoi d'email en cours à:", email);
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.AUTH_EMAIL,
+        pass: process.env.AUTH_PASS,
+      },
+    });
+
+    const loginUrl = `http://localhost:5173/admin-login`;
+
+    const mailOptions = {
+      from: process.env.AUTH_EMAIL,
+      to: email,
+      subject: "Bienvenue en tant qu'Admin!",
+      html: `
+        <p>Bonjour,</p>
+        <p>Vous avez été ajouté en tant qu'administrateur.</p>
+        <p><b>Vos identifiants :</b></p>
+        <p>Email: <b>${email}</b></p>
+        <p>Mot de passe: <b>${password}</b></p>
+        <p><a href="${loginUrl}" style="background: #007bff; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">Se connecter</a></p>
+        <p>Veuillez changer votre mot de passe après votre première connexion.</p>
+        <p>Cordialement.</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("✅ Email envoyé avec succès !");
+  } catch (error) {
+    console.error("❌ Erreur d'envoi d'email:", error);
+  }
+};
+exports.addAdmin = async (req, res) => {
+  try {
+      const { firstname, lastname, dateOfBirth, email, password } = req.body;
+
+      const existingAdmin = await User.findOne({ email });
+      if (existingAdmin) {
+          return res.status(400).json({ message: "Admin already exists" });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newAdmin = new User({
+          firstname,
+          lastname,
+          dateOfBirth,
+          email,
+          password: hashedPassword,
+          role: "admin",
+      });
+
+      await newAdmin.save();
+      await sendAdminEmail(email, password);
+
+      res.status(201).json({ message: "✅ Admin créé et email envoyé !" });
+  } catch (error) {
+      console.error("❌ Erreur lors de l'ajout de l'admin :", error);
+      res.status(500).json({ message: "Erreur du serveur" });
+  }
+};
