@@ -33,6 +33,7 @@ router.get("/pending", authenticateUser,userController.getPendingUsers);
 router.post("/approve/:id", authenticateUser, userController.approveUser);
 router.post("/reject/:id", authenticateUser, userController.rejectUser);
 
+router.get("/stats", userController.getClientStats);
 
 
 module.exports = router;

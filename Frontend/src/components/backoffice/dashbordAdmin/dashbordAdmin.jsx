@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaUsers, FaCog, FaChartBar, FaDollarSign } from "react-icons/fa";
 import { AiOutlineShoppingCart } from "react-icons/ai";
 import { MdOutlineTaskAlt } from "react-icons/md";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import ManageUsers from "../ManageUsers/ManageUsers";
 import "./dashbordAdmin.scss";
+import ManageUsers from "../ManageUsers/ManageUsers";
+
 
 const salesData = [
   { month: "Jan", sales: 18000 },
@@ -26,40 +27,68 @@ const trafficData = [
   { name: "Tablet", value: 15, color: "#F59E0B" },
   { name: "Phone", value: 22, color: "#10B981" },
 ];
-// const [pendingUsers, setPendingUsers] = useState([]);
 
-//   useEffect(() => {
-//       const fetchPendingUsers = async () => {
-//           const response = await fetch("http://localhost:3000/users/pending", {
-//               headers: { Authorization: `Bearer ${token}` },
-//           });
-//           const data = await response.json();
-//           setPendingUsers(data);
-//       };
-//       fetchPendingUsers();
-//   }, []);
-  
 const DashbordAdmin = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [pendingUsers, setPendingUsers] = useState([]);
+  const [clientStats, setClientStats] = useState({ totalClients: 0, approvedClients: 0 });
+
+
+  useEffect(() => {
+
+    const fetchClientStats = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/users/stats", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const data = await response.json();
+        setClientStats(data);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des statistiques des clients :", error);
+      }
+    };
+    const fetchPendingUsers = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/users/pending", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const data = await response.json();
+        setPendingUsers(data);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des utilisateurs en attente :", error);
+      }
+    };
+    fetchPendingUsers();
+    fetchClientStats();
+  }, []);
+
   
-  
+  const handleApprove = async (userId) => {
+    try {
+      await fetch(`http://localhost:3000/users/approve/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setPendingUsers(pendingUsers.filter((user) => user._id !== userId));
+    } catch (error) {
+      console.error("Erreur lors de l'approbation de l'utilisateur :", error);
+    }
+  };
+
+  const handleReject = async (userId) => {
+    try {
+      await fetch(`http://localhost:3000/users/reject/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setPendingUsers(pendingUsers.filter((user) => user._id !== userId));
+    } catch (error) {
+      console.error("Erreur lors du rejet de l'utilisateur :", error);
+    }
+  };
+
   return (
     <div className="admin-container">
-      {/* {activeTab === "manageApprovals" && (
-    <div>
-        <h2>Demandes en attente</h2>
-        <ul>
-            {pendingUsers.map((user) => (
-                <li key={user._id}>
-                    {user.name} {user.surname} - {user.email}
-                    <button onClick={() => handleApprove(user._id)}>✅ Accepter</button>
-                    <button onClick={() => handleReject(user._id)}>❌ Refuser</button>
-                </li>
-            ))}
-        </ul>
-    </div>
-)} */}
-
       {/* Sidebar */}
       <div className="sidebar">
         <h1>Admin Panel</h1>
@@ -82,12 +111,21 @@ const DashbordAdmin = () => {
           <div className="dashboard-content">
             {/* Top Cards */}
             <div className="top-cards">
+              
+
               <div className="card">
-                <h3>BUDGET</h3>
-                <p>$24k</p>
-                <span className="positive">↑ 12% Since last month</span>
-                <FaDollarSign className="icon red" />
+                <h3>TOTAL CUSTOMERS</h3>
+                <p>{clientStats.totalClients}</p>
+                <span className="positive">↑ 16% Since last month</span>
+                <FaUsers className="icon green" />
               </div>
+              <div className="card">
+                <h3>APPROVED CUSTOMERS</h3>
+                <p>{clientStats.approvedClients}</p>
+                <span className="positive">↑ 5% Since last month</span>
+                <FaUsers className="icon blue" />
+              </div>
+
               <div className="card">
                 <h3>TOTAL CUSTOMERS</h3>
                 <p>1.6k</p>
@@ -99,44 +137,38 @@ const DashbordAdmin = () => {
                 <p>75.5%</p>
                 <MdOutlineTaskAlt className="icon orange" />
               </div>
-              <div className="card">
-                <h3>TOTAL PROFIT</h3>
-                <p>$15k</p>
-                <AiOutlineShoppingCart className="icon purple" />
-              </div>
+              
             </div>
+    <div className="pending-requests">
+      <h2>Demandes en attente</h2>
+      {/* <h3>Manage approval requests from clients</h3>
+      <h3> who wish to become approved members.</h3>
+      <h3>Review their requests, accept or decline them,</h3>
+      <h3>and an email notification will be sent accordingly</h3> */}
+      {pendingUsers.length === 0 ? (
+        <p>Aucune demande en attente</p>
+      ) : (
+        <ul>
+          {pendingUsers.map((user) => (
+            <li key={user._id}>
+              {user.name} {user.surname} - {user.email}
+              <button className="accept-button" onClick={() => handleApprove(user._id)}>✅Approve </button>
+              &nbsp;
+              &nbsp;
+              <button className="reject-button" onClick={() => handleReject(user._id)}>❌ Reject </button>
 
-            {/* Charts Section */}
-            <div className="charts-container">
-              <div className="chart sales-chart">
-                <h2>Sales</h2>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={salesData}>
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="sales" fill="#6366F1" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div className="chart traffic-chart">
-                <h2>Traffic Source</h2>
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie data={trafficData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                      {trafficData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
           </div>
+          
         )}
 
-        {activeTab === "manageUsers" && <ManageUsers />}
+       
+  
+    {activeTab === "manageUsers" && <ManageUsers />} 
         {activeTab === "settings" && <div>Settings Content</div>}
       </div>
     </div>
