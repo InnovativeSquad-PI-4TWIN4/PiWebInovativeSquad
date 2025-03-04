@@ -18,6 +18,7 @@ import AdminNavbar from './components/backoffice/Adminnavbar/adminnavbar';
 import './index.css';
 import Overview from './components/frontoffice/OverView/overview';
 import Chatbot from './components/frontoffice/chatbot/chatBot'; // Corrected import
+import AdminLogin from './components/backoffice/ManageUsers/AdminLogin';
 
 
 const App = () => {
