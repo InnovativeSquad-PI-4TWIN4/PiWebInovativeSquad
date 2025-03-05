@@ -600,3 +600,36 @@ exports.getAllAdmins = async (req, res) => {
   }
 };
 
+// Activer un utilisateur
+exports.activateUser = async (req, res) => {
+  try {
+      const user = await User.findById(req.params.id);
+      if (!user) {
+          return res.status(404).json({ message: "Utilisateur non trouvé." });
+      }
+
+      user.isActive = true; // Supposons que le champ s'appelle "active"
+      await user.save();
+
+      res.status(200).json({ message: "Utilisateur activé avec succès." });
+  } catch (error) {
+      res.status(500).json({ message: "Erreur serveur", error: error.message });
+  }
+};
+
+// Désactiver un utilisateur
+exports.deactivateUser = async (req, res) => {
+  try {
+      const user = await User.findById(req.params.id);
+      if (!user) {
+          return res.status(404).json({ message: "Utilisateur non trouvé." });
+      }
+
+      user.isActive = false;
+      await user.save();
+
+      res.status(200).json({ message: "Utilisateur désactivé avec succès." });
+  } catch (error) {
+      res.status(500).json({ message: "Erreur serveur", error: error.message });
+  }
+};

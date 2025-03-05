@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
-const authenticateUser = require('../middleware/authMiddleware');
-
+const { activateUser, deactivateUser } = require("../controllers/userController");
+const { authenticateUser, isAdmin } = require("../middleware/authMiddleware");
 // ✅ Routes principales
 router.post("/signup", userController.signup);
 router.post("/signin", userController.signin);
@@ -10,8 +10,11 @@ router.post("/signin", userController.signin);
 // ✅ Gestion des utilisateurs
 router.put("/updateProfile/:id", authenticateUser, userController.updateProfile);
 router.delete("/delete-profile/:id", authenticateUser, userController.deleteProfile);
-router.patch('/activate-account/:id', authenticateUser, userController.activateAccount);
-router.patch('/deactivate-account/:id', authenticateUser, userController.deactivateAccount);
+// Route pour activer un utilisateur (admin uniquement)
+router.patch("/activate/:id", authenticateUser, isAdmin, activateUser);
+
+// Route pour désactiver un utilisateur (admin uniquement)
+router.patch("/deactivate/:id", authenticateUser, isAdmin, deactivateUser);
 router.get("/profile", authenticateUser, userController.getProfile);
 router.get("/getAllUsers", authenticateUser,userController.getAllUsers);
 
