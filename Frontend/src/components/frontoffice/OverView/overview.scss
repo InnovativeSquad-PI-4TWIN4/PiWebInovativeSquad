@@ -1,0 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+body {
+  background: #1a1a1a;
+}
+
+.overview {
+  min-height: 100vh;
+  color: white;
+  overflow: hidden;
+  padding: 2rem;
+
+  .hero-section {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, #1a1a1a, #2c3e50);
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('../../../assets/img1.jpg');
+      background-size: cover;
+      background-position: center;
+      filter: blur(10px) brightness(0.5);
+      z-index: 1;
+      opacity: 0.5;
+    }
+
+    h1,
+    p {
+      position: relative;
+      z-index: 2;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(90deg, #00ff88, #00bfff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-family: "Bebas Neue", serif;
+      font-weight: 200;
+      letter-spacing: 0.5px;
+    }
+
+    p {
+      font-size: 1.5rem;
+      font-family: "Bebas Neue", serif;
+      font-weight: 200;
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  .challenges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+
+    .challenge-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2rem;
+      border-radius: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+
+      &:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      }
+
+      &.active {
+        transform: scale(1.05);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+      }
+
+      .challenge-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(90deg, #00ff88, #00bfff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      p {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 1.5rem;
+      }
+
+      .difficulty-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: white;
+      }
+
+      .challenge-details {
+        margin-top: 1.5rem;
+        text-align: left;
+
+        h4 {
+          font-size: 1.2rem;
+          margin-bottom: 0.5rem;
+          background: linear-gradient(90deg, #00ff88, #00bfff);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+
+        .quiz-progress {
+          width: 100%;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 10px;
+          margin-bottom: 1rem;
+
+          .progress-bar {
+            height: 10px;
+            background: #00ff88;
+            border-radius: 10px;
+            transition: width 0.3s;
+          }
+        }
+
+        .quiz-question {
+          margin-bottom: 1rem;
+
+          h5 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+          }
+
+          label {
+            display: block;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+
+            input {
+              margin-right: 0.5rem;
+            }
+          }
+        }
+
+        .start-button {
+          margin-top: 1rem;
+          padding: 0.75rem 1.5rem;
+          border: none;
+          border-radius: 5px;
+          background: #00ff88;
+          color: #1a1a1a;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background 0.3s;
+
+          &:hover {
+            background: #00bfff;
+          }
+        }
+      }
+    }
+  }
+
+  .challenge-result {
+    margin-top: 1.5rem;
+    text-align: left;
+
+    h4 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(90deg, #00ff88, #00bfff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+
+      li {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+      }
+    }
+
+    .congrats-animation {
+      font-size: 1.5rem;
+      color: #00ff88;
+      text-align: center;
+      animation: bounce 1s infinite;
+    }
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.quiz-toggle-button {
+  padding: 0.65rem 1.1rem;
+  border: none;
+  border-radius: 50px;
+  margin-left: 5px;
+  font-size: 0.67rem;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+
+  &.start-button {
+    background: #00ff88;
+    color: #1a1a1a;
+
+    &:hover {
+      background: #00bfff;
+      transform: scale(1.05);
+    }
+  }
+
+  &.close-button {
+    background: #ff4444;
+    color: white;
+
+    &:hover {
+      background: #cc0000;
+      transform: scale(1.05);
+    }
+  }
+}
+
+.complete-button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  background: #00ff88;
+  color: #1a1a1a;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #00bfff;
+  }
+}
