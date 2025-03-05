@@ -29,7 +29,7 @@ const Navbar = ({ user, onLogout }) => {
                 <span>SkillBridge</span>
             </Link>
             <ul className="navbar-links">
-            <li><Link to="/overview" className="overview">OverView</Link></li>
+            <li><Link to="/overview" className="overview">Challenges</Link></li>
 
                 {user ? (
                     <>
