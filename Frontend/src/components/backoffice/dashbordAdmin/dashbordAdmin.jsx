@@ -139,8 +139,32 @@ const DashbordAdmin = () => {
                 <p>75.5%</p>
                 <MdOutlineTaskAlt className="icon orange" />
               </div>
-            </div>
+              </div>
+    <div className="pending-requests">
+      <h2>Demandes en attente</h2>
+      {/* <h3>Manage approval requests from clients</h3>
+      <h3> who wish to become approved members.</h3>
+      <h3>Review their requests, accept or decline them,</h3>
+      <h3>and an email notification will be sent accordingly</h3> */}
+      {pendingUsers.length === 0 ? (
+        <p>Aucune demande en attente</p>
+      ) : (
+        <ul>
+          {pendingUsers.map((user) => (
+            <li key={user._id}>
+              {user.name} {user.surname} - {user.email}
+              <button className="accept-button" onClick={() => handleApprove(user._id)}>✅Approve </button>
+              &nbsp;
+              &nbsp;
+              <button className="reject-button" onClick={() => handleReject(user._id)}>❌ Reject </button>
+
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
           </div>
+          
         )}
 
         {activeTab === "manageUsers" && <ManageUsers />}
