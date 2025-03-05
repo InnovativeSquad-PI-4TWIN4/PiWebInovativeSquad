@@ -20,6 +20,7 @@ import Overview from './components/frontoffice/OverView/overview';
 import Chatbot from './components/frontoffice/chatbot/chatBot'; // Corrected import
 import ManageAdmins from './components/backoffice/ManageAdmins/ManageAdmin';
 import Coursesadmin from './components/backoffice/Courses/coursesAdmin';
+import AddCourses from './components/backoffice/Courses/AddCourses';
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -59,7 +60,8 @@ const App = () => {
                         <Route path="/admin/dashboard" element={<DashbordAdmin />} />
                         <Route path="/admin/manage-users" element={<ManageUsers />} />
                         <Route path="/admin/manage-admins" element={<ManageAdmins />} />
-
+                        <Route path="/coursesadmin" element={<Coursesadmin />} />
+                        <Route path="/add-course" element={<AddCourses />} />
                         <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
                     </>
                 ) : (
@@ -76,7 +78,7 @@ const App = () => {
                         <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
                         <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
                         <Route path="/manage-profile" element={<ManageProfile />} />
-                        <Route path="/coursesadmin" element={<Coursesadmin />} />
+                        
                     </>
                 )}
 
