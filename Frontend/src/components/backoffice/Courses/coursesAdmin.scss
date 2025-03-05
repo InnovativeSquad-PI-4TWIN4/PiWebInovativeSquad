@@ -1,0 +1,26 @@
+.course-card {
+    background-color: white;
+    padding: 16px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  
+  .course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .button {
+    padding: 8px 12px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    margin: 5px;
+  }
+  
+  .button.details { background-color: gray; }
+  .button.edit { background-color: orange; }
+  .button.delete { background-color: red; }
+  .button:hover { opacity: 0.8; }
+  
