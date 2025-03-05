@@ -1,40 +1,29 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
-const multerImage = require("../config/multer-picture");
-const authenticateUser = require('../middleware/authMiddleware'); // Middleware d'authentification
-const User = require("../models/User");
+const authenticateUser = require('../middleware/authMiddleware');
 
 // ✅ Routes principales
 router.post("/signup", userController.signup);
 router.post("/signin", userController.signin);
-//router.post("/upload", multerImage.single("image"), userController.uploadImage);
 
-// ✅ Mise à jour du profil (nécessite d'être connecté)
+// ✅ Gestion des utilisateurs
 router.put("/updateProfile/:id", authenticateUser, userController.updateProfile);
-
-// ✅ Suppression du profil (nécessite d'être connecté)
 router.delete("/delete-profile/:id", authenticateUser, userController.deleteProfile);
-
-// ✅ Activation et désactivation du compte (nécessite d'être connecté)
 router.patch('/activate-account/:id', authenticateUser, userController.activateAccount);
 router.patch('/deactivate-account/:id', authenticateUser, userController.deactivateAccount);
-
-// ✅ Réinitialisation du mot de passe
-router.post("/forgot-password", userController.forgotPassword);    // Envoi de l'email de réinitialisation
-router.post("/reset-password/:token", userController.resetPassword); // Réinitialisation du mot de passe
-
-// ✅ Récupérer le profil de l'utilisateur connecté
 router.get("/profile", authenticateUser, userController.getProfile);
-router.get("/getAllUsers",authenticateUser,userController.getAllUsers);
-//Approuve un client 
+router.get("/getAllUsers", authenticateUser,userController.getAllUsers);
+
+// ✅ Gestion des approbations des utilisateurs
 router.post("/request-approval", authenticateUser, userController.requestApproval);
-router.get("/pending", authenticateUser,userController.getPendingUsers);
+router.get("/pending", authenticateUser, userController.getPendingUsers);
 router.post("/approve/:id", authenticateUser, userController.approveUser);
 router.post("/reject/:id", authenticateUser, userController.rejectUser);
 
-router.get("/stats", userController.getClientStats);
-// ✅ Ajout d'un administrateur
-router.post("/add-admin", authenticateUser, userController.addAdmin);
+// ✅ Récupérer tous les administrateurs
+router.get("/getAllAdmins", authenticateUser, userController.getAllAdmins);
 
+// ✅ Ajout d'un administrateur (par un autre admin)
+router.post("/add-admin", authenticateUser, userController.addAdminByAdmin);
 module.exports = router;

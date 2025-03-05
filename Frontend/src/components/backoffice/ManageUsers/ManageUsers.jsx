@@ -134,12 +134,7 @@
             <FaSearch className="search-icon" />
           </div>
 
-          {/* Bouton Add Admin à gauche sous la barre de recherche */}
-          <div className="user-management__button-container">
-            <button className="add-admin-btn" onClick={() => setShowAddAdminModal(true)}>
-              <FaPlus /> Add Admin
-            </button>
-          </div>
+        
 
           <div className="user-management__content">
             {loading ? <p>Chargement...</p> : error ? <p className="error">{error}</p> :
