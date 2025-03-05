@@ -19,6 +19,7 @@ import './index.css';
 import Overview from './components/frontoffice/OverView/overview';
 import Chatbot from './components/frontoffice/chatbot/chatBot'; // Corrected import
 import ManageAdmins from './components/backoffice/ManageAdmins/ManageAdmin';
+import Coursesadmin from './components/backoffice/Courses/coursesAdmin';
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -75,6 +76,7 @@ const App = () => {
                         <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
                         <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
                         <Route path="/manage-profile" element={<ManageProfile />} />
+                        <Route path="/coursesadmin" element={<Coursesadmin />} />
                     </>
                 )}
 
