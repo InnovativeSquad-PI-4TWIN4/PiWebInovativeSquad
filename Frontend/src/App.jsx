@@ -18,8 +18,7 @@ import AdminNavbar from './components/backoffice/Adminnavbar/adminnavbar';
 import './index.css';
 import Overview from './components/frontoffice/OverView/overview';
 import Chatbot from './components/frontoffice/chatbot/chatBot'; // Corrected import
-import AdminLogin from './components/backoffice/ManageUsers/AdminLogin';
-
+import ManageAdmins from './components/backoffice/ManageAdmins/ManageAdmin';
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -58,6 +57,8 @@ const App = () => {
                         <Route path="/" element={<Navigate to="/admin/dashboard" />} />
                         <Route path="/admin/dashboard" element={<DashbordAdmin />} />
                         <Route path="/admin/manage-users" element={<ManageUsers />} />
+                        <Route path="/admin/manage-admins" element={<ManageAdmins />} />
+
                         <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
                     </>
                 ) : (
