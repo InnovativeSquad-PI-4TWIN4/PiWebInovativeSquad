@@ -1,4 +1,3 @@
-// authMiddleware.js
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.SESSION_SECRET || "default_secret_key";
 
@@ -20,4 +19,14 @@ const authenticateUser = (req, res, next) => {
     }
 };
 
-module.exports = authenticateUser;
+const isAdmin = (req, res, next) => {
+    if (req.user && req.user.role === "admin") {
+        next();
+    } else {
+        res.status(403).json({ message: "Accès refusé, vous n'êtes pas administrateur." });
+    }
+};
+
+// ✅ Exportation correcte des deux middlewares
+module.exports = { authenticateUser, isAdmin };
+

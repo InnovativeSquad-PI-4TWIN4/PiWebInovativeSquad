@@ -53,12 +53,13 @@ mongo
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ Could not connect to MongoDB:", err));
 
-  //Active CORS pour le frontend React (http://localhost:5173)
+// Active CORS pour le frontend React (http://localhost:5173)
 app.use(cors({
-      origin: 'http://localhost:5173', 
-      methods: ['GET', 'POST', 'PUT', 'DELETE'],
-      allowedHeaders: ['Content-Type', 'Authorization', '*', 'Access-Control-Allow-Origin']
-    }));
+  origin: 'http://localhost:5173', // Permet l'accès depuis ce domaine
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // Ajout de la méthode PATCH
+  allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'], // Autoriser ces en-têtes spécifiques
+}));
+
 // ✅ Déclaration des routes (ORDRE IMPORTANT)
 app.use("/", authRouter);
 app.use("/index", indexRouter);
