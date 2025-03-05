@@ -2,15 +2,15 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const Course = new Schema({
-    title: { type: String, required: true },  // Titre du cours
-    description: { type: String, required: true },  // Brève description
-    category: { type: String, required: true },  // Catégorie du cours (ex: Développement, Design, Marketing)
-    instructor: { type: Schema.Types.ObjectId, ref: 'users', required: true },  // Créateur du cours
+    title: { type: String },  // Titre du cours
+    description: { type: String },  // Brève description
+    category: { type: String },  // Catégorie du cours (ex: Développement, Design, Marketing)
+    instructor: { type: Schema.Types.ObjectId, ref: 'users' },  // Créateur du cours
     price: { type: Number, default: 0 },  // Prix du cours (0 si échange de compétences)
-    skillsTaught: [{ type: String, required: true }],  // Liste des compétences enseignées
+    skillsTaught: [{ type: String }],  // Liste des compétences enseignées
     skillsRequired: [{ type: String }],  // Compétences pré-requises pour suivre le cours
     level: { type: String, enum: ['beginner', 'intermediate', 'advanced'], default: 'beginner' },  // Niveau requis
-    duration: { type: Number, required: true },  // Durée en minutes
+    duration: { type: Number},  // Durée en minutes
     image: { type: String },  // URL de l'image du cours
     content: [{ 
         type: { type: String, enum: ['video', 'article', 'quiz', 'assignment'] }, 
