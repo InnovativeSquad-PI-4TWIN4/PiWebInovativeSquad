@@ -97,27 +97,7 @@ const ManageUsers = () => {
     setSelectedUser(user);
   };
 
-  const handleAddAdmin = async (newAdmin) => {
-    try {
-      const response = await fetch("http://localhost:3000/users/add-admin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newAdmin),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'ajout de l'admin");
-      }
-
-      const addedAdmin = await response.json();
-      setUsers([...users, addedAdmin]);
-      setShowAddAdminModal(false);
-    } catch (error) {
-      alert("Erreur lors de l'ajout de l'admin");
-    }
-  };
+ 
 
   const filteredUsers = users.filter(user =>
     `${user.name} ${user.surname}`.toLowerCase().includes(searchTerm.toLowerCase())
@@ -134,12 +114,7 @@ const ManageUsers = () => {
           <FaSearch className="search-icon" />
         </div>
 
-        {/* Bouton Add Admin à gauche sous la barre de recherche */}
-        <div className="user-management__button-container">
-          <button className="add-admin-btn" onClick={() => setShowAddAdminModal(true)}>
-            <FaPlus /> Add Admin
-          </button>
-        </div>
+        
 
         <div className="user-management__content">
           {loading ? <p>Chargement...</p> : error ? <p className="error">{error}</p> :

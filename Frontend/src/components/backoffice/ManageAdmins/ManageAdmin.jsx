@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FaSearch, FaUserPlus } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 import "./ManageAdmin.scss";
 
 const ManageAdmins = () => {
   const [admins, setAdmins] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [error, setError] = useState(""); // Ajout pour la gestion des erreurs
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchAdmins = async () => {
@@ -19,7 +19,7 @@ const ManageAdmins = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Vérifiez que le token est valide
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -28,7 +28,7 @@ const ManageAdmins = () => {
         }
 
         const data = await response.json();
-        setAdmins(data); // Correction ici (avant c'était setUsers(data))
+        setAdmins(data);
       } catch (err) {
         setError(err.message);
       }
@@ -57,17 +57,17 @@ const ManageAdmins = () => {
       </div>
 
       {/* ✅ Gestion des erreurs */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
 
-      {/* ✅ Liste des admins */}
-      <div className="admin-list">
+      {/* ✅ Liste des admins sous forme de cartes */}
+      <div className="admin-grid">
         {filteredAdmins.length === 0 ? (
           <p>Aucun administrateur trouvé</p>
         ) : (
           filteredAdmins.map((admin) => (
             <div className="admin-card" key={admin._id}>
               <img
-                src={admin.image ? `http://localhost:3000${admin.image}` : "https://via.placeholder.com/50"}
+                src={admin.image ? `http://localhost:3000${admin.image}` : "https://via.placeholder.com/100"}
                 alt={admin.name}
                 className="admin-avatar"
               />
