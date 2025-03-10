@@ -40,6 +40,10 @@ const SignIn = ({ onLogin }) => {
     const handleGoogleSignIn = () => {
         window.location.href = 'http://localhost:3000/auth/google/callback';
     };
+    const handleFacebookSignIn = () => {
+        window.location.href = 'http://localhost:3000/auth/facebook';
+    };
+    
 
     return (
         <div className="signin-container">
@@ -72,7 +76,7 @@ const SignIn = ({ onLogin }) => {
 <button className="google-btn" onClick={handleGoogleSignIn}>
     <FcGoogle className="google-icon" /> Sign In With Google
 </button>
-<button className="facebook-btn" onClick={handleGoogleSignIn}>
+<button className="facebook-btn" onClick={handleFacebookSignIn}>
     <FaFacebook className="google-icon" /> Sign In With Facebook
 </button>   
 

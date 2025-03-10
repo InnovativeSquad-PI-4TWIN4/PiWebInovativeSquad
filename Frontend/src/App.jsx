@@ -21,17 +21,24 @@ import Chatbot from './components/frontoffice/chatbot/chatBot'; // Corrected imp
 import ManageAdmins from './components/backoffice/ManageAdmins/ManageAdmin';
 import Coursesadmin from './components/backoffice/Courses/coursesAdmin';
 import AddCourses from './components/backoffice/Courses/AddCourses';
+import AuthSuccess from './components/frontoffice/signin/AuthSuccess';
 
 const App = () => {
     const [user, setUser] = useState(null);
 
+    // 🔹 Vérifie si un utilisateur est déjà authentifié (OAuth inclus)
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        const storedUser = JSON.parse(localStorage.getItem('user'));
-
-        if (token && storedUser) {
-            setUser(storedUser);
-        }
+        fetch("http://localhost:3000/auth/current_user", {
+            credentials: "include",
+        })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data && data.id) {
+                setUser(data);
+                localStorage.setItem('user', JSON.stringify(data)); // Stocker l'utilisateur en local
+            }
+        })
+        .catch((err) => console.error("Erreur de récupération de l'utilisateur :", err));
     }, []);
 
     const handleLogin = (userData) => {
@@ -78,6 +85,9 @@ const App = () => {
                         <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
                         <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
                         <Route path="/manage-profile" element={<ManageProfile />} />
+                          {/* ROUTE FACEBOOK LOGIN */}
+                          <Route path="/auth/success" element={<AuthSuccess />} />
+
                         
                     </>
                 )}
