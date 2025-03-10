@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const mongo = require("mongoose");
 const session = require("express-session");
-const passport = require("passport");
+const passport = require("./config/passport");
 const cors = require("cors");
 
 // Importation des routes
@@ -17,7 +17,7 @@ const coursesRouter = require("./routes/courses");
 
 // Configuration des variables d'environnement
 require("dotenv").config();
-require("./config/passport")(passport);
+require("./config/passport");
 const mongoConn = require("./config/DataBase.json");
 
 // Initialisation de l'application Express
@@ -38,7 +38,7 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 // Configuration de la session pour Passport
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "votre_clé_secrète",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false },
@@ -62,7 +62,7 @@ app.use(cors({
 }));
 
 // ✅ Déclaration des routes (ORDRE IMPORTANT)
-app.use("/", authRouter);
+app.use("/auth", authRouter);  // ✅ Correction de la route Facebook
 app.use("/index", indexRouter);
 app.use("/users", usersRouter);
 app.use("/courses", coursesRouter);
