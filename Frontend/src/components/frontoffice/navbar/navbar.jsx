@@ -9,6 +9,7 @@ import AdminNavbar from '../../backoffice/Adminnavbar/adminnavbar';
 const Navbar = ({ user, onLogout }) => {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
+    
 
     const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -21,6 +22,9 @@ const Navbar = ({ user, onLogout }) => {
     if (user && user.role === "admin") {
         return <AdminNavbar user={user} onLogout={onLogout} />;
     }
+    
+
+
 
     return (
         <nav className="navbar">
