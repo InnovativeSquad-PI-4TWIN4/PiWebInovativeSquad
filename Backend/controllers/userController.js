@@ -515,82 +515,6 @@ exports.getAllUsers = async (req, res) => {
       return res.status(500).json({ message: 'Erreur du serveur' });
   }
 };
-// ✅ Fonction pour envoyer un email aux nouveaux administrateurs
-const sendAdminEmail = async (email, password) => {
-    try {
-        console.log("📩 Envoi d'email en cours à:", email);
-
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: process.env.AUTH_EMAIL,
-                pass: process.env.AUTH_PASS,
-            },
-        });
-
-        const loginUrl = `http://localhost:5173/admin-login`; // Lien de connexion
-
-        const mailOptions = {
-            from: process.env.AUTH_EMAIL,
-            to: email,
-            subject: "Bienvenue en tant qu'Admin!",
-            html: `
-                <p>Bonjour,</p>
-                <p>Vous avez été ajouté en tant qu'administrateur.</p>
-                <p><b>Vos identifiants :</b></p>
-                <p>Email: <b>${email}</b></p>
-                <p>Mot de passe: <b>${password}</b></p>
-                <p><a href="${loginUrl}" style="background: #007bff; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">Se connecter</a></p>
-                <p>Veuillez changer votre mot de passe après votre première connexion.</p>
-                <p>Cordialement.</p>
-            `,
-        };
-
-        await transporter.sendMail(mailOptions);
-        console.log("✅ Email envoyé avec succès !");
-    } catch (error) {
-        console.error("❌ Erreur d'envoi d'email:", error);
-    }
-};
-
-// ✅ Fonction permettant à un admin d'ajouter un autre admin
-exports.addAdminByAdmin = async (req, res) => {
-    try {
-        const { firstname, lastname, dateOfBirth, email, password } = req.body;
-
-        // Vérifier si l'utilisateur qui fait la requête est un admin
-        if (req.user.role !== "admin") {
-            return res.status(403).json({ message: "Accès refusé. Seuls les admins peuvent ajouter d'autres admins." });
-        }
-
-        const existingAdmin = await User.findOne({ email });
-        if (existingAdmin) {
-            return res.status(400).json({ message: "Admin already exists" });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const newAdmin = new User({
-            firstname,
-            lastname,
-            dateOfBirth,
-            email,
-            password: hashedPassword,
-            role: "admin",
-        });
-
-        await newAdmin.save();
-
-        // Envoyer un email à l'admin nouvellement ajouté
-        await sendAdminEmail(email, password);
-
-        res.status(201).json({ message: "✅ Admin créé avec succès !" });
-    } catch (error) {
-        console.error("❌ Erreur lors de l'ajout de l'admin :", error);
-        res.status(500).json({ message: "Erreur du serveur" });
-    }
-};
-
 // ✅ Fonction pour récupérer uniquement les administrateurs
 exports.getAllAdmins = async (req, res) => {
   try {
@@ -640,5 +564,117 @@ exports.deactivateUser = async (req, res) => {
       res.status(200).json({ message: "Utilisateur désactivé avec succès." });
   } catch (error) {
       res.status(500).json({ message: "Erreur serveur", error: error.message });
+  }
+};
+// ✅ Fonction pour envoyer un email
+const sendEmail = async (to, subject, html) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.AUTH_EMAIL, // ⚡ Utilisation des bonnes variables d'env
+        pass: process.env.AUTH_PASS,  // ⚡ Mot de passe d'application Gmail
+      },
+    });
+
+    const mailOptions = {
+      from: `"SkillBridge" <${process.env.AUTH_EMAIL}>`,
+      to,
+      subject,
+      html,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`📧 Email envoyé à ${to}: ${info.response}`);
+    return true;
+  } catch (error) {
+    console.error("❌ Erreur d'envoi d'email", error);
+    return false;
+  }
+};
+
+exports.addAdmin = async (req, res) => {
+  try {
+    const { firstname, lastname, email, dateOfBirth } = req.body;
+
+    let existingAdmin = await User.findOne({ email });
+    if (existingAdmin) {
+      return res.status(400).json({ message: "Cet administrateur existe déjà" });
+    }
+
+    // ✅ Créer un nouvel administrateur
+    const newAdmin = new User({
+      name: firstname,
+      surname: lastname,
+      email,
+      dateOfBirth,
+      role: "admin",
+      isActive: true,
+      status: "unapproved",
+    });
+
+    await newAdmin.save();
+
+    // ✅ Lien de redirection pour définir le mot de passe
+    const resetLink = `${process.env.CLIENT_URL}/update-admin-password?email=${encodeURIComponent(email)}`;
+
+
+
+    // ✅ Construire le contenu de l'email
+    const emailContent = `
+      <p>Hello ${firstname},</p>
+      <p>You have been added as an admin on SkillBridge.</p>
+      <p><strong>Your login details:</strong></p>
+      <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+      <p>Click the button below to set your password:</p>
+      <a href="${resetLink}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Login to Admin Panel</a>
+      <p>Please change your password after your first login.</p>
+      <p>Best regards.</p>
+    `;
+
+    // ✅ Envoyer l'email
+    const emailSent = await sendEmail(email, "Welcome as Admin", emailContent);
+
+    if (!emailSent) {
+      return res.status(500).json({ message: "Administrateur ajouté, mais échec de l'envoi de l'email" });
+    }
+
+    res.status(201).json({ message: "Administrateur ajouté et email envoyé" });
+
+  } catch (error) {
+    console.error("❌ Error adding admin:", error);
+    res.status(500).json({ message: "Erreur serveur", error });
+  }
+};
+
+
+exports.updateAdminPassword = async (req, res) => {
+  try {
+    const { email, newPassword, confirmPassword } = req.body;
+
+    // Vérification des champs
+    if (!email || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: "Tous les champs sont requis" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "Les mots de passe ne correspondent pas" });
+    }
+
+    // Vérifier si l'admin existe
+    const admin = await User.findOne({ email, role: "admin" });
+    if (!admin) {
+      return res.status(404).json({ message: "Administrateur non trouvé" });
+    }
+
+    // Hachage du nouveau mot de passe
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    admin.password = hashedPassword;
+    await admin.save();
+
+    res.status(200).json({ message: "Mot de passe mis à jour avec succès" });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du mot de passe :", error);
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 };

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTrash, FaEye, FaToggleOn, FaToggleOff, FaSearch, FaPlus } from "react-icons/fa";
 import UserDetails from './UserDetails';
-import AddAdmin from "./AddAdmin";
 import "./ManageUsers.scss";
 
 const ManageUsers = () => {
