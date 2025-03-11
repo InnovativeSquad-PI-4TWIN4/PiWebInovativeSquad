@@ -26,7 +26,13 @@ router.post("/reject/:id", authenticateUser, userController.rejectUser);
 
 // ✅ Récupérer tous les administrateurs
 router.get("/getAllAdmins", authenticateUser, userController.getAllAdmins);
+// ✅ Ajouter un administrateur (réservé aux admins)
+router.post("/addAdmin", authenticateUser, isAdmin, userController.addAdmin);
 
-// ✅ Ajout d'un administrateur (par un autre admin)
-router.post("/add-admin", authenticateUser, userController.addAdminByAdmin);
+
+router.post("/updateAdminPassword", userController.updateAdminPassword);
+
+
+
+
 module.exports = router;
