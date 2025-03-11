@@ -22,6 +22,7 @@ import ManageAdmins from './components/backoffice/ManageAdmins/ManageAdmin';
 import Coursesadmin from './components/backoffice/Courses/coursesAdmin';
 import AddCourses from './components/backoffice/Courses/AddCourses';
 import AuthSuccess from './components/frontoffice/signin/AuthSuccess';
+import UpdateAdminPassword from './components/backoffice/ManageAdmins/updateAdminPassword';
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -60,6 +61,8 @@ const App = () => {
                 <Navbar user={user} onLogout={handleLogout} />
             )}
             <Routes>
+                 {/* 🔹 Routes accessibles à tous */}
+    <Route path="/update-admin-password" element={<UpdateAdminPassword />} />
                 {/* REDIRECTION AUTOMATIQUE SI ADMIN */}
                 {user?.role === 'admin' ? (
                     <>
@@ -70,6 +73,10 @@ const App = () => {
                         <Route path="/coursesadmin" element={<Coursesadmin />} />
                         <Route path="/add-course" element={<AddCourses />} />
                         <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
+                       
+
+
+
                     </>
                 ) : (
                     <>
