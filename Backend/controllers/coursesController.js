@@ -3,11 +3,12 @@ const Course = require("../models/Courses");
 // ✅ Ajouter un nouveau cours
 exports.createCourse = async (req, res) => {
     try {
-        const course = new Course(req.body);
+        const { title, category, instructor, pdfUrl } = req.body;
+        const course = new Course({ title, category, instructor, pdfUrl });
         await course.save();
-        res.status(201).json({ message: "Course created successfully", course });
+        res.status(201).json({ message: "Cours créé avec succès", course });
     } catch (error) {
-        res.status(500).json({ message: "Error creating course", error });
+        res.status(500).json({ message: "Erreur lors de la création du cours", error });
     }
 };
 
@@ -17,7 +18,7 @@ exports.getAllCourses = async (req, res) => {
         const courses = await Course.find().populate("instructor", "name email");
         res.status(200).json(courses);
     } catch (error) {
-        res.status(500).json({ message: "Error fetching courses", error });
+        res.status(500).json({ message: "Erreur lors de la récupération des cours", error });
     }
 };
 
@@ -25,10 +26,10 @@ exports.getAllCourses = async (req, res) => {
 exports.getCourseById = async (req, res) => {
     try {
         const course = await Course.findById(req.params.id).populate("instructor", "name email");
-        if (!course) return res.status(404).json({ message: "Course not found" });
+        if (!course) return res.status(404).json({ message: "Cours non trouvé" });
         res.status(200).json(course);
     } catch (error) {
-        res.status(500).json({ message: "Error fetching course", error });
+        res.status(500).json({ message: "Erreur lors de la récupération du cours", error });
     }
 };
 
@@ -36,10 +37,10 @@ exports.getCourseById = async (req, res) => {
 exports.updateCourse = async (req, res) => {
     try {
         const course = await Course.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!course) return res.status(404).json({ message: "Course not found" });
-        res.status(200).json({ message: "Course updated successfully", course });
+        if (!course) return res.status(404).json({ message: "Cours non trouvé" });
+        res.status(200).json({ message: "Cours mis à jour avec succès", course });
     } catch (error) {
-        res.status(500).json({ message: "Error updating course", error });
+        res.status(500).json({ message: "Erreur lors de la mise à jour du cours", error });
     }
 };
 
@@ -47,9 +48,9 @@ exports.updateCourse = async (req, res) => {
 exports.deleteCourse = async (req, res) => {
     try {
         const course = await Course.findByIdAndDelete(req.params.id);
-        if (!course) return res.status(404).json({ message: "Course not found" });
-        res.status(200).json({ message: "Course deleted successfully" });
+        if (!course) return res.status(404).json({ message: "Cours non trouvé" });
+        res.status(200).json({ message: "Cours supprimé avec succès" });
     } catch (error) {
-        res.status(500).json({ message: "Error deleting course", error });
+        res.status(500).json({ message: "Erreur lors de la suppression du cours", error });
     }
 };
