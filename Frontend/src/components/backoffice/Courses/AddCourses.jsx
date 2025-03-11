@@ -1,143 +1,122 @@
 import React, { useState } from 'react';
+import { FaUpload, FaCheck, FaTimes } from 'react-icons/fa';
+import './AddCourses.scss';
 
-const AddCourses = ({ onClose, onAddCourse }) => {
-  const [course, setCourse] = useState({
-    title: '',
-    description: '',
-    category: '',
-    instructor: '',
-    skillsTaught: '',
-    duration: ''
-  });
+const AddCourses = ({ onClose }) => {
+  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState('');
+  const [teacher, setTeacher] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCourse((prev) => ({ ...prev, [name]: value }));
-  };
+  // Listes de catégories et d'enseignants
+  const categories = ['Programmation', 'Design', 'Marketing', 'Réseau', 'Développement Web', 'Développement Mobile', 'Mathématique'];
+  const teachers = ['Alice Dupont', 'Bob Martin', 'Charlie Durand'];
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Assure-toi que la durée est un nombre (si ce n'est pas déjà un nombre)
-    const courseData = {
-      ...course,
-      duration: Number(course.duration),  // Assurez-vous que la durée est un nombre
-    };
-
-    try {
-      const token = localStorage.getItem('token');  // Récupère le token depuis localStorage
-      const response = await fetch("http://localhost:3000/courses/addcourses", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": token ? `Bearer ${token}` : "",  // Ajoute le token si disponible
-        },
-        body: JSON.stringify(courseData),  // Envoi des données du cours
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Si la création est réussie, appeler onAddCourse pour actualiser l'état
-        onAddCourse(courseData);
-        alert(data.message); // Affiche un message de succès
-      } else {
-        alert(data.message); // Affiche un message d'erreur
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
       }
-
-      onClose(); // Ferme le modal après la soumission
-    } catch (error) {
-      console.error("Error creating course:", error);
-      alert("Erreur lors de la création du cours");
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    } else {
+      setSelectedFile(null);
+      setPreviewUrl(null);
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Nouveau cours ajouté :', { title, category, teacher, file: selectedFile });
+    alert(`Cours "${title}" créé avec succès!`);
+
+    // Réinitialisation du formulaire après soumission
+    setTitle('');
+    setCategory('');
+    setTeacher('');
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    onClose(); // ✅ Ferme le formulaire après la soumission
+  };
+
   return (
-    <div className="add-course-modal">
-      <div className="modal-content">
-        <h2>Ajouter un cours</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="title">Titre du cours</label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={course.title}
-              onChange={handleChange}
-              placeholder="Titre du cours"
-              required
-            />
-          </div>
+    <div className="add-course">
+      {/* Bouton de fermeture */}
+      <button className="close-button" onClick={onClose}>
+        <FaTimes />
+      </button>
 
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
-            <textarea
-              id="description"
-              name="description"
-              value={course.description}
-              onChange={handleChange}
-              placeholder="Description du cours"
-              required
-            />
-          </div>
+      <h2>Ajouter un nouveau cours</h2>
+      <form className="add-course-form" onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="courseTitle">Titre du cours :</label>
+          <input 
+            id="courseTitle"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Entrez le titre du cours"
+            required
+          />
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="category">Catégorie</label>
-            <input
-              type="text"
-              id="category"
-              name="category"
-              value={course.category}
-              onChange={handleChange}
-              placeholder="Catégorie du cours"
-              required
-            />
-          </div>
+        <div className="form-group">
+          <label htmlFor="courseCategory">Catégorie du cours :</label>
+          <select 
+            id="courseCategory"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          >
+            <option value="">-- Choisir une catégorie --</option>
+            {categories.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="instructor">Instructeur</label>
-            <input
-              type="text"
-              id="instructor"
-              name="instructor"
-              value={course.instructor}
-              onChange={handleChange}
-              placeholder="Nom de l'instructeur"
-              required
-            />
-          </div>
+        <div className="form-group">
+          <label htmlFor="courseTeacher">Nom de l’enseignant :</label>
+          <select 
+            id="courseTeacher"
+            value={teacher}
+            onChange={(e) => setTeacher(e.target.value)}
+            required
+          >
+            <option value="">-- Choisir un enseignant --</option>
+            {teachers.map(t => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="skillsTaught">Compétences enseignées</label>
-            <input
-              type="text"
-              id="skillsTaught"
-              name="skillsTaught"
-              value={course.skillsTaught}
-              onChange={handleChange}
-              placeholder="Compétences enseignées"
-              required
-            />
-          </div>
+        <div className="form-group">
+          <label>Document PDF du cours :</label>
+          <input 
+            id="pdfUpload"
+            type="file" 
+            accept="application/pdf" 
+            onChange={handleFileChange} 
+            style={{ display: 'none' }}
+          />
+          <label htmlFor="pdfUpload" className="upload-label">
+            <FaUpload className="icon" /> Choisir un fichier PDF
+          </label>
+          {selectedFile && <span className="file-name">{selectedFile.name}</span>}
+          {previewUrl && (
+            <div className="pdf-preview">
+              <embed src={previewUrl} type="application/pdf" width="100%" height="300px" />
+              <p>{selectedFile.name}</p>
+            </div>
+          )}
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="duration">Durée en minutes</label>
-            <input
-              type="number"
-              id="duration"
-              name="duration"
-              value={course.duration}
-              onChange={handleChange}
-              placeholder="Durée du cours"
-              required
-            />
-          </div>
-
-          <button type="submit">Ajouter le cours</button>
-          <button type="button" onClick={onClose}>Annuler</button>
-        </form>
-      </div>
+        <button type="submit" className="submit-button">
+          <FaCheck className="icon" /> Créer le cours
+        </button>
+      </form>
     </div>
   );
 };

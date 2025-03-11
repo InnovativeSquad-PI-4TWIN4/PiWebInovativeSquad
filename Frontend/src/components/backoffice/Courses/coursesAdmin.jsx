@@ -1,110 +1,111 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import AddCourse from "./AddCourses"; // Import the AddCourse component
-import "./CoursesAdmin.scss";
+import React, { useState } from 'react';
+import { FaSearch, FaPlus } from 'react-icons/fa';
+import AddCourses from "./AddCourses";
+import './CoursesAdmin.scss';
 
-const Coursesadmin = () => {
-  const [courses, setCourses] = useState([]);
-  const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState(null); // État pour stocker le cours sélectionné
+const CoursesAdmin = () => {
+  // Données des cours (simulées pour le moment)
+  const [courses] = useState([
+    { id: 1, title: 'Introduction à React', category: 'Programmation', teacher: 'Alice Dupont', createdAt: '2023-08-01', popularity: 150 },
+    { id: 2, title: 'Design UX/UI', category: 'Design', teacher: 'Bob Martin', createdAt: '2023-06-15', popularity: 95 },
+    { id: 3, title: 'Marketing Digital', category: 'Marketing', teacher: 'Charlie Durand', createdAt: '2023-07-20', popularity: 120 },
+    { id: 4, title: 'Node.js Avancé', category: 'Programmation', teacher: 'Alice Dupont', createdAt: '2023-09-10', popularity: 80 }
+  ]);
 
-  useEffect(() => {
-    fetchCourses();
-  }, []);
+  // États pour la recherche, le filtrage et le tri
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [sortOption, setSortOption] = useState('dateDesc');
+  const [showForm, setShowForm] = useState(false); // ✅ Ajout de l'état pour gérer le formulaire
 
-  const fetchCourses = async () => {
-    try {
-      const response = await axios.get("http://localhost:3000/courses/getallcourses");
-      setCourses(response.data);
-    } catch (error) {
-      console.error("Erreur lors du chargement des cours :", error);
-    }
-  };
+  // Liste des catégories disponibles
+  const categories = ['Programmation', 'Design', 'Marketing', 'Réseau', 'Développement Web', 'Développement Mobile', 'Mathématique'];
 
-  const handleDelete = async (courseId) => {
-    try {
-      const response = await axios.delete(`http://localhost:3000/courses/deletecourses/${courseId}`);
-      if (response.status === 200) {
-        // Si la suppression réussie, actualise la liste des cours
-        fetchCourses();
-        alert("Cours supprimé avec succès");
+
+  // Filtrage et tri des cours
+  const filteredAndSortedCourses = courses
+    .filter(course =>
+      course.title.toLowerCase().includes(searchTerm.toLowerCase().trim()) &&
+      (categoryFilter === '' || course.category === categoryFilter)
+    )
+    .sort((a, b) => {
+      switch (sortOption) {
+        case 'dateAsc':
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        case 'dateDesc':
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        case 'popularity':
+          return b.popularity - a.popularity;
+        case 'title':
+          return a.title.localeCompare(b.title);
+        default:
+          return 0;
       }
-    } catch (error) {
-      console.error("Erreur lors de la suppression du cours :", error);
-      alert("Erreur lors de la suppression du cours");
-    }
-  };
-
-  const handleAddCourse = () => {
-    fetchCourses(); // Fetch courses again to refresh the list
-  };
-
-  const handleViewDetails = (course) => {
-    setSelectedCourse(course); // Mettre à jour l'état avec les détails du cours
-  };
-
-  const handleCloseDetails = () => {
-    setSelectedCourse(null); // Fermer les détails
-  };
+    });
 
   return (
-    <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">Liste des Cours</h2>
-
-      {/* Button to open AddCourse component */}
-      <button
-        onClick={() => setIsAddCourseOpen(true)}
-        className="bg-green-500 text-white font-bold py-2 px-4 rounded mb-4"
-      >
-        Ajouter un cours
-      </button>
-
-      {/* Conditionally render AddCourse component */}
-      {isAddCourseOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <AddCourse onClose={() => setIsAddCourseOpen(false)} onAddCourse={handleAddCourse} />
+    <div className="courses-admin">
+      {/* Barre de contrôles */}
+      <div className="controls">
+        {/* Barre de recherche */}
+        <div className="search-bar">
+          <FaSearch className="search-icon" />
+          <input 
+            type="text" 
+            placeholder="Rechercher par titre..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+          />
         </div>
-      )}
 
-      {/* Display courses */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map((course) => (
-          <div key={course._id} className="course-card">
-            <h3 className="text-lg font-bold mb-2 text-gray-800">{course.title}</h3>
-            <p className="text-gray-600 mb-2">{course.description}</p>
-            <p className="text-sm text-blue-500 mb-1">Catégorie : {course.category}</p>
-            <p className="text-sm text-green-600 mb-2">Durée: {course.duration} min</p>
-            <div className="mt-4 flex justify-between">
-              <button onClick={() => handleViewDetails(course)} className="button details">Détails</button>
-              <button onClick={() => alert(`Modifier le cours ID : ${course._id}`)} className="button edit">Modifier</button>
-              <button 
-                onClick={() => handleDelete(course._id)} 
-                className="button delete"
-              >
-                Supprimer
-              </button>
-            </div>
+        {/* Filtre par catégorie */}
+        <select 
+          className="category-filter" 
+          value={categoryFilter} 
+          onChange={(e) => setCategoryFilter(e.target.value)}
+        >
+          <option value="">Toutes catégories</option>
+          {categories.map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+
+        {/* Sélecteur de tri */}
+        <select 
+          className="sort-select" 
+          value={sortOption} 
+          onChange={(e) => setSortOption(e.target.value)}
+        >
+          <option value="dateDesc">Trier par : Plus récent</option>
+          <option value="dateAsc">Trier par : Plus ancien</option>
+          <option value="popularity">Trier par : Popularité</option>
+        </select>
+
+        {/* Bouton d'ajout de cours */}
+        <button className="add-course-button" onClick={() => setShowForm(true)}>
+          <FaPlus /> Ajouter un cours
+        </button>
+      </div>
+
+      {/* Grille des cours */}
+      <div className="courses-grid">
+        {filteredAndSortedCourses.map((course, index) => (
+          <div 
+            key={course.id} 
+            className="course-card" 
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
+            <span className="category">{course.category}</span>
+            <h3 className="title">{course.title}</h3>
+            <p className="teacher">Enseignant : {course.teacher}</p>
           </div>
         ))}
       </div>
 
-      {/* Modal to display course details */}
-      {selectedCourse && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="modal-content bg-white p-6 rounded-lg">
-            <h3 className="text-xl font-bold mb-4">Détails du Cours</h3>
-            <p><strong>Titre :</strong> {selectedCourse.title}</p>
-            <p><strong>Description :</strong> {selectedCourse.description}</p>
-            <p><strong>Catégorie :</strong> {selectedCourse.category}</p>
-            <p><strong>Instructeur :</strong> {selectedCourse.instructor}</p>
-            <p><strong>Compétences enseignées :</strong> {selectedCourse.skillsTaught}</p>
-            <p><strong>Durée :</strong> {selectedCourse.duration} min</p>
-            <button onClick={handleCloseDetails} className="bg-red-500 text-white py-2 px-4 rounded mt-4">Fermer</button>
-          </div>
-        </div>
-      )}
+      {/* Affichage du formulaire d'ajout de cours */}
+      {showForm && <AddCourses onClose={() => setShowForm(false)} />}
     </div>
   );
 };
 
-export default Coursesadmin;
+export default CoursesAdmin;
