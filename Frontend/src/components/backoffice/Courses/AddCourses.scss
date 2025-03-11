@@ -1,96 +1,106 @@
-.add-course-modal {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-}
-
-.modal-content {
-  background-color: white;
-  padding: 30px;
-  border-radius: 10px;
-  width: 100%;
+$primary-color: #007bff;
+.add-course {
   max-width: 600px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  gap: 20px; /* Espace entre les éléments du formulaire */
+  margin: 0 auto;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
 }
 
-h2 {
-  font-size: 24px;
-  font-weight: bold;
-  text-align: center;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-group label {
-  font-size: 16px;
-  font-weight: bold;
+.add-course h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
   color: #333;
 }
 
-.form-group input,
-.form-group textarea {
-  padding: 10px;
-  font-size: 16px;
+.add-course-form .form-group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.add-course-form .form-group label {
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+
+.add-course-form .form-group input,
+.add-course-form .form-group select {
+  padding: 0.5rem;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 4px;
+  transition: border-color 0.3s;
+}
+
+.add-course-form .form-group input:focus,
+.add-course-form .form-group select:focus {
   outline: none;
-  resize: vertical; /* Pour le textarea, permet de redimensionner verticalement */
+  border-color: $primary-color;
+  box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
-  border-color: #007bff; /* Change la couleur du bord au focus */
-}
-
-button[type="submit"] {
-  background-color: #28a745; /* Vert */
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 5px;
+.upload-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f9f9f9;
+  color: #333;
   cursor: pointer;
-  font-size: 16px;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.upload-label:hover {
+  background: darken($primary-color, 10%);
+  border-color: $primary-color;
+}
+
+.file-name {
+  margin-left: 1rem;
+  font-style: italic;
+}
+
+.pdf-preview {
+  margin-top: 0.5rem;
+}
+
+.pdf-preview embed {
   width: 100%;
-  transition: background-color 0.3s;
+  height: 300px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-button[type="submit"]:hover {
-  background-color: #218838; /* Plus foncé au survol */
+.pdf-preview p {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: #555;
 }
 
-button[type="button"] {
-  background-color: #dc3545; /* Rouge */
-  color: white;
+.submit-button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: darken($primary-color, 10%);
+  color: #fff;
   border: none;
-  padding: 12px 20px;
-  border-radius: 5px;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   cursor: pointer;
-  font-size: 16px;
-  width: 100%;
-  margin-top: 10px;
-  transition: background-color 0.3s;
 }
 
-button[type="button"]:hover {
-  background-color: #c82333; /* Plus foncé au survol */
+.submit-button:hover {
+  background: darken($primary-color, 20%);
 }
 
-textarea {
-  height: 150px;
+@media (max-width: 600px) {
+  .add-course {
+    padding: 1rem;
+  }
 }
