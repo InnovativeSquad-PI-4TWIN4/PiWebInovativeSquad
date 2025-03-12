@@ -5,6 +5,7 @@ import "./dashbordAdmin.scss";
 import ManageUsers from "../ManageUsers/ManageUsers";
 import ManageAdmins from "../ManageAdmins/ManageAdmin"; // ✅ Ajout de ManageAdmins
 import Coursesadmin from "../Courses/coursesAdmin";
+import PackAdmin from "../Packs/listpack";
 
 const salesData = [
   { month: "Jan", sales: 18000 },
@@ -103,6 +104,9 @@ const DashbordAdmin = () => {
           <li className={activeTab === "coursesadmin" ? "active" : ""} onClick={() => setActiveTab("coursesadmin")}>
             <FaChartBar /> Courses
           </li>
+          <li className={activeTab === "PackAdmin" ? "active" : ""} onClick={() => setActiveTab("PackAdmin")}>
+            <FaChartBar /> Packs
+          </li>
           <li className={activeTab === "settings" ? "active" : ""} onClick={() => setActiveTab("settings")}>
             <FaCog /> Settings
           </li>
@@ -170,6 +174,7 @@ const DashbordAdmin = () => {
         {activeTab === "manageUsers" && <ManageUsers />}
         {activeTab === "manageAdmins" && <ManageAdmins />} {/* ✅ Ajout de ManageAdmins */}
         {activeTab === "coursesadmin" && <Coursesadmin />} 
+        {activeTab === "PackAdmin" && <PackAdmin />} 
         {activeTab === "settings" && <div>Settings Content</div>}
       </div>
     </div>
