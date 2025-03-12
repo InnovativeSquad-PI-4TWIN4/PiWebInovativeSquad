@@ -1,12 +1,18 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const Schema = mongoose.Schema; // ✅ Déclaration explicite de Schema
+const User = require("./User"); // ✅ Assure que le modèle User est bien chargé avant l'utilisation
 
 const CourseSchema = new Schema({
-    title: { type: String, required: true }, // Titre du cours
-    category: { type: String, required: true }, // Catégorie du cours
-    instructor: { type: Schema.Types.ObjectId, ref: 'users', required: true }, // Enseignant
-    pdfUrl: { type: String, required: true }, // Lien vers le fichier PDF du cours
-    createdAt: { type: Date, default: Date.now }, // Date de création
+    title: { type: String, required: true },
+    category: { type: String, required: true },
+    instructor: { 
+        type: Schema.Types.ObjectId, 
+        ref: "users", // ✅ Vérifie que la référence correspond bien au nom du modèle User
+        required: true 
+    },
+    pdfUrl: { type: String, required: true }
 });
 
-module.exports = mongoose.model('Course', CourseSchema);
+// ✅ Vérifie que le modèle est bien enregistré avant de l'exporter
+const Course = mongoose.model("courses", CourseSchema);
+module.exports = Course;
