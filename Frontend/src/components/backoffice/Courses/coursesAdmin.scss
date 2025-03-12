@@ -122,7 +122,116 @@ $hover-shadow: rgba(0, 0, 0, 0.25);
     color: #555;
     font-weight: 500;
   }
+
+  // Styles pour les boutons "Modifier", "Supprimer" et "Télécharger en PDF"
+  .course-card .actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      &.edit-btn {
+        background-color: #ffc107;
+        color: #000;
+
+        &:hover {
+          background-color: darken(#ffc107, 10%);
+        }
+      }
+
+      &.delete-btn {
+        background-color: #dc3545;
+        color: #fff;
+
+        &:hover {
+          background-color: darken(#dc3545, 10%);
+        }
+      }
+    }
+  }
+
+  .course-card .course-actions {
+    margin-top: 1rem;
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+
+      &:hover {
+        background-color: darken(#28a745, 10%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
 }
+/* Conteneur pour les boutons */
+.course-actions {
+  display: flex;
+  flex-direction: column; /* Aligner les boutons verticalement */
+  gap: 10px; /* Espacement entre les boutons */
+  margin-top: 10px;
+}
+
+/* Style général des boutons */
+.course-actions button {
+  color: white; /* Texte blanc */
+  border: none; /* Retirer les bordures par défaut */
+  padding: 10px 15px; /* Espacement autour du texte */
+  border-radius: 5px; /* Bords arrondis */
+  font-size: 14px; /* Taille de police */
+  cursor: pointer; /* Curseur en forme de main */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Transition fluide pour les effets */
+  width: 100%; /* Les boutons occupent toute la largeur du conteneur */
+}
+
+/* Effet au survol des boutons */
+.course-actions button:hover {
+  transform: scale(1.05); /* Agrandissement du bouton lors du survol */
+}
+
+/* Style spécifique pour le bouton "Afficher" */
+.course-actions button:first-child {
+  background-color: #007bff; /* Couleur bleue pour "Afficher" */
+}
+
+.course-actions button:first-child:hover {
+  background-color: #0056b3; /* Couleur bleue plus foncée au survol */
+}
+
+/* Style spécifique pour le bouton "Télécharger" */
+.course-actions button:last-child {
+  background-color: #28a745; /* Couleur verte pour "Télécharger" */
+}
+
+.course-actions button:last-child:hover {
+  background-color: #218838; /* Couleur verte plus foncée au survol */
+}
+
 
 @keyframes fadeInUp {
   from {
