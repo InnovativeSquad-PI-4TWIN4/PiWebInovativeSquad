@@ -23,6 +23,7 @@ import AddCourses from './components/backoffice/Courses/AddCourses';
 import CoursesAdmin from './components/backoffice/Courses/coursesAdmin';
 import AuthSuccess from './components/frontoffice/signin/AuthSuccess';
 import UpdateAdminPassword from './components/backoffice/ManageAdmins/updateAdminPassword';
+import AddAdmin from './components/backoffice/ManageAdmins/AddAdmin';
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -70,6 +71,7 @@ const App = () => {
                         <Route path="/admin/dashboard" element={<DashbordAdmin />} />
                         <Route path="/admin/manage-users" element={<ManageUsers />} />
                         <Route path="/admin/manage-admins" element={<ManageAdmins />} />
+                        <Route path="/admin/add-admin" element={<AddAdmin />} /> {/* 🔹 Ajout de la route */}
                         <Route path="/coursesadmin" element={<CoursesAdmin />} />
                         <Route path="/add-course" element={<AddCourses />} />
                         <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
