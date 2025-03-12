@@ -123,7 +123,7 @@ const ManageAdmins = () => {
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-            <h3>Ajouter un Administrateur</h3>
+            <h3>Add Admin</h3>
             <input type="text" placeholder="FirstName" onChange={(e) => setNewAdmin({ ...newAdmin, firstname: e.target.value })} />
             <input type="text" placeholder="LastName" onChange={(e) => setNewAdmin({ ...newAdmin, lastname: e.target.value })} />
             <input type="email" placeholder="Email" onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })} />
