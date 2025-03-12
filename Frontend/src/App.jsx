@@ -34,19 +34,24 @@ const App = () => {
 
     // 🔹 Vérifie si un utilisateur est déjà authentifié (OAuth inclus)
     useEffect(() => {
-        fetch("http://localhost:3000/auth/current_user", {
-            credentials: "include",
-        })
-        .then((res) => res.json())
-        .then((data) => {
-            if (data && data.id) {
-                setUser(data);
-                localStorage.setItem('user', JSON.stringify(data)); // Stocker l'utilisateur en local
-            }
-        })
-        .catch((err) => console.error("Erreur de récupération de l'utilisateur :", err));
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            setUser(JSON.parse(storedUser)); // Restaurer l'utilisateur
+        } else {
+            fetch("http://localhost:3000/auth/current_user", {
+                credentials: "include",
+            })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data && data.id) {
+                    setUser(data);
+                    localStorage.setItem('user', JSON.stringify(data)); // Sauvegarde locale
+                }
+            })
+            .catch((err) => console.error("Erreur de récupération de l'utilisateur :", err));
+        }
     }, []);
-
+    
     const handleLogin = (userData) => {
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
