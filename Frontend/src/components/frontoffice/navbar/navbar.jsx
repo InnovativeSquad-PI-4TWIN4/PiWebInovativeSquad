@@ -34,7 +34,7 @@ const Navbar = ({ user, onLogout }) => {
             </Link>
             <ul className="navbar-links">
             <li><Link to="/overview" className="overview">Challenges</Link></li>
-            <li><Link to="/Full" className="overview">AI Tools</Link></li>
+            
 
                 {user ? (
                     <>
@@ -42,6 +42,7 @@ const Navbar = ({ user, onLogout }) => {
                         <li><Link to="/courses">Courses</Link></li>
                         <li><Link to="/OurPacks">Our Packs</Link></li>
                         <li><Link to="/AvisWebsite">Avis sur site web</Link></li>
+                        <li><Link to="/Full" className="overview">AI Tools</Link></li>
                         <li><Link to="/contact">Contact</Link></li>
                         <li>
                             <div className="user-menu">
