@@ -14,6 +14,8 @@ const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
 const coursesRouter = require("./routes/courses");
+const avisRouter = require ("./routes/Avis");
+const packRoutes = require("./routes/pack");
 
 // Configuration des variables d'environnement
 require("dotenv").config();
@@ -66,6 +68,8 @@ app.use("/auth", authRouter);  // ✅ Correction de la route Facebook
 app.use("/index", indexRouter);
 app.use("/users", usersRouter);
 app.use("/courses", coursesRouter);
+app.use("/Avis", avisRouter);
+app.use("/packs", packRoutes);
 
 // ✅ Gestion des erreurs 404 (À PLACER APRÈS LES ROUTES)
 app.use((req, res, next) => {
