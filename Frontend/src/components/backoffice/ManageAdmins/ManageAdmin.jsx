@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaSearch, FaUserPlus } from "react-icons/fa";
+import AddAdmin from "../../backoffice/ManageAdmins/AddAdmin";
 import "./ManageAdmin.scss";
 
 const ManageAdmins = () => {
