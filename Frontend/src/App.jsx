@@ -24,6 +24,8 @@ import CoursesAdmin from './components/backoffice/Courses/coursesAdmin';
 import AuthSuccess from './components/frontoffice/signin/AuthSuccess';
 import UpdateAdminPassword from './components/backoffice/ManageAdmins/updateAdminPassword';
 import AddAdmin from './components/backoffice/ManageAdmins/AddAdmin';
+import Avis from './components/frontoffice/noticeWebsite/noticeWebsite';
+import Packs from './components/frontoffice/Packs/Packs';
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -90,6 +92,8 @@ const App = () => {
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/reset-password/:token" element={<ResetPassword />} />
                         <Route path="/courses" element={<Courses />} />
+                        <Route path="/AvisWebsite" element={<Avis />} />
+                        <Route path="/Ourpacks" element={<Packs />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
                         <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
