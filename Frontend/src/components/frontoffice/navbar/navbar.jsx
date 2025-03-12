@@ -39,6 +39,8 @@ const Navbar = ({ user, onLogout }) => {
                     <>
                         <li><Link to="/">Home</Link></li>
                         <li><Link to="/courses">Courses</Link></li>
+                        <li><Link to="/OurPacks">Our Packs</Link></li>
+                        <li><Link to="/AvisWebsite">Avis sur site web</Link></li>
                         <li><Link to="/contact">Contact</Link></li>
                         <li>
                             <div className="user-menu">
