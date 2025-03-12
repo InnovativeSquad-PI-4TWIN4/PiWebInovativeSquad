@@ -17,7 +17,7 @@ import ManageUsers from './components/backoffice/ManageUsers/ManageUsers';
 import AdminNavbar from './components/backoffice/Adminnavbar/adminnavbar';
 import './index.css';
 import Overview from './components/frontoffice/OverView/overview';
-import Chatbot from './components/frontoffice/chatbot/chatBot'; // Corrected import
+import Chatbot from './components/frontoffice/chatbot/chatBot'; 
 import ManageAdmins from './components/backoffice/ManageAdmins/ManageAdmin';
 import AddCourses from './components/backoffice/Courses/AddCourses';
 import CoursesAdmin from './components/backoffice/Courses/coursesAdmin';
@@ -26,6 +26,8 @@ import UpdateAdminPassword from './components/backoffice/ManageAdmins/updateAdmi
 import AddAdmin from './components/backoffice/ManageAdmins/AddAdmin';
 import Avis from './components/frontoffice/noticeWebsite/noticeWebsite';
 import Packs from './components/frontoffice/Packs/Packs';
+
+import Full from './components/PersonalSpace/Full';
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -89,6 +91,7 @@ const App = () => {
                         <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
                         <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
                         <Route path="/overview" element={<Overview />} />
+                        <Route path="/Full" element={<Full />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/reset-password/:token" element={<ResetPassword />} />
                         <Route path="/courses" element={<Courses />} />
