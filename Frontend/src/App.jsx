@@ -17,10 +17,12 @@ import ManageUsers from './components/backoffice/ManageUsers/ManageUsers';
 import AdminNavbar from './components/backoffice/Adminnavbar/adminnavbar';
 import './index.css';
 import Overview from './components/frontoffice/OverView/overview';
-import Chatbot from './components/frontoffice/chatbot/chatBot'; // Corrected import
+import Chatbot from './components/frontoffice/chatbot/chatBot'; 
 import ManageAdmins from './components/backoffice/ManageAdmins/ManageAdmin';
 import Coursesadmin from './components/backoffice/Courses/coursesAdmin';
 import AddCourses from './components/backoffice/Courses/AddCourses';
+
+import Full from './components/PersonalSpace/Full';
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -71,6 +73,7 @@ const App = () => {
                         <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
                         <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
                         <Route path="/overview" element={<Overview />} />
+                        <Route path="/Full" element={<Full />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/reset-password/:token" element={<ResetPassword />} />
                         <Route path="/courses" element={<Courses />} />
