@@ -1,121 +1,126 @@
-import React, { useState } from 'react';
-import { FaUpload, FaCheck, FaTimes } from 'react-icons/fa';
-import './AddCourses.scss';
+import React, { useState, useEffect } from "react";
+import "./AddCourses.scss";
 
 const AddCourses = ({ onClose }) => {
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('');
-  const [teacher, setTeacher] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("");
+  const [instructor, setInstructor] = useState("");
+  const [pdfFile, setPdfFile] = useState(null);
+  const [admins, setAdmins] = useState([]);
 
-  // Listes de catégories et d'enseignants
-  const categories = ['Programmation', 'Design', 'Marketing', 'Réseau', 'Développement Web', 'Développement Mobile', 'Mathématique'];
-  const teachers = ['Alice Dupont', 'Bob Martin', 'Charlie Durand'];
+  // 📌 Charger les administrateurs depuis l'API
+  useEffect(() => {
+    const token = localStorage.getItem("token"); // Récupérer le token
+    if (!token) {
+      console.error("⚠️ Aucun token trouvé !");
+      return;
+    }
 
+    fetch("http://localhost:3000/users/getAllAdmins", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setAdmins(data);
+        } else {
+          console.error("❌ Erreur: Données inattendues", data);
+        }
+      })
+      .catch((err) => console.error("❌ Erreur lors du chargement des admins :", err));
+  }, []);
+
+  // 📌 Gestion de l'upload du fichier PDF
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+    if (file && file.type === "application/pdf") {
+      setPdfFile(file);
     } else {
-      setSelectedFile(null);
-      setPreviewUrl(null);
+      alert("⚠️ Seuls les fichiers PDF sont autorisés !");
+      setPdfFile(null);
     }
   };
 
-  const handleSubmit = (e) => {
+  // 📌 Soumission du formulaire
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Nouveau cours ajouté :', { title, category, teacher, file: selectedFile });
-    alert(`Cours "${title}" créé avec succès!`);
 
-    // Réinitialisation du formulaire après soumission
-    setTitle('');
-    setCategory('');
-    setTeacher('');
-    setSelectedFile(null);
-    setPreviewUrl(null);
-    onClose(); // ✅ Ferme le formulaire après la soumission
+    if (!title || !category || !instructor || !pdfFile) {
+      alert("⚠️ Veuillez remplir tous les champs !");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("category", category);
+    formData.append("instructor", instructor);
+    formData.append("file", pdfFile);
+
+    try {
+      const response = await fetch("http://localhost:3000/courses/addcourses", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert("✅ Cours ajouté avec succès !");
+        onClose(); // Fermer le formulaire après l'ajout
+      } else {
+        alert("❌ Erreur lors de l'ajout du cours : " + result.message);
+      }
+    } catch (error) {
+      console.error("❌ Erreur lors de l'ajout du cours :", error);
+      alert("❌ Erreur lors de l'ajout du cours. Vérifiez la console !");
+    }
   };
 
   return (
-    <div className="add-course">
-      {/* Bouton de fermeture */}
-      <button className="close-button" onClick={onClose}>
-        <FaTimes />
-      </button>
-
+    <div className="add-course-container">
+      <button className="close-button" onClick={onClose}>✖</button>
       <h2>Ajouter un nouveau cours</h2>
       <form className="add-course-form" onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="courseTitle">Titre du cours :</label>
-          <input 
-            id="courseTitle"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Entrez le titre du cours"
-            required
-          />
+          <label>Titre du cours :</label>
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
         </div>
 
         <div className="form-group">
-          <label htmlFor="courseCategory">Catégorie du cours :</label>
-          <select 
-            id="courseCategory"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required
-          >
+          <label>Catégorie :</label>
+          <select value={category} onChange={(e) => setCategory(e.target.value)} required>
             <option value="">-- Choisir une catégorie --</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
+            <option value="Programmation">Programmation</option>
+            <option value="Design">Design</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Réseau">Réseau</option>
+            <option value="Développement Web">Développement Web</option>
+            <option value="Développement Mobile">Développement Mobile</option>
+            <option value="Mathématique">Mathématique</option>
           </select>
         </div>
 
         <div className="form-group">
-          <label htmlFor="courseTeacher">Nom de l’enseignant :</label>
-          <select 
-            id="courseTeacher"
-            value={teacher}
-            onChange={(e) => setTeacher(e.target.value)}
-            required
-          >
+          <label>Nom de l’enseignant :</label>
+          <select value={instructor} onChange={(e) => setInstructor(e.target.value)} required>
             <option value="">-- Choisir un enseignant --</option>
-            {teachers.map(t => (
-              <option key={t} value={t}>{t}</option>
+            {admins.map((admin) => (
+              <option key={admin._id} value={admin._id}>
+                {admin.name}
+              </option>
             ))}
           </select>
         </div>
 
-        <div className="form-group">
-          <label>Document PDF du cours :</label>
-          <input 
-            id="pdfUpload"
-            type="file" 
-            accept="application/pdf" 
-            onChange={handleFileChange} 
-            style={{ display: 'none' }}
-          />
-          <label htmlFor="pdfUpload" className="upload-label">
-            <FaUpload className="icon" /> Choisir un fichier PDF
-          </label>
-          {selectedFile && <span className="file-name">{selectedFile.name}</span>}
-          {previewUrl && (
-            <div className="pdf-preview">
-              <embed src={previewUrl} type="application/pdf" width="100%" height="300px" />
-              <p>{selectedFile.name}</p>
-            </div>
-          )}
+        <div className="form-group file-upload">
+          <label>Document PDF :</label>
+          <input type="file" accept="application/pdf" onChange={handleFileChange} required />
         </div>
 
-        <button type="submit" className="submit-button">
-          <FaCheck className="icon" /> Créer le cours
-        </button>
+        <button type="submit" className="submit-button">Créer le cours</button>
       </form>
     </div>
   );
