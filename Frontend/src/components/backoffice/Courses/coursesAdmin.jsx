@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { FaSearch, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import AddCourses from "./AddCourses";
 import { jsPDF } from 'jspdf'; // Importation de jsPDF
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import { Worker, Viewer } from '@react-pdf-viewer/core'; // Importation de react-pdf-viewer
 import './CoursesAdmin.scss';
 
 const CoursesAdmin = () => {
@@ -13,6 +15,7 @@ const CoursesAdmin = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
   const [message, setMessage] = useState('');  // Message de succès
+  const [pdfFile, setPdfFile] = useState(null); // State pour afficher le PDF
 
   // ✅ Récupérer les cours
   useEffect(() => {
@@ -145,6 +148,18 @@ const CoursesAdmin = () => {
     setMessage('Téléchargement effectué avec succès !'); // Message de succès
   };
 
+  // ✅ Fonction pour afficher le PDF
+  const handleShowPDF = (pdfUrl) => {
+    // Vérification si l'URL est valide (par exemple, si le fichier existe et est un PDF valide)
+    const isPdf = pdfUrl && pdfUrl.endsWith('.pdf');
+    if (isPdf) {
+        setPdfFile(pdfUrl); // Mettre à jour l'URL du PDF
+    } else {
+        alert('Le fichier sélectionné n\'est pas un PDF valide.');
+    }
+};
+  
+
   return (
     <div className="courses-admin">
       <div className="controls">
@@ -192,6 +207,12 @@ const CoursesAdmin = () => {
               </div>
               <div className="course-actions">
                 <button onClick={() => handleDownload(course)}>Télécharger en PDF</button>
+                {/* Affichage du PDF dans un iframe */}
+                {course.pdfUrl && (
+                  <div className="pdf-viewer">
+                    <button onClick={() => handleShowPDF(course.pdfUrl)}>Afficher le PDF</button>
+                  </div>
+                )}
               </div>
             </div>
           ))
@@ -220,6 +241,15 @@ const CoursesAdmin = () => {
 
       {/* Message de succès */}
       {message && <div className="success-message">{message}</div>}
+
+      {/* Affichage du PDF si l'URL est définie */}
+      {pdfFile && (
+        <div className="pdf-container">
+          <Worker workerUrl={`https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`}>
+            <Viewer fileUrl={pdfFile} />
+          </Worker>
+        </div>
+      )}
     </div>
   );
 };
