@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Modal from "react-modal"; // Importation du modal
 import "./Packs.scss";
+
+Modal.setAppElement("#root"); // Assure l'accessibilité
 
 const Packs = () => {
   const [packs, setPacks] = useState([]);
+  const [selectedPack, setSelectedPack] = useState(null); // Stocke le pack sélectionné
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
   useEffect(() => {
     axios
@@ -17,24 +22,33 @@ const Packs = () => {
   const getBackgroundColor = (category) => {
     switch (category) {
       case "premium":
-        return "#f8d7da"; // Rose clair
+        return "#f8d7da";
       case "gold":
-        return "#84e8d1"; // Vert
+        return "#84e8d1";
       case "silver":
-        return "#cce5ff"; // Bleu clair
+        return "#cce5ff";
       default:
         return "#ffffff";
     }
   };
 
-  // Calcul du prix après réduction
   const getDiscountedPrice = (price, discount) => {
-    return price - (price * discount / 100);
+    return price - (price * discount) / 100;
+  };
+
+  const openModal = (pack) => {
+    setSelectedPack(pack);
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setSelectedPack(null);
   };
 
   return (
     <div className="packs-container">
-      <h2 className="section-title">Explorez Nos Offres </h2>
+      <h2 className="section-title">Explorez Nos Offres</h2>
       <div className="packs-grid">
         {packs.map((pack) => {
           const discountedPrice = getDiscountedPrice(pack.price, pack.discount);
@@ -43,6 +57,7 @@ const Packs = () => {
               key={pack.id}
               className="pack-card"
               style={{ backgroundColor: getBackgroundColor(pack.category) }}
+              onClick={() => openModal(pack)} // Ouvre le modal au clic
             >
               <div className="discount-badge">-{pack.discount}%</div>
               <div className="pack-icon">
@@ -53,17 +68,29 @@ const Packs = () => {
                 <strong>Contenu :</strong> {pack.description}
               </p>
               <div className="pack-price">
-                <p>
-                  <strong>Prix initial :</strong> {pack.price}DT
-                </p>
-                <p>
-                  <strong>Prix après réduction :</strong> {discountedPrice.toFixed(2)}DT
-                </p>
+                <p><strong>Prix initial :</strong> {pack.price}DT</p>
+                <p><strong>Prix après réduction :</strong> {discountedPrice.toFixed(2)}DT</p>
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* 🔹 Modal pour afficher les détails du pack sélectionné */}
+      <Modal isOpen={modalIsOpen} onRequestClose={closeModal} className="custom-modal">
+        {selectedPack && (
+          <div className="modal-content">
+            <h2>{selectedPack.title}</h2>
+            <img src={`/assets/icons/${selectedPack.icon}`} alt="Pack Icon" />
+            <p><strong>Description :</strong> {selectedPack.description}</p>
+            <p><strong>Catégorie :</strong> {selectedPack.category}</p>
+            <p><strong>Prix initial :</strong> {selectedPack.price}DT</p>
+            <p><strong>Réduction :</strong> {selectedPack.discount}%</p>
+            <p><strong>Prix après réduction :</strong> {getDiscountedPrice(selectedPack.price, selectedPack.discount).toFixed(2)}DT</p>
+            <button onClick={closeModal} className="close-button">Fermer</button>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
