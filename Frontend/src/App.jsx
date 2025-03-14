@@ -29,6 +29,7 @@ import Packs from './components/frontoffice/Packs/Packs';
 
 import Full from './components/PersonalSpace/Full';
 
+
 const App = () => {
     const [user, setUser] = useState(null);
 
@@ -84,7 +85,7 @@ const App = () => {
                         <Route path="/coursesadmin" element={<CoursesAdmin />} />
                         <Route path="/add-course" element={<AddCourses />} />
                         <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
-                       
+                        <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
 
 
 

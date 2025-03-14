@@ -1,42 +1,36 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import "./UpdateAdminPassword.scss"
+import "./UpdateAdminPassword.scss";
 
 const UpdateAdminPassword = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const email = queryParams.get("email"); // Récupérer l'email depuis l'URL
+  const email = queryParams.get("email");
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  
 
-  // ✅ Vérifier si l'email est bien récupéré
   useEffect(() => {
     console.log("📌 Email récupéré :", email);
     
-    if (email === null) {
-        return;  // Attendre avant de rediriger
-    }
-
     if (!email) {
-        alert("❌ Erreur : Email non trouvé. Redirection vers SignIn");
-        navigate("/signin");
+      alert("❌ Erreur : Email non trouvé. Redirection vers SignIn");
+      navigate("/signin");
     }
-}, [email, navigate]);
+  }, [email, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (newPassword.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caractères.");
+
+    if (!newPassword.trim() || !confirmPassword.trim()) {
+      setError("❌ Tous les champs sont requis");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
+      setError("❌ Les mots de passe ne correspondent pas.");
       return;
     }
 
@@ -44,18 +38,22 @@ const UpdateAdminPassword = () => {
       const response = await fetch("http://localhost:3000/users/updateAdminPassword", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, newPassword, confirmPassword }),
+        body: JSON.stringify({ email, newPassword }),
       });
 
       const data = await response.json();
+
       if (response.ok) {
         alert("✅ Mot de passe mis à jour avec succès !");
-        navigate("/signin");  // Redirection vers Sign In après mise à jour
+        console.log("🔀 Redirection vers SignIn...");
+
+        // ✅ Redirection correcte sans rechargement
+        navigate("/signin");
       } else {
-        setError(data.message || "Une erreur s'est produite.");
+        setError(data.message || "❌ Une erreur s'est produite.");
       }
     } catch (error) {
-      console.error("Erreur lors de la mise à jour du mot de passe :", error);
+      console.error("❌ Erreur lors de la mise à jour du mot de passe :", error);
       setError("❌ Une erreur s'est produite, veuillez réessayer.");
     }
   };
@@ -82,7 +80,7 @@ const UpdateAdminPassword = () => {
             required
           />
         </div>
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p className="error-message">{error}</p>}
         <button type="submit">Confirm</button>
       </form>
     </div>
