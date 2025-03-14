@@ -1,20 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { FaSearch, FaUserPlus } from "react-icons/fa";
-import AddAdmin from "../../backoffice/ManageAdmins/AddAdmin";
+import AddAdmin from "./AddAdmin"; // ✅ Import correct
 import "./ManageAdmin.scss";
 
 const ManageAdmins = () => {
   const [admins, setAdmins] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [newAdmin, setNewAdmin] = useState({
-    lastname: "",
-    firstname: "",
-    email: "",
-    password: "",
-    dateOfBirth: "",
-  });
+  const [showModal, setShowModal] = useState(false); // ✅ Gérer l'affichage du modal
 
   useEffect(() => {
     const fetchAdmins = async () => {
@@ -32,6 +25,13 @@ const ManageAdmins = () => {
           },
         });
 
+        if (response.status === 401) {
+          localStorage.removeItem("token"); // ✅ Supprimer le token invalide
+          alert("Votre session a expiré. Veuillez vous reconnecter.");
+          window.location.href = "/signin"; // ✅ Redirection vers la connexion
+          return;
+        }
+
         if (!response.ok) {
           throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
         }
@@ -40,13 +40,14 @@ const ManageAdmins = () => {
         setAdmins(data);
       } catch (err) {
         setError(err.message);
+        console.error("❌ Erreur lors de la récupération des admins :", err);
       }
     };
 
     fetchAdmins();
   }, []);
 
-  const handleAddAdmin = async () => {
+  const handleAddAdmin = async (newAdmin) => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch("http://localhost:3000/users/addAdmin", {
@@ -71,9 +72,9 @@ const ManageAdmins = () => {
     }
   };
 
-  const filteredAdmins = admins.filter((admin) =>
+  const filteredAdmins = admins?.filter((admin) =>
     `${admin.name} ${admin.surname}`.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) || [];
 
   return (
     <div className="manage-admins">
@@ -101,7 +102,7 @@ const ManageAdmins = () => {
       {/* ✅ Liste des admins sous forme de cartes */}
       <div className="admin-grid">
         {filteredAdmins.length === 0 ? (
-          <p>Aucun administrateur trouvé</p>
+          <p>Aucun administrateur trouvé.</p>
         ) : (
           filteredAdmins.map((admin) => (
             <div className="admin-card" key={admin._id}>
@@ -120,20 +121,7 @@ const ManageAdmins = () => {
       </div>
 
       {/* ✅ Modal pour ajouter un admin */}
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Add Admin</h3>
-            <input type="text" placeholder="FirstName" onChange={(e) => setNewAdmin({ ...newAdmin, firstname: e.target.value })} />
-            <input type="text" placeholder="LastName" onChange={(e) => setNewAdmin({ ...newAdmin, lastname: e.target.value })} />
-            <input type="email" placeholder="Email" onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })} />
-            <input type="password" placeholder="Password" onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })} />
-            <input type="date" onChange={(e) => setNewAdmin({ ...newAdmin, dateOfBirth: e.target.value })} />
-            <button onClick={handleAddAdmin}>Add</button>
-            <button onClick={() => setShowModal(false)} className="cancel-button">Close</button>
-          </div>
-        </div>
-      )}
+      {showModal && <AddAdmin onClose={() => setShowModal(false)} onAdd={handleAddAdmin} />}
     </div>
   );
 };

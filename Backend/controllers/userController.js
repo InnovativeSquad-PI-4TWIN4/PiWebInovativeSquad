@@ -650,15 +650,13 @@ exports.addAdmin = async (req, res) => {
 
 exports.updateAdminPassword = async (req, res) => {
   try {
-    const { email, newPassword, confirmPassword } = req.body;
+    const { email, newPassword } = req.body; // ✅ Supprimer confirmPassword
+
+    console.log("📥 Requête reçue :", req.body); // ✅ Vérifier les données reçues
 
     // Vérification des champs
-    if (!email || !newPassword || !confirmPassword) {
+    if (!email || !newPassword) {
       return res.status(400).json({ message: "Tous les champs sont requis" });
-    }
-
-    if (newPassword !== confirmPassword) {
-      return res.status(400).json({ message: "Les mots de passe ne correspondent pas" });
     }
 
     // Vérifier si l'admin existe
@@ -672,9 +670,11 @@ exports.updateAdminPassword = async (req, res) => {
     admin.password = hashedPassword;
     await admin.save();
 
+    console.log("✅ Mot de passe mis à jour !");
     res.status(200).json({ message: "Mot de passe mis à jour avec succès" });
+
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du mot de passe :", error);
+    console.error("❌ Erreur lors de la mise à jour du mot de passe :", error);
     res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 };
