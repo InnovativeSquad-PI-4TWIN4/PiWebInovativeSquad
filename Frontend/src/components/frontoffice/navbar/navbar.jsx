@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { FaExchangeAlt } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
-import './Navbar.scss';
-import { FiLogOut } from 'react-icons/fi';
+import { FiLogOut, FiSun, FiMoon } from 'react-icons/fi';
 import { MdManageAccounts } from 'react-icons/md';
+import { Link, useNavigate } from 'react-router-dom';
+import { ThemeContext } from '../../../context/ThemeContext'; // 🔹 Import du contexte du thème
+import './Navbar.scss';
 import AdminNavbar from '../../backoffice/Adminnavbar/adminnavbar';
 
 const Navbar = ({ user, onLogout }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const { theme, toggleTheme } = useContext(ThemeContext); // 🔹 Utilisation du contexte du thème
     const navigate = useNavigate();
-    
 
     const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -22,9 +23,6 @@ const Navbar = ({ user, onLogout }) => {
     if (user && user.role === "admin") {
         return <AdminNavbar user={user} onLogout={onLogout} />;
     }
-    
-
-
 
     return (
         <nav className="navbar">
@@ -32,9 +30,9 @@ const Navbar = ({ user, onLogout }) => {
                 <FaExchangeAlt className="logo-icon" />
                 <span>SkillBridge</span>
             </Link>
+
             <ul className="navbar-links">
-            <li><Link to="/overview" className="overview">Challenges</Link></li>
-            
+                <li><Link to="/overview" className="overview">Challenges</Link></li>
 
                 {user ? (
                     <>
@@ -44,6 +42,15 @@ const Navbar = ({ user, onLogout }) => {
                         <li><Link to="/AvisWebsite">Feedback</Link></li>
                         <li><Link to="/Full" className="overview">AI Tools</Link></li>
                         <li><Link to="/contact">Contact</Link></li>
+
+                        {/* Bouton de bascule Light/Dark Mode */}
+                        <li>
+                            <button className="theme-toggle" onClick={toggleTheme}>
+                                {theme === "dark" ? <FiSun /> : <FiMoon />}
+                            </button>
+                        </li>
+
+                        {/* Menu utilisateur */}
                         <li>
                             <div className="user-menu">
                                 <div className="user-initials" onClick={toggleDropdown}>
@@ -84,7 +91,13 @@ const Navbar = ({ user, onLogout }) => {
                     <>
                         <li><Link to="/signin">Sign In</Link></li>
                         <li><Link to="/signup" className="signup-btn">Sign Up</Link></li>
-                       
+
+                        {/* Bouton de bascule Light/Dark Mode */}
+                        <li>
+                            <button className="theme-toggle" onClick={toggleTheme}>
+                                {theme === "dark" ? <FiSun /> : <FiMoon />}
+                            </button>
+                        </li>
                     </>
                 )}
             </ul>

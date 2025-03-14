@@ -26,9 +26,9 @@ import UpdateAdminPassword from './components/backoffice/ManageAdmins/updateAdmi
 import AddAdmin from './components/backoffice/ManageAdmins/AddAdmin';
 import Avis from './components/frontoffice/noticeWebsite/noticeWebsite';
 import Packs from './components/frontoffice/Packs/Packs';
+import { ThemeProvider } from "./context/ThemeContext";  // ✅ Import correct
 
 import Full from './components/PersonalSpace/Full';
-
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -65,61 +65,58 @@ const App = () => {
     };
 
     return (
-        <Router>
-            {user?.role === 'admin' ? (
-                <AdminNavbar user={user} onLogout={handleLogout} />
-            ) : (
-                <Navbar user={user} onLogout={handleLogout} />
-            )}
-            <Routes>
-                 {/* 🔹 Routes accessibles à tous */}
-    <Route path="/update-admin-password" element={<UpdateAdminPassword />} />
-                {/* REDIRECTION AUTOMATIQUE SI ADMIN */}
+        <ThemeProvider> {/* ✅ Ajout du ThemeProvider ici */}
+            <Router>
                 {user?.role === 'admin' ? (
-                    <>
-                        <Route path="/" element={<Navigate to="/admin/dashboard" />} />
-                        <Route path="/admin/dashboard" element={<DashbordAdmin />} />
-                        <Route path="/admin/manage-users" element={<ManageUsers />} />
-                        <Route path="/admin/manage-admins" element={<ManageAdmins />} />
-                        <Route path="/admin/add-admin" element={<AddAdmin />} /> {/* 🔹 Ajout de la route */}
-                        <Route path="/coursesadmin" element={<CoursesAdmin />} />
-                        <Route path="/add-course" element={<AddCourses />} />
-                        <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
-                        <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
-
-
-
-                    </>
+                    <AdminNavbar user={user} onLogout={handleLogout} />
                 ) : (
-                    <>
-                        {/* FRONT-OFFICE ROUTES */}
-                        <Route path="/" element={<Home />} />
-                        <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
-                        <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
-                        <Route path="/overview" element={<Overview />} />
-                        <Route path="/Full" element={<Full />} />
-                        <Route path="/forgot-password" element={<ForgotPassword />} />
-                        <Route path="/reset-password/:token" element={<ResetPassword />} />
-                        <Route path="/courses" element={<Courses />} />
-                        <Route path="/AvisWebsite" element={<Avis />} />
-                        <Route path="/Ourpacks" element={<Packs />} />
-                        <Route path="/contact" element={<Contact />} />
-                        <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
-                        <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
-                        <Route path="/manage-profile" element={<ManageProfile />} />
-                          {/* ROUTE FACEBOOK LOGIN */}
-                          <Route path="/auth/success" element={<AuthSuccess />} />
-
-                        
-                    </>
+                    <Navbar user={user} onLogout={handleLogout} />
                 )}
+                <Routes>
+                     {/* 🔹 Routes accessibles à tous */}
+                    <Route path="/update-admin-password" element={<UpdateAdminPassword />} />
+                    
+                    {/* REDIRECTION AUTOMATIQUE SI ADMIN */}
+                    {user?.role === 'admin' ? (
+                        <>
+                            <Route path="/" element={<Navigate to="/admin/dashboard" />} />
+                            <Route path="/admin/dashboard" element={<DashbordAdmin />} />
+                            <Route path="/admin/manage-users" element={<ManageUsers />} />
+                            <Route path="/admin/manage-admins" element={<ManageAdmins />} />
+                            <Route path="/admin/add-admin" element={<AddAdmin />} /> {/* 🔹 Ajout de la route */}
+                            <Route path="/coursesadmin" element={<CoursesAdmin />} />
+                            <Route path="/add-course" element={<AddCourses />} />
+                            <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
+                            <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
+                        </>
+                    ) : (
+                        <>
+                            {/* FRONT-OFFICE ROUTES */}
+                            <Route path="/" element={<Home />} />
+                            <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
+                            <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
+                            <Route path="/overview" element={<Overview />} />
+                            <Route path="/Full" element={<Full />} />
+                            <Route path="/forgot-password" element={<ForgotPassword />} />
+                            <Route path="/reset-password/:token" element={<ResetPassword />} />
+                            <Route path="/courses" element={<Courses />} />
+                            <Route path="/AvisWebsite" element={<Avis />} />
+                            <Route path="/Ourpacks" element={<Packs />} />
+                            <Route path="/contact" element={<Contact />} />
+                            <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
+                            <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
+                            <Route path="/manage-profile" element={<ManageProfile />} />
+                            {/* ROUTE FACEBOOK LOGIN */}
+                            <Route path="/auth/success" element={<AuthSuccess />} />
+                        </>
+                    )}
 
-                {/* REDIRECTION PAR DÉFAUT */}
-                <Route path="*" element={<Home />} />
-            </Routes>
-            <Footer />
-            {/* <Chatbot /> */}
-        </Router>
+                    {/* REDIRECTION PAR DÉFAUT */}
+                    <Route path="*" element={<Home />} />
+                </Routes>
+                <Footer />
+            </Router>
+        </ThemeProvider>
     );
 };
 
