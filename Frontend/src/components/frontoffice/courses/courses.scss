@@ -47,3 +47,16 @@
       }
     }
   }
+  .download-btn {
+    color: white !important; /* Définit la couleur du texte en blanc */
+    text-decoration: none; /* Supprime le soulignement */
+    font-weight: bold; /* Rend le texte plus visible */
+    display: inline-block;
+    margin-top: 1rem; /* Ajoute un petit espace au-dessus */
+  }
+  
+  .download-btn:hover {
+    color: #f0f0f0; /* Légèrement plus clair au survol */
+    text-decoration: underline; /* Ajoute un soulignement au survol */
+  }
+  
