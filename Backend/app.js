@@ -64,6 +64,7 @@ app.use(cors({
 }));
 
 // ✅ Déclaration des routes (ORDRE IMPORTANT)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use("/auth", authRouter);  // ✅ Correction de la route Facebook
 app.use("/index", indexRouter);
 app.use("/users", usersRouter);

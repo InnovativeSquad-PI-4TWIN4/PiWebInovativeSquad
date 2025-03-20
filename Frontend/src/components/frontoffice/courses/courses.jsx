@@ -7,7 +7,7 @@ const Courses = () => {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:3000/courses/getallcourses') // Remplace l'URL par celle de ton backend
+    axios.get('http://localhost:3000/courses/getallcourses')
       .then(response => {
         setCourses(response.data);
       })
@@ -23,9 +23,9 @@ const Courses = () => {
 
   return (
     <section className="courses">
-      <h1>Nos Cours</h1>
+      <h1>Our Courses</h1>
       <div className="courses-grid">
-        {courses.map((course, index) => (
+        {courses.map((course) => (
           <motion.div
             key={course._id}
             className="course-card"
@@ -37,6 +37,18 @@ const Courses = () => {
             <h2>{course.title}</h2>
             <p>{course.category}</p>
             <p><strong>Instructeur :</strong> {course.instructor?.name || "Inconnu"}</p>
+
+            {/* Bouton pour ouvrir le PDF dans un nouvel onglet */}
+            {course.pdfUrl && (
+              <a 
+                href={`http://localhost:3000${course.pdfUrl}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="download-btn"
+              >
+                Upload PDF
+              </a>
+            )}
           </motion.div>
         ))}
       </div>

@@ -2,9 +2,6 @@ const Course = require("../models/Courses");
 
 // ✅ Ajouter un nouveau cours
 exports.addCourse = async (req, res) => {
-    console.log("🔍 Données reçues :", req.body);
-    console.log("📂 Fichier reçu :", req.file);
-
     const { title, category, instructor } = req.body;
     const pdfFile = req.file;
 
@@ -17,14 +14,13 @@ exports.addCourse = async (req, res) => {
             title,
             category,
             instructor,
-            pdfUrl: `/uploads/${pdfFile.filename}`
+            pdfUrl: `/uploads/${pdfFile.filename}` // URL correcte
         });
 
         await newCourse.save();
         res.status(201).json({ message: "Cours ajouté avec succès !" });
 
     } catch (error) {
-        console.error("❌ Erreur lors de l'ajout du cours :", error);
         res.status(500).json({ message: "Erreur lors de la création du cours", error });
     }
 };
