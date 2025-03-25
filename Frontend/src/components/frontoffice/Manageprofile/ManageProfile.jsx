@@ -138,8 +138,9 @@ const ManageProfile = () => {
                  <FaCheckCircle style={{ color: "#1DA1F2", marginLeft: "8px" }} />)}</h2>
 
                 <p>Email : {user.email}</p>
-                <p>Rôle : {user.role}</p>
                 <p>Skill : {user.Skill}</p>
+                <p>Wallet : {user.wallet}</p>
+
 
                 <button onClick={() => navigate("/update-profile")} className="update-btn">Modifier</button>
                 <button onClick={handleDelete} className="delete-btn">Supprimer</button>
