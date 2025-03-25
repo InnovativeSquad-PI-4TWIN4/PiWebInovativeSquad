@@ -456,7 +456,6 @@ exports.resetPassword = async (req, res) => {
 };
 
 // ✅ CONSULTER LE PROFIL D'UN UTILISATEUR
-// userController.js
 exports.getProfile = async (req, res) => {
   try {
       const userId = req.user.userId;
@@ -465,6 +464,9 @@ exports.getProfile = async (req, res) => {
       if (!user) {
           return res.status(404).json({ status: "FAILED", message: "User not found" });
       }
+
+      // 🔥 Ajout du calcul du wallet
+      const wallet = Math.floor(user.solde * 1.3) + " pts";
 
       return res.status(200).json({
           status: "SUCCESS",
@@ -477,7 +479,8 @@ exports.getProfile = async (req, res) => {
               Skill: user.Skill,
               role: user.role,
               image: user.image,
-              isActive: user.isActive
+              isActive: user.isActive,
+              wallet  // ✅ Ajout du wallet dans la réponse
           }
       });
   } catch (err) {
@@ -485,6 +488,30 @@ exports.getProfile = async (req, res) => {
       return res.status(500).json({ status: "FAILED", message: "Internal server error." });
   }
 };
+
+
+exports.rechargeSolde = async (req, res) => {
+  try {
+      console.log("RechargeSolde appelée"); // Ajoute cette ligne pour voir si elle s'exécute
+
+      const { userId, amount } = req.body;
+      if (!userId || !amount) {
+          return res.status(400).json({ message: "Tous les champs sont requis" });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).json({ message: "Utilisateur non trouvé" });
+      }
+
+      user.solde += amount;
+      await user.save();
+
+      res.status(200).json({ message: "Recharge effectuée", newSolde: user.solde });
+  } catch (error) {
+      res.status(500).json({ message: "Erreur serveur", error: error.message });
+  }
+}
 
 // Route pour récupérer les statistiques des utilisateurs
 exports.getClientStats = async (req, res) => {
