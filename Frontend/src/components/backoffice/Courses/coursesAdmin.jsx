@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { FaSearch, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import AddCourses from "./AddCourses";
-import { jsPDF } from 'jspdf'; // Importation de jsPDF
+import { jsPDF } from 'jspdf';
 import '@react-pdf-viewer/core/lib/styles/index.css';
-import { Worker, Viewer } from '@react-pdf-viewer/core'; // Importation de react-pdf-viewer
+import { Worker, Viewer } from '@react-pdf-viewer/core';
 import './CoursesAdmin.scss';
 
 const CoursesAdmin = () => {
@@ -14,10 +14,9 @@ const CoursesAdmin = () => {
   const [sortOption, setSortOption] = useState('dateDesc');
   const [showForm, setShowForm] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
-  const [message, setMessage] = useState('');  // Message de succès
-  const [pdfFile, setPdfFile] = useState(null); // State pour afficher le PDF
+  const [message, setMessage] = useState('');
+  const [pdfFile, setPdfFile] = useState(null);
 
-  // ✅ Récupérer les cours
   useEffect(() => {
     fetch("http://localhost:3000/courses/getallcourses")
       .then((res) => res.json())
@@ -25,7 +24,6 @@ const CoursesAdmin = () => {
       .catch((err) => console.error("Erreur lors du chargement des cours :", err));
   }, []);
 
-  // ✅ Récupérer les admins (enseignants)
   useEffect(() => {
     fetch("http://localhost:3000/users/getAllAdmins")
       .then(response => response.json())
@@ -33,10 +31,8 @@ const CoursesAdmin = () => {
       .catch(error => console.error("Erreur lors du chargement des admins :", error));
   }, []);
 
-  // ✅ Catégories disponibles
   const categories = ['Programmation', 'Design', 'Marketing', 'Réseau', 'Développement Web', 'Développement Mobile', 'Mathématique'];
 
-  // ✅ Filtrage et tri des cours
   const filteredAndSortedCourses = courses
     .filter(course =>
       course.title.toLowerCase().includes(searchTerm.toLowerCase().trim()) &&
@@ -44,15 +40,14 @@ const CoursesAdmin = () => {
     )
     .sort((a, b) => {
       switch (sortOption) {
-        case 'dateAsc': return new Date(a.createdAt || Date.now()) - new Date(b.createdAt || Date.now());
-        case 'dateDesc': return new Date(b.createdAt || Date.now()) - new Date(a.createdAt || Date.now());
+        case 'dateAsc': return new Date(a.createdAt) - new Date(b.createdAt);
+        case 'dateDesc': return new Date(b.createdAt) - new Date(a.createdAt);
         case 'popularity': return (b.popularity || 0) - (a.popularity || 0);
         case 'title': return a.title.localeCompare(b.title);
         default: return 0;
       }
     });
 
-  // ✅ Fonction pour supprimer un cours
   const handleDelete = async (id) => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce cours ?")) return;
 
@@ -62,7 +57,7 @@ const CoursesAdmin = () => {
 
       if (response.ok) {
         alert(data.message);
-        setCourses(courses.filter(course => course._id !== id)); // Mise à jour de l'état
+        setCourses(courses.filter(course => course._id !== id));
       } else {
         alert("Erreur : " + data.message);
       }
@@ -71,9 +66,9 @@ const CoursesAdmin = () => {
     }
   };
 
-  // ✅ Fonction pour afficher le formulaire de modification
   const handleEdit = (course) => {
     setEditingCourse(course);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleUpdate = async (e) => {
@@ -84,56 +79,50 @@ const CoursesAdmin = () => {
     let headers = {};
 
     if (editingCourse.pdfFile) {
-        body = new FormData();
-        body.append("title", editingCourse.title);
-        body.append("category", editingCourse.category);
-        body.append("instructor", typeof editingCourse.instructor === "object" ? editingCourse.instructor._id : editingCourse.instructor);
-        body.append("file", editingCourse.pdfFile);
+      body = new FormData();
+      body.append("title", editingCourse.title);
+      body.append("category", editingCourse.category);
+      body.append("instructor", typeof editingCourse.instructor === "object" ? editingCourse.instructor._id : editingCourse.instructor);
+      body.append("file", editingCourse.pdfFile);
     } else {
-        body = JSON.stringify({
-            title: editingCourse.title,
-            category: editingCourse.category,
-            instructor: typeof editingCourse.instructor === "object" ? editingCourse.instructor._id : editingCourse.instructor,
-        });
-        headers["Content-Type"] = "application/json";
+      body = JSON.stringify({
+        title: editingCourse.title,
+        category: editingCourse.category,
+        instructor: typeof editingCourse.instructor === "object" ? editingCourse.instructor._id : editingCourse.instructor,
+      });
+      headers["Content-Type"] = "application/json";
     }
 
     try {
-        const response = await fetch(`http://localhost:3000/courses/updatecourses/${editingCourse._id}`, {
-            method: "PUT",
-            body: body,
-            headers: headers,
-        });
+      const response = await fetch(`http://localhost:3000/courses/updatecourses/${editingCourse._id}`, {
+        method: "PUT",
+        body: body,
+        headers: headers,
+      });
 
-        const data = await response.json();
-        console.log("Réponse du serveur :", data);
+      const data = await response.json();
+      console.log("Réponse du serveur :", data);
 
-        if (response.ok) {
-            alert("Cours mis à jour avec succès !");
-            setEditingCourse(null);
-
-            // 🔥 Mise à jour immédiate du state courses
-            setCourses(prevCourses => 
-                prevCourses.map(course => 
-                    course._id === editingCourse._id 
-                        ? { ...course, title: editingCourse.title, category: editingCourse.category, instructor: editingCourse.instructor }
-                        : course
-                )
-            );
-
-        } else {
-            alert("Erreur : " + data.message);
-        }
+      if (response.ok) {
+        alert("Cours mis à jour avec succès !");
+        setEditingCourse(null);
+        setCourses(prevCourses =>
+          prevCourses.map(course =>
+            course._id === editingCourse._id
+              ? { ...course, title: editingCourse.title, category: editingCourse.category, instructor: editingCourse.instructor }
+              : course
+          )
+        );
+      } else {
+        alert("Erreur : " + data.message);
+      }
     } catch (error) {
-        console.error("Erreur lors de la mise à jour :", error);
+      console.error("Erreur lors de la mise à jour :", error);
     }
   };
 
-  // ✅ Fonction de téléchargement en PDF
   const handleDownload = (course) => {
     const doc = new jsPDF();
-
-    // Ajouter les informations du cours au PDF
     doc.setFont("helvetica");
     doc.setFontSize(16);
     doc.text("Cours: " + course.title, 10, 10);
@@ -141,35 +130,29 @@ const CoursesAdmin = () => {
     doc.text("Instructeur: " + (course.instructor?.name || "Inconnu"), 10, 30);
     doc.text("Date de création: " + new Date(course.createdAt).toLocaleDateString(), 10, 40);
     doc.text("Description: " + (course.description || "Aucune description disponible."), 10, 50);
-
-    // Télécharger le fichier PDF
     doc.save(course.title + ".pdf");
-
-    setMessage('Téléchargement effectué avec succès !'); // Message de succès
+    setMessage('Téléchargement effectué avec succès !');
   };
 
-  // ✅ Fonction pour afficher le PDF
   const handleShowPDF = (pdfUrl) => {
-    // Vérification si l'URL est valide (par exemple, si le fichier existe et est un PDF valide)
     const isPdf = pdfUrl && pdfUrl.endsWith('.pdf');
     if (isPdf) {
-        setPdfFile(pdfUrl); // Mettre à jour l'URL du PDF
+      setPdfFile(pdfUrl);
     } else {
-        alert('Le fichier sélectionné n\'est pas un PDF valide.');
+      alert('Le fichier sélectionné n\'est pas un PDF valide.');
     }
-};
-  
+  };
 
   return (
     <div className="courses-admin">
       <div className="controls">
         <div className="search-bar">
           <FaSearch className="search-icon" />
-          <input 
-            type="text" 
-            placeholder="Rechercher par titre..." 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
+          <input
+            type="text"
+            placeholder="Rechercher par titre..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
@@ -207,7 +190,6 @@ const CoursesAdmin = () => {
               </div>
               <div className="course-actions">
                 <button onClick={() => handleDownload(course)}>Télécharger en PDF</button>
-                {/* Affichage du PDF dans un iframe */}
                 {course.pdfUrl && (
                   <div className="pdf-viewer">
                     <button onClick={() => handleShowPDF(course.pdfUrl)}>Afficher le PDF</button>
@@ -221,31 +203,49 @@ const CoursesAdmin = () => {
 
       {showForm && <AddCourses onClose={() => setShowForm(false)} admins={admins} />}
 
-      {/* Formulaire de modification */}
+      {/* ✅ Nouveau formulaire de modification stylisé */}
       {editingCourse && (
-        <div className="edit-form">
-          <h2>Modifier le cours</h2>
-          <form onSubmit={handleUpdate}>
-            <input type="text" value={editingCourse.title} onChange={(e) => setEditingCourse({ ...editingCourse, title: e.target.value })} />
-            <select value={editingCourse.category} onChange={(e) => setEditingCourse({ ...editingCourse, category: e.target.value })}>
-              {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-            </select>
-            <input type="file" onChange={(e) => setEditingCourse({ ...editingCourse, pdfFile: e.target.files[0] })} />
-            <div className="form-actions">
-              <button type="submit">Sauvegarder</button>
-              <button type="button" onClick={() => setEditingCourse(null)}>Annuler</button>
-            </div>
-          </form>
+        <div className="overlay">
+          <div className="edit-form-modal">
+            <h2>Modifier le cours</h2>
+            <form onSubmit={handleUpdate}>
+              <label>Titre du cours</label>
+              <input
+                type="text"
+                value={editingCourse.title}
+                onChange={(e) => setEditingCourse({ ...editingCourse, title: e.target.value })}
+                required
+              />
+
+              <label>Catégorie</label>
+              <select
+                value={editingCourse.category}
+                onChange={(e) => setEditingCourse({ ...editingCourse, category: e.target.value })}
+                required
+              >
+                <option value="">Sélectionnez une catégorie</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+
+              <label>Fichier PDF (facultatif)</label>
+              <input type="file" onChange={(e) => setEditingCourse({ ...editingCourse, pdfFile: e.target.files[0] })} />
+
+              <div className="form-actions">
+                <button type="submit">✅ Sauvegarder</button>
+                <button type="button" onClick={() => setEditingCourse(null)}>❌ Annuler</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
-      {/* Message de succès */}
       {message && <div className="success-message">{message}</div>}
 
-      {/* Affichage du PDF si l'URL est définie */}
       {pdfFile && (
         <div className="pdf-container">
-          <Worker workerUrl={`https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`}>
+          <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js`}>
             <Viewer fileUrl={pdfFile} />
           </Worker>
         </div>
