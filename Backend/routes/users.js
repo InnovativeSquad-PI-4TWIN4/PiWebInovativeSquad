@@ -29,7 +29,7 @@ router.get("/getAllAdmins", authenticateUser, userController.getAllAdmins);
 // ✅ Ajouter un administrateur (réservé aux admins)
 router.post("/addAdmin", authenticateUser, isAdmin, userController.addAdmin);
 
-
+router.post("/rechargeAdmin", userController.rechargeSolde);
 router.post("/updateAdminPassword", userController.updateAdminPassword);
 
 

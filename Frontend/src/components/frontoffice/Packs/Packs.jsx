@@ -48,7 +48,7 @@ const Packs = () => {
 
   return (
     <div className="packs-container">
-      <h2 className="section-title">Explorez Nos Offres</h2>
+      <h1 className="section-title">Explorez Nos Offres</h1>
       <div className="packs-grid">
         {packs.map((pack) => {
           const discountedPrice = getDiscountedPrice(pack.price, pack.discount);
@@ -61,7 +61,7 @@ const Packs = () => {
             >
               <div className="discount-badge">-{pack.discount}%</div>
               <div className="pack-icon">
-                <img src={`/assets/icons/${pack.icon}`} alt="Pack Icon" />
+              📚 
               </div>
               <h3 className="pack-title">{pack.title}</h3>
               <p className="pack-content">
@@ -69,28 +69,38 @@ const Packs = () => {
               </p>
               <div className="pack-price">
                 <p><strong>Prix initial :</strong> {pack.price}DT</p>
-                <p><strong>Prix après réduction :</strong> {discountedPrice.toFixed(2)}DT</p>
+                <p className="discounted-price">
+                <strong>Prix après réduction :</strong> {discountedPrice.toFixed(2)}DT
+                </p>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* 🔹 Modal pour afficher les détails du pack sélectionné */}
-      <Modal isOpen={modalIsOpen} onRequestClose={closeModal} className="custom-modal">
-        {selectedPack && (
-          <div className="modal-content">
-            <h2>{selectedPack.title}</h2>
-            <img src={`/assets/icons/${selectedPack.icon}`} alt="Pack Icon" />
-            <p><strong>Description :</strong> {selectedPack.description}</p>
-            <p><strong>Catégorie :</strong> {selectedPack.category}</p>
-            <p><strong>Prix initial :</strong> {selectedPack.price}DT</p>
-            <p><strong>Réduction :</strong> {selectedPack.discount}%</p>
-            <p><strong>Prix après réduction :</strong> {getDiscountedPrice(selectedPack.price, selectedPack.discount).toFixed(2)}DT</p>
-            <button onClick={closeModal} className="close-button">Fermer</button>
-          </div>
-        )}
-      </Modal>
+      <Modal
+  isOpen={modalIsOpen}
+  onRequestClose={closeModal}
+  className="custom-modal"
+  overlayClassName="custom-overlay"
+>
+  {selectedPack && (
+    <>
+      <h2 className="modal-title">{selectedPack.title}</h2>
+      <div className="modal-content">
+        <img src={`/assets/icons/${selectedPack.icon}`} alt="Pack Icon" />
+        <p><strong>Description :</strong> {selectedPack.description}</p>
+        <p><strong>Catégorie :</strong> {selectedPack.category}</p>
+        <p><strong>Prix initial :</strong> {selectedPack.price}DT</p>
+        <p><strong>Réduction :</strong> {selectedPack.discount}%</p>
+        <p><strong>Prix après réduction :</strong> {getDiscountedPrice(selectedPack.price, selectedPack.discount).toFixed(2)}DT</p>
+      </div>
+      <button onClick={closeModal} className="close-button">X</button>
+
+    </>
+  )}
+</Modal>
+
     </div>
   );
 };
