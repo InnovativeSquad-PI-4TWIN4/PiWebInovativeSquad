@@ -14,7 +14,8 @@ const CourseSchema = new Schema({
 
     // ✅ Champs pour cours premium
     isPremium: { type: Boolean, default: false },
-    meetLink: { type: String, default: "" }
+    meetLink: { type: String, default: "" },
+    price: { type: Number, default: 0 } // 💰 Prix du cours premium
 }, {
     timestamps: true // ✅ Pour garder createdAt / updatedAt
 });
