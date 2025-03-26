@@ -1,8 +1,8 @@
 const Course = require("../models/Courses");
 
-// ✅ Ajouter un nouveau cours
+// ✅ Ajouter un nouveau cours (avec support Premium)
 exports.addCourse = async (req, res) => {
-    const { title, category, instructor } = req.body;
+    const { title, category, instructor, isPremium, meetLink } = req.body;
     const pdfFile = req.file;
 
     if (!title || !category || !instructor || !pdfFile) {
@@ -14,7 +14,9 @@ exports.addCourse = async (req, res) => {
             title,
             category,
             instructor,
-            pdfUrl: `/uploads/${pdfFile.filename}` // URL correcte
+            pdfUrl: `/uploads/${pdfFile.filename}`,
+            isPremium: isPremium === 'true',
+            meetLink
         });
 
         await newCourse.save();
@@ -25,9 +27,6 @@ exports.addCourse = async (req, res) => {
     }
 };
 
-
-
-// ✅ Récupérer tous les cours
 // ✅ Récupérer tous les cours avec le nom et l'email de l'instructeur
 exports.getAllCourses = async (req, res) => {
     try {
@@ -49,13 +48,20 @@ exports.getCourseById = async (req, res) => {
     }
 };
 
-// ✅ Mettre à jour un cours
+// ✅ Mettre à jour un cours (avec gestion des champs Premium)
 exports.updateCourse = async (req, res) => {
     try {
-        const { title, category, instructor } = req.body;
+        const { title, category, instructor, isPremium, meetLink } = req.body;
         let pdfUrl = req.file ? "/uploads/" + req.file.filename : undefined;
 
-        const updatedFields = { title, category, instructor };
+        const updatedFields = {
+            title,
+            category,
+            instructor,
+            isPremium: isPremium === 'true',
+            meetLink
+        };
+
         if (pdfUrl) updatedFields.pdfUrl = pdfUrl;
 
         const updatedCourse = await Course.findByIdAndUpdate(
