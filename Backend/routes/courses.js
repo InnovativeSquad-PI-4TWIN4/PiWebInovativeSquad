@@ -1,16 +1,25 @@
 const express = require("express");
 const router = express.Router();
-const coursesController = require("../controllers/coursesController");
-const upload = require("../middleware/upload"); // Middleware Multer // ✅ Ajout de l'import manquant
+const upload = require("../middleware/upload");
 
-// Routes CRUD pour les cours
+const {
+  addCourse,
+  getAllCourses,
+  getCourseById,
+  updateCourse,
+  deleteCourse,
+  accessPremiumCourse
+} = require("../controllers/coursesController");
+
 // 📌 Route pour ajouter un cours avec un fichier PDF
-router.post("/addcourses", upload.single("file"), coursesController.addCourse);
+router.post("/addcourses", upload.single("file"), addCourse);
 
+router.get("/getallcourses", getAllCourses);
+router.get("/getcourses/:id", getCourseById);
+router.put("/updatecourses/:id", updateCourse);
+router.delete("/deletecourses/:id", deleteCourse);
 
-router.get("/getallcourses", coursesController.getAllCourses);
-router.get("/getcourses/:id", coursesController.getCourseById);
-router.put("/updatecourses/:id", coursesController.updateCourse);
-router.delete("/deletecourses/:id", coursesController.deleteCourse);
+// 🔐 Route pour accès aux cours premium
+router.post("/access/:id", accessPremiumCourse);
 
 module.exports = router;
