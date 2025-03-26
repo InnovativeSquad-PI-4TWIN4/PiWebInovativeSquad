@@ -21,11 +21,16 @@ const Courses = () => {
     onscreen: { y: 0, opacity: 1, transition: { type: 'spring', bounce: 0.4, duration: 1 } },
   };
 
+  const normalCourses = courses.filter(c => !c.isPremium);
+  const premiumCourses = courses.filter(c => c.isPremium);
+
   return (
     <section className="courses">
       <h1>Our Courses</h1>
+
+      {/* 📚 Cours normaux */}
       <div className="courses-grid">
-        {courses.map((course) => (
+        {normalCourses.map((course) => (
           <motion.div
             key={course._id}
             className="course-card"
@@ -38,7 +43,6 @@ const Courses = () => {
             <p>{course.category}</p>
             <p><strong>Instructeur :</strong> {course.instructor?.name || "Inconnu"}</p>
 
-            {/* Bouton pour ouvrir le PDF dans un nouvel onglet */}
             {course.pdfUrl && (
               <a 
                 href={`http://localhost:3000${course.pdfUrl}`} 
@@ -52,6 +56,40 @@ const Courses = () => {
           </motion.div>
         ))}
       </div>
+
+      {/* 🔥 Cours Premiums */}
+      {premiumCourses.length > 0 && (
+        <>
+          <h2 className="premium-title">🔥 Premium Courses</h2>
+          <div className="courses-grid">
+            {premiumCourses.map((course) => (
+              <motion.div
+                key={course._id}
+                className="course-card premium"
+                variants={cardVariants}
+                initial="offscreen"
+                whileInView="onscreen"
+                viewport={{ once: true, amount: 0.5 }}
+              >
+                <h2>{course.title}</h2>
+                <p>{course.category}</p>
+                <p><strong>Instructeur :</strong> {course.instructor?.name || "Inconnu"}</p>
+
+                {course.meetLink && (
+                  <a
+                    href={course.meetLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="meet-btn"
+                  >
+                    Rejoindre le cours en direct
+                  </a>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </>
+      )}
     </section>
   );
 };
