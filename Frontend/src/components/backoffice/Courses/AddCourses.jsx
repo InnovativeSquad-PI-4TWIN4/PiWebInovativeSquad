@@ -9,8 +9,8 @@ const AddCourses = ({ onClose }) => {
   const [admins, setAdmins] = useState([]);
   const [isPremium, setIsPremium] = useState(false);
   const [meetLink, setMeetLink] = useState("");
+  const [price, setPrice] = useState(80); // prix par défaut 80 DT
 
-  // 📌 Charger les administrateurs depuis l'API
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -36,7 +36,6 @@ const AddCourses = ({ onClose }) => {
       .catch((err) => console.error("❌ Erreur lors du chargement des admins :", err));
   }, []);
 
-  // 📌 Gestion de l'upload du fichier PDF
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file && file.type === "application/pdf") {
@@ -47,7 +46,6 @@ const AddCourses = ({ onClose }) => {
     }
   };
 
-  // 📌 Soumission du formulaire
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -63,6 +61,7 @@ const AddCourses = ({ onClose }) => {
     formData.append("file", pdfFile);
     formData.append("isPremium", isPremium);
     formData.append("meetLink", meetLink);
+    formData.append("price", price); // ✅ on envoie le prix aussi
 
     try {
       const response = await fetch("http://localhost:3000/courses/addcourses", {
@@ -73,7 +72,7 @@ const AddCourses = ({ onClose }) => {
       const result = await response.json();
       if (response.ok) {
         alert("✅ Cours ajouté avec succès !");
-        onClose(); // Fermer le formulaire après l'ajout
+        onClose();
       } else {
         alert("❌ Erreur lors de l'ajout du cours : " + result.message);
       }
@@ -137,16 +136,29 @@ const AddCourses = ({ onClose }) => {
         </div>
 
         {isPremium && (
-          <div className="form-group">
-            <label>Lien Google Meet (ou autre) :</label>
-            <input
-              type="url"
-              value={meetLink}
-              onChange={(e) => setMeetLink(e.target.value)}
-              placeholder="https://meet.google.com/..."
-              required={isPremium}
-            />
-          </div>
+          <>
+            <div className="form-group">
+              <label>Lien Google Meet (ou autre) :</label>
+              <input
+                type="url"
+                value={meetLink}
+                onChange={(e) => setMeetLink(e.target.value)}
+                placeholder="https://meet.google.com/..."
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Prix du cours (DT) :</label>
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                min={0}
+                required
+              />
+            </div>
+          </>
         )}
 
         <button type="submit" className="submit-button">Créer le cours</button>
