@@ -7,10 +7,12 @@ const AddCourses = ({ onClose }) => {
   const [instructor, setInstructor] = useState("");
   const [pdfFile, setPdfFile] = useState(null);
   const [admins, setAdmins] = useState([]);
+  const [isPremium, setIsPremium] = useState(false);
+  const [meetLink, setMeetLink] = useState("");
 
   // 📌 Charger les administrateurs depuis l'API
   useEffect(() => {
-    const token = localStorage.getItem("token"); // Récupérer le token
+    const token = localStorage.getItem("token");
     if (!token) {
       console.error("⚠️ Aucun token trouvé !");
       return;
@@ -50,7 +52,7 @@ const AddCourses = ({ onClose }) => {
     e.preventDefault();
 
     if (!title || !category || !instructor || !pdfFile) {
-      alert("⚠️ Veuillez remplir tous les champs !");
+      alert("⚠️ Veuillez remplir tous les champs requis !");
       return;
     }
 
@@ -59,6 +61,8 @@ const AddCourses = ({ onClose }) => {
     formData.append("category", category);
     formData.append("instructor", instructor);
     formData.append("file", pdfFile);
+    formData.append("isPremium", isPremium);
+    formData.append("meetLink", meetLink);
 
     try {
       const response = await fetch("http://localhost:3000/courses/addcourses", {
@@ -119,6 +123,31 @@ const AddCourses = ({ onClose }) => {
           <label>Document PDF :</label>
           <input type="file" accept="application/pdf" onChange={handleFileChange} required />
         </div>
+
+        {/* 🔥 Option Premium */}
+        <div className="form-group">
+          <label>
+            <input
+              type="checkbox"
+              checked={isPremium}
+              onChange={(e) => setIsPremium(e.target.checked)}
+            />
+            Ce cours est un cours premium
+          </label>
+        </div>
+
+        {isPremium && (
+          <div className="form-group">
+            <label>Lien Google Meet (ou autre) :</label>
+            <input
+              type="url"
+              value={meetLink}
+              onChange={(e) => setMeetLink(e.target.value)}
+              placeholder="https://meet.google.com/..."
+              required={isPremium}
+            />
+          </div>
+        )}
 
         <button type="submit" className="submit-button">Créer le cours</button>
       </form>
