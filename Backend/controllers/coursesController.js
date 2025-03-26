@@ -1,31 +1,71 @@
+
+const User = require("../models/User");
 const Course = require("../models/Courses");
+
+
+// Premium Courses
+exports.accessPremiumCourse = async (req, res) => {
+    const courseId = req.params.id;
+    const userId = req.body.userId;
+  
+    try {
+      const course = await Course.findById(courseId);
+      if (!course) return res.status(404).json({ message: "Cours non trouvé." });
+  
+      if (!course.isPremium) {
+        return res.status(400).json({ message: "Ce cours n'est pas premium." });
+      }
+  
+      const user = await User.findById(userId);
+      if (!user) return res.status(404).json({ message: "Utilisateur non trouvé." });
+  
+      if (user.balance >= course.price) {
+        // ✅ Déduire le solde
+        user.balance -= course.price;
+        await user.save();
+  
+        return res.status(200).json({
+          message: "Accès autorisé",
+          meetLink: course.meetLink,
+          remainingBalance: user.balance
+        });
+      } else {
+        return res.status(403).json({ message: "Solde insuffisant." });
+      }
+    } catch (error) {
+      console.error("❌ Erreur dans accessPremiumCourse :", error);
+      res.status(500).json({ message: "Erreur serveur." });
+    }
+  };
 
 // ✅ Ajouter un nouveau cours (avec support Premium)
 exports.addCourse = async (req, res) => {
-    const { title, category, instructor, isPremium, meetLink } = req.body;
+    const { title, category, instructor, isPremium, meetLink, price } = req.body;
     const pdfFile = req.file;
-
+  
     if (!title || !category || !instructor || !pdfFile) {
-        return res.status(400).json({ message: "Tous les champs sont requis !" });
+      return res.status(400).json({ message: "Tous les champs sont requis !" });
     }
-
+  
     try {
-        const newCourse = new Course({
-            title,
-            category,
-            instructor,
-            pdfUrl: `/uploads/${pdfFile.filename}`,
-            isPremium: isPremium === 'true',
-            meetLink
-        });
-
-        await newCourse.save();
-        res.status(201).json({ message: "Cours ajouté avec succès !" });
-
+      const newCourse = new Course({
+        title,
+        category,
+        instructor,
+        pdfUrl: `/uploads/${pdfFile.filename}`,
+        isPremium: isPremium === 'true',
+        meetLink,
+        price: Number(price) || 0 // ✅ convertit correctement
+      });
+  
+      await newCourse.save();
+      res.status(201).json({ message: "Cours ajouté avec succès !" });
+  
     } catch (error) {
-        res.status(500).json({ message: "Erreur lors de la création du cours", error });
+      res.status(500).json({ message: "Erreur lors de la création du cours", error });
     }
-};
+  };
+  
 
 // ✅ Récupérer tous les cours avec le nom et l'email de l'instructeur
 exports.getAllCourses = async (req, res) => {
