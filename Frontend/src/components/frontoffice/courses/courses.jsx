@@ -25,18 +25,25 @@ const Courses = () => {
   const premiumCourses = courses.filter(c => c.isPremium);
 
   const handleAccessPremium = async (courseId) => {
-    const userId = localStorage.getItem("userId"); // Doit être défini lors de la connexion
-
+    const userId = localStorage.getItem("userId");
+    console.log("Tentative d'accès avec userId:", userId); // 👈 Ajoute ceci
+  
+    if (!userId) {
+      alert("Utilisateur non connecté !");
+      return;
+    }
+  
     try {
       const response = await axios.post(`http://localhost:3000/courses/access/${courseId}`, {
         userId
       });
-
+  
       if (response.status === 200) {
         window.open(response.data.meetLink, "_blank");
         alert(`✅ Accès autorisé. Nouveau solde : ${response.data.remainingBalance} DT`);
       }
     } catch (err) {
+      console.error("Erreur dans handleAccessPremium:", err); // 👈 Ajoute ceci
       if (err.response && err.response.status === 403) {
         alert("❌ Solde insuffisant pour accéder à ce cours.");
       } else {
@@ -44,6 +51,7 @@ const Courses = () => {
       }
     }
   };
+  
 
   return (
     <section className="courses">
