@@ -26,6 +26,9 @@ import UpdateAdminPassword from './components/backoffice/ManageAdmins/updateAdmi
 import AddAdmin from './components/backoffice/ManageAdmins/AddAdmin';
 import Avis from './components/frontoffice/noticeWebsite/noticeWebsite';
 import Packs from './components/frontoffice/Packs/Packs';
+import Marketplace from './components/frontoffice/MarketPlace/Marketplace';
+
+
 import { ThemeProvider } from "./context/ThemeContext";  // ✅ Import correct
 
 import Full from './components/PersonalSpace/Full';
@@ -99,13 +102,14 @@ const App = () => {
                             <Route path="/Full" element={<Full />} />
                             <Route path="/forgot-password" element={<ForgotPassword />} />
                             <Route path="/reset-password/:token" element={<ResetPassword />} />
-                            <Route path="/courses" element={<Courses />} />
+                            <Route path="/marketplace" element={<Marketplace />} />
                             <Route path="/AvisWebsite" element={<Avis />} />
                             <Route path="/Ourpacks" element={<Packs />} />
                             <Route path="/contact" element={<Contact />} />
                             <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
                             <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
                             <Route path="/manage-profile" element={<ManageProfile />} />
+                            
                             {/* ROUTE FACEBOOK LOGIN */}
                             <Route path="/auth/success" element={<AuthSuccess />} />
                         </>
