@@ -5,38 +5,39 @@ const Course = require("../models/Courses");
 
 // Premium Courses
 exports.accessPremiumCourse = async (req, res) => {
-    const courseId = req.params.id;
-    const userId = req.body.userId;
-  
-    try {
-      const course = await Course.findById(courseId);
-      if (!course) return res.status(404).json({ message: "Cours non trouvé." });
-  
-      if (!course.isPremium) {
-        return res.status(400).json({ message: "Ce cours n'est pas premium." });
-      }
-  
-      const user = await User.findById(userId);
-      if (!user) return res.status(404).json({ message: "Utilisateur non trouvé." });
-  
-      if (user.balance >= course.price) {
-        // ✅ Déduire le solde
-        user.balance -= course.price;
-        await user.save();
-  
-        return res.status(200).json({
-          message: "Accès autorisé",
-          meetLink: course.meetLink,
-          remainingBalance: user.balance
-        });
-      } else {
-        return res.status(403).json({ message: "Solde insuffisant." });
-      }
-    } catch (error) {
-      console.error("❌ Erreur dans accessPremiumCourse :", error);
-      res.status(500).json({ message: "Erreur serveur." });
+  const courseId = req.params.id;
+  const userId = req.body.userId;
+
+  try {
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: "Cours non trouvé." });
+
+    if (!course.isPremium) {
+      return res.status(400).json({ message: "Ce cours n'est pas premium." });
     }
-  };
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Utilisateur non trouvé." });
+
+    if (user.solde >= course.price) {
+      // ✅ Déduire le solde correct
+      user.solde -= course.price;
+      await user.save();
+
+      return res.status(200).json({
+        message: "Accès autorisé",
+        meetLink: course.meetLink,
+        remainingBalance: user.solde
+      });
+    } else {
+      return res.status(403).json({ message: "Solde insuffisant." });
+    }
+  } catch (error) {
+    console.error("❌ Erreur dans accessPremiumCourse :", error);
+    res.status(500).json({ message: "Erreur serveur." });
+  }
+};
+
 
 // ✅ Ajouter un nouveau cours (avec support Premium)
 exports.addCourse = async (req, res) => {
@@ -55,7 +56,7 @@ exports.addCourse = async (req, res) => {
         pdfUrl: `/uploads/${pdfFile.filename}`,
         isPremium: isPremium === 'true',
         meetLink,
-        price: Number(price) || 0 // ✅ convertit correctement
+       price: parseFloat(price) || 0// ✅ convertit correctement
       });
   
       await newCourse.save();

@@ -37,7 +37,7 @@ const Navbar = ({ user, onLogout }) => {
                 {user ? (
                     <>
                         <li><Link to="/">Home</Link></li>
-                        <li><Link to="/courses">Courses</Link></li>
+                        <li><Link to="/marketplace">MarketPlace</Link></li>
                         <li><Link to="/OurPacks">Our Packs</Link></li>
                         <li><Link to="/AvisWebsite">Feedback</Link></li>
                         <li><Link to="/Full" className="overview">AI Tools</Link></li>
