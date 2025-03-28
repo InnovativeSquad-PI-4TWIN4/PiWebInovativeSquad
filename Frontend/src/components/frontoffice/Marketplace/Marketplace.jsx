@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 import './Marketplace.scss';
 import { motion } from 'framer-motion';
 
 const Marketplace = () => {
   const [view, setView] = useState(null); // null | 'courses' | 'premium'
   const [courses, setCourses] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios.get('http://localhost:3000/courses/getallcourses')
@@ -91,7 +93,7 @@ const Marketplace = () => {
         <motion.div className="select-card" onClick={() => setView('premium')} whileHover={{ scale: 1.05 }}>
           🔥 <h3>Premium Courses</h3>
         </motion.div>
-        <motion.div className="select-card" onClick={() => alert("🚧 En cours de développement")} whileHover={{ scale: 1.05 }}>
+        <motion.div className="select-card" onClick={() => navigate("/publication")} whileHover={{ scale: 1.05 }}>
           🤝 <h3>Exchange Skills</h3>
         </motion.div>
       </div>

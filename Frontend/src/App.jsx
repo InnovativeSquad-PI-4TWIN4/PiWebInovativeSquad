@@ -26,12 +26,14 @@ import UpdateAdminPassword from './components/backoffice/ManageAdmins/updateAdmi
 import AddAdmin from './components/backoffice/ManageAdmins/AddAdmin';
 import Avis from './components/frontoffice/noticeWebsite/noticeWebsite';
 import Packs from './components/frontoffice/Packs/Packs';
-import Marketplace from './components/frontoffice/MarketPlace/Marketplace';
+import Marketplace from './components/frontoffice/Marketplace/Marketplace';
 
 
 import { ThemeProvider } from "./context/ThemeContext";  // ✅ Import correct
 
 import Full from './components/PersonalSpace/Full';
+import Publication from './components/publication/Publication';
+
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -109,7 +111,7 @@ const App = () => {
                             <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
                             <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
                             <Route path="/manage-profile" element={<ManageProfile />} />
-                            
+                            <Route path="/publication" element={<Publication />} />
                             {/* ROUTE FACEBOOK LOGIN */}
                             <Route path="/auth/success" element={<AuthSuccess />} />
                         </>

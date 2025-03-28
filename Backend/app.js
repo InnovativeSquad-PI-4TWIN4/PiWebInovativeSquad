@@ -16,6 +16,7 @@ const authRouter = require("./routes/auth");
 const coursesRouter = require("./routes/courses");
 const avisRouter = require ("./routes/Avis");
 const packRoutes = require("./routes/pack");
+const publicationRouter = require("./routes/publication");
 
 // Configuration des variables d'environnement
 require("dotenv").config();
@@ -71,6 +72,7 @@ app.use("/users", usersRouter);
 app.use("/courses", coursesRouter);
 app.use("/Avis", avisRouter);
 app.use("/packs", packRoutes);
+app.use("/publication", publicationRouter);
 
 // ✅ Gestion des erreurs 404 (À PLACER APRÈS LES ROUTES)
 app.use((req, res, next) => {
