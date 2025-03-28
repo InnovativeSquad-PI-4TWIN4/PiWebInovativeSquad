@@ -32,7 +32,7 @@ import Marketplace from './components/frontoffice/Marketplace/Marketplace';
 import { ThemeProvider } from "./context/ThemeContext";  // ✅ Import correct
 
 import Full from './components/PersonalSpace/Full';
-import Publication from './components/publication/Publication';
+import Publication from './components/frontoffice/publication/Publication';
 
 
 const App = () => {
