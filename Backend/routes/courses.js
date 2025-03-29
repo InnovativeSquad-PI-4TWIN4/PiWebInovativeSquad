@@ -8,7 +8,8 @@ const {
   getCourseById,
   updateCourse,
   deleteCourse,
-  accessPremiumCourse
+  accessPremiumCourse,
+  rechargeBalance 
 } = require("../controllers/coursesController");
 
 // 📌 Route pour ajouter un cours avec un fichier PDF
@@ -21,5 +22,8 @@ router.delete("/deletecourses/:id", deleteCourse);
 
 // 🔐 Route pour accès aux cours premium
 router.post("/access/:id", accessPremiumCourse);
+// 🔋 Recharge du solde
+router.post("/recharge/:id", rechargeBalance);
+
 
 module.exports = router;
