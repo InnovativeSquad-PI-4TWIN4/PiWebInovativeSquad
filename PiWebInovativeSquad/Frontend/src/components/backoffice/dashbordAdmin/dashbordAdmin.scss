@@ -1,0 +1,256 @@
+button {
+    padding: 4px 25px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+  
+    &:hover {
+      transform: scale(1.05);
+    }
+    
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+  
+  // Style pour le bouton "Accepter"
+  .accept-button {
+    background-color: #52d871;
+    color: white;
+  
+    &:hover {
+      background-color: #218838;
+    }
+  }
+  
+  // Style pour le bouton "Refuser"
+  .reject-button {
+    background-color: #cf7a82;
+    color: white;
+  
+    &:hover {
+      background-color: #c82333;
+    }
+  }
+  
+.admin-container {
+    display: flex;
+    height: 100vh;
+    background: #f9fafb;
+
+    .sidebar {
+        width: 250px;
+        background: #374151; // Assombrissement du fond
+        color: white;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+
+            li {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+                cursor: pointer;
+                border-radius: 8px;
+                transition: background 0.3s ease-in-out;
+
+                &:hover,
+                &.active {
+                    background: #374151;
+                }
+            }
+        }
+    }
+    .pending-requests {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+    
+        h2 {
+            font-size: 1.5rem;
+            color: #374151;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+    
+        .request-list {
+            list-style: none;
+            padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+    
+            li {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: #f9fafb;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 10px;
+                transition: background 0.3s ease-in-out;
+    
+                &:hover {
+                    background: #e5e7eb;
+                }
+    
+                .user-info {
+                    flex: 1;
+                    font-size: 1rem;
+                    font-weight: 500;
+                    color: #1f2937;
+                }
+    
+                .actions {
+                    display: flex;
+                    gap: 10px;
+    
+                    button {
+                        border: none;
+                        padding: 8px 12px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 0.9rem;
+                        font-weight: bold;
+                        transition: all 0.3s ease-in-out;
+    
+                        &.approve {
+                            background: #10b981;
+                            color: white;
+    
+                            &:hover {
+                                background: #059669;
+                            }
+                        }
+    
+                        &.reject {
+                            background: #ef4444;
+                            color: white;
+    
+                            &:hover {
+                                background: #dc2626;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    
+        .empty-message {
+            text-align: center;
+            font-size: 1rem;
+            color: #6b7280;
+            padding: 20px;
+            background: #f3f4f6;
+            border-radius: 8px;
+        }
+    }
+    
+    .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        // ✅ Barre supérieure de même couleur que la sidebar
+        .top-bar {
+            background: #1f2937;  // Même couleur que la sidebar
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-content {
+            padding: 20px;
+
+            .top-cards {
+                display: flex;
+                justify-content: space-between;
+                gap: 15px;
+
+                .card {
+                    background: white;
+                    padding: 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                    flex: 1;
+                    position: relative;
+
+                    h3 {
+                        font-size: 1rem;
+                        color: #6b7280;
+                    }
+
+                    p {
+                        font-size: 1.5rem;
+                        font-weight: bold;
+                        margin: 5px 0;
+                    }
+
+                    .positive {
+                        color: #10b981;
+                    }
+
+                    .negative {
+                        color: #ef4444;
+                    }
+
+                    .icon {
+                        position: absolute;
+                        right: 15px;
+                        bottom: 15px;
+                        font-size: 24px;
+                    }
+
+                    &.red .icon {
+                        color: #ef4444;
+                    }
+
+                    &.green .icon {
+                        color: #10b981;
+                    }
+
+                    &.orange .icon {
+                        color: #f59e0b;
+                    }
+
+                    &.purple .icon {
+                        color: #6366f1;
+                    }
+                }
+            }
+
+            .charts-container {
+                display: flex;
+                margin-top: 20px;
+                gap: 15px;
+
+                .chart {
+                    flex: 1;
+                    background: white;
+                    padding: 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                }
+            }
+        }
+    }
+}

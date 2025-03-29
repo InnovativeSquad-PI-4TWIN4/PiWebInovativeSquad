@@ -1,0 +1,110 @@
+.courses {
+  padding: 2rem;
+  text-align: center;
+  color: #fff;
+
+  h1 {
+    font-size: 2.5rem;
+    color: #00ffe7;
+    margin-bottom: 2rem;
+  }
+
+  .back-btn {
+    position: absolute;
+    top: 100px; // ✨ Ajuste cette valeur selon ta navbar
+    left: 30px;
+  
+    background: transparent;
+    border: 2px solid #00ffe7;
+    color: #00ffe7;
+    font-size: 1.5rem;
+    border-radius: 10px;
+    padding: 0.2rem 0.7rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+    z-index: 1000;
+  
+    &:hover {
+      background-color: #00ffe7;
+      color: #000;
+      transform: scale(1.1);
+    }
+  }
+  
+  
+
+  .marketplace-cards {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 3rem;
+
+    .select-card {
+      background: #1a1a2e;
+      color: #00ffe7;
+      border-radius: 12px;
+      padding: 2rem;
+      cursor: pointer;
+      width: 220px;
+      box-shadow: 0 0 20px rgba(0, 255, 231, 0.2);
+      transition: all 0.3s ease;
+
+      h3 {
+        margin-top: 1rem;
+        font-size: 1.2rem;
+      }
+
+      &:hover {
+        background: #0f0f2e;
+        transform: translateY(-5px);
+      }
+    }
+  }
+
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .course-card {
+    background: #1a1a2e;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 255, 231, 0.2);
+
+    h2 {
+      color: #00ffe7;
+    }
+
+    p {
+      margin: 0.3rem 0;
+    }
+
+    .download-btn,
+    .meet-btn {
+      margin-top: 1rem;
+      background: #00ffe7;
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+
+      &:hover {
+        background: #0ef;
+        transform: scale(1.05);
+      }
+    }
+
+    &.premium {
+      border: 2px solid #ff6f61;
+      background: #2c1f2f;
+    }
+  }
+}

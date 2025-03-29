@@ -1,0 +1,94 @@
+$primary-color: #007bff;
+$secondary-color: #0056b3;
+$background-color: #f8f9fa;
+$border-radius: 8px;
+$shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+.add-course-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 25px;
+  border-radius: $border-radius;
+  box-shadow: $shadow;
+  width: 450px;
+  max-width: 90%;
+  z-index: 1000;
+  
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 18px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: #444;
+    transition: color 0.3s;
+
+    &:hover {
+      color: red;
+    }
+  }
+
+  h2 {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+
+  .add-course-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+
+      label {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      input, select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+
+        &:focus {
+          border-color: $primary-color;
+          outline: none;
+        }
+      }
+    }
+
+    .submit-button {
+      background-color: #28a745;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+
+      &:hover {
+        background-color: #218838;
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .add-course-container {
+    width: 90%;
+    padding: 20px;
+  }
+}
