@@ -11,11 +11,15 @@ const Marketplace = () => {
   const [showRechargeModal, setShowRechargeModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const navigate = useNavigate();
+  const [paidCourses, setPaidCourses] = useState([]);
 
   useEffect(() => {
     axios.get('http://localhost:3000/courses/getallcourses')
       .then(response => setCourses(response.data))
       .catch(error => console.error("Erreur lors de la récupération des cours :", error));
+
+    const paid = JSON.parse(localStorage.getItem('paidCourses')) || [];
+    setPaidCourses(paid);
   }, []);
 
   const handleAccessPremium = async (courseId) => {
@@ -30,10 +34,7 @@ const Marketplace = () => {
 
     try {
       const user = JSON.parse(storedUser);
-      userId = user?._id || user?.id; // accepte _id ou id selon le format
-
-      console.log("✅ Utilisateur détecté :", user);
-      console.log("🆔 ID utilisateur extrait :", userId);
+      userId = user?._id || user?.id;
     } catch (error) {
       console.error("❌ Erreur lors du parsing de l'utilisateur :", error);
       alert("Erreur de session utilisateur !");
@@ -45,6 +46,20 @@ const Marketplace = () => {
       return;
     }
 
+    // ✅ Ne pas rediminuer le solde si le cours a déjà été payé
+    if (paidCourses.includes(courseId)) {
+      try {
+        const response = await axios.get(`http://localhost:3000/courses/getcourses/${courseId}`);
+        if (response.status === 200) {
+          window.open(response.data.meetLink, "_blank");
+        }
+      } catch (err) {
+        console.error("❌ Erreur dans l'accès déjà payé :", err);
+        alert("Erreur lors de l'accès au cours déjà payé.");
+      }
+      return;
+    }
+
     try {
       const response = await axios.post(`http://localhost:3000/courses/access/${courseId}`, {
         userId,
@@ -53,6 +68,10 @@ const Marketplace = () => {
       if (response.status === 200) {
         window.open(response.data.meetLink, "_blank");
         alert(`✅ Accès autorisé. Nouveau solde : ${response.data.remainingBalance} DT`);
+
+        const updated = [...new Set([...paidCourses, courseId])];
+        localStorage.setItem('paidCourses', JSON.stringify(updated));
+        setPaidCourses(updated);
       }
     } catch (err) {
       console.error("❌ Erreur dans handleAccessPremium :", err);
@@ -126,6 +145,7 @@ const Marketplace = () => {
                 <p>{course.category}</p>
                 <p><strong>Instructeur :</strong> {course.instructor?.name || "Inconnu"}</p>
                 <p>💰 Prix : {course.price}DT</p>
+
                 {course.meetLink && (
                   <button className="meet-btn" onClick={() => handleAccessPremium(course._id)}>
                     Rejoindre le cours en direct
