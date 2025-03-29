@@ -8,16 +8,21 @@ const AuthSuccess = () => {
         fetch("http://localhost:3000/auth/current_user", {
             credentials: "include",
         })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data && data.id) {
-                    localStorage.setItem("user", JSON.stringify(data)); // Sauvegarder l'utilisateur en local
-                    navigate("/"); // Rediriger vers Home (où Navbar affichera le bon utilisateur)
-                    window.location.reload(); // Rafraîchir la page pour que Navbar prenne en compte la mise à jour
-                } else {
-                    navigate("/signin"); // Redirection vers la connexion en cas d'échec
-                }
-            })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data && data.id) {
+                const formattedUser = {
+                    ...data,
+                    _id: data.id, // ✅ Ajoute le champ _id
+                };
+                localStorage.setItem("user", JSON.stringify(formattedUser));
+                navigate("/");
+                window.location.reload();
+            } else {
+                navigate("/signin");
+            }
+        })
+        
             .catch((err) => {
                 console.error("Erreur lors de la récupération de l'utilisateur :", err);
                 navigate("/signin"); // Redirection en cas d'erreur
