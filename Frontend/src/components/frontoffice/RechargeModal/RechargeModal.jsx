@@ -37,7 +37,7 @@ const RechargeModal = ({ isOpen, onClose, onSuccess, userId }) => {
         <div className="input-group">
           <input
             type="number"
-            placeholder="Amount in DTT"
+            placeholder="Amount in DT"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />
