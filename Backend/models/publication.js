@@ -1,45 +1,71 @@
-const mongo = require("mongoose");
+const mongo = require('mongoose');
 const Schema = mongo.Schema;
 
-const Publication = new Schema({
-    // Référence à l'utilisateur qui a créé la publication
-    user: { 
-        type: Schema.Types.ObjectId, 
-        ref: 'users', 
-        required: true
-    },
-    // Type de publication : offre de compétence ou demande de compétence
-    type: { 
-        type: String, 
-        enum: ['offer', 'request'], 
-        required: true 
-    },
-    
-
-    
-    // Description détaillée
-    description: { 
-        type: String, 
+const CommentSchema = new Schema({
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'users',
+    required: true,
+  },
+  content: {
+    type: String,
+    required: true,
+    trim: true,
+    maxlength: 500,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  replies: [
+    {
+      user: {
+        type: Schema.Types.ObjectId,
+        ref: 'users',
+        required: true,
+      },
+      content: {
+        type: String,
         required: true,
         trim: true,
-        maxlength: 1000 
+        maxlength: 500,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
     },
-    
-   
-    
-    // Date de création
-    createdAt: { 
-        type: Date, 
-        default: Date.now 
-    }
-    
- 
-    
-  
-
-   
+  ],
 });
 
+const Publication = new Schema({
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'users',
+    required: true,
+  },
+  type: {
+    type: String,
+    enum: ['offer', 'request'],
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+    trim: true,
+    maxlength: 1000,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  likes: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'users',
+    },
+  ],
+  comments: [CommentSchema], // Champ comments déjà ajouté
+});
 
-
-module.exports = mongo.model('publications', Publication);
+module.exports = mongo.model('Publication', Publication);
