@@ -60,8 +60,10 @@ const App = () => {
     
     const handleLogin = (userData) => {
         localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('userId', userData._id); // ✅ Ajout essentiel ici
         setUser(userData);
-    };
+      };
+      
 
     const handleLogout = () => {
         localStorage.removeItem('token');
