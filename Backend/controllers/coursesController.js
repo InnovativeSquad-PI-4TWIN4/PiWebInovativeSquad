@@ -144,3 +144,27 @@ exports.deleteCourse = async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la suppression du cours", error });
     }
 };
+// ✅ Recharge du solde d’un utilisateur
+exports.rechargeBalance = async (req, res) => {
+  const userId = req.params.id;
+  const { amount } = req.body;
+
+  // Validation
+  if (!amount || isNaN(amount) || amount <= 0) {
+    return res.status(400).json({ message: "Montant invalide" });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
+
+    user.solde += parseFloat(amount);
+    await user.save();
+
+    res.status(200).json({ message: "✅ Recharge réussie", newBalance: user.solde });
+  } catch (error) {
+    console.error("❌ Erreur lors de la recharge :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
