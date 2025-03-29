@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import './Marketplace.scss';
+import RechargeModal from '../RechargeModal/RechargeModal';
 import { motion } from 'framer-motion';
 
 const Marketplace = () => {
   const [view, setView] = useState(null); // null | 'courses' | 'premium'
   const [courses, setCourses] = useState([]);
+  const [showRechargeModal, setShowRechargeModal] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,18 +20,18 @@ const Marketplace = () => {
 
   const handleAccessPremium = async (courseId) => {
     const storedUser = localStorage.getItem("user");
-  
+
     if (!storedUser) {
       alert("Utilisateur non connecté !");
       return;
     }
-  
+
     let userId = null;
-  
+
     try {
       const user = JSON.parse(storedUser);
       userId = user?._id || user?.id; // accepte _id ou id selon le format
-  
+
       console.log("✅ Utilisateur détecté :", user);
       console.log("🆔 ID utilisateur extrait :", userId);
     } catch (error) {
@@ -36,17 +39,17 @@ const Marketplace = () => {
       alert("Erreur de session utilisateur !");
       return;
     }
-  
+
     if (!userId) {
       alert("❌ Impossible de récupérer l'ID utilisateur !");
       return;
     }
-  
+
     try {
       const response = await axios.post(`http://localhost:3000/courses/access/${courseId}`, {
         userId,
       });
-  
+
       if (response.status === 200) {
         window.open(response.data.meetLink, "_blank");
         alert(`✅ Accès autorisé. Nouveau solde : ${response.data.remainingBalance} DT`);
@@ -55,13 +58,13 @@ const Marketplace = () => {
       console.error("❌ Erreur dans handleAccessPremium :", err);
       if (err.response?.status === 403) {
         alert("❌ Solde insuffisant pour accéder à ce cours.");
+        setSelectedUserId(userId);
+        setShowRechargeModal(true);
       } else {
         alert("Erreur serveur.");
       }
     }
   };
-  
-  
 
   const handleDownloadAndOpen = async (pdfUrl, title) => {
     const fileUrl = `http://localhost:3000${pdfUrl}`;
@@ -154,6 +157,17 @@ const Marketplace = () => {
     <section className="courses">
       <h1>🎓 Welcome to the Marketplace</h1>
       {renderView()}
+      {showRechargeModal && (
+        <RechargeModal
+          isOpen={showRechargeModal}
+          onClose={() => setShowRechargeModal(false)}
+          onSuccess={() => {
+            setShowRechargeModal(false);
+            window.location.reload();
+          }}
+          userId={selectedUserId}
+        />
+      )}
     </section>
   );
 };
