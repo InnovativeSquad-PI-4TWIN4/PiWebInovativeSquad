@@ -16,21 +16,68 @@ const Marketplace = () => {
   }, []);
 
   const handleAccessPremium = async (courseId) => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) return alert("Utilisateur non connecté !");
-
+    const storedUser = localStorage.getItem("user");
+  
+    if (!storedUser) {
+      alert("Utilisateur non connecté !");
+      return;
+    }
+  
+    let userId = null;
+  
     try {
-      const response = await axios.post(`http://localhost:3000/courses/access/${courseId}`, { userId });
+      const user = JSON.parse(storedUser);
+      userId = user?._id || user?.id; // accepte _id ou id selon le format
+  
+      console.log("✅ Utilisateur détecté :", user);
+      console.log("🆔 ID utilisateur extrait :", userId);
+    } catch (error) {
+      console.error("❌ Erreur lors du parsing de l'utilisateur :", error);
+      alert("Erreur de session utilisateur !");
+      return;
+    }
+  
+    if (!userId) {
+      alert("❌ Impossible de récupérer l'ID utilisateur !");
+      return;
+    }
+  
+    try {
+      const response = await axios.post(`http://localhost:3000/courses/access/${courseId}`, {
+        userId,
+      });
+  
       if (response.status === 200) {
         window.open(response.data.meetLink, "_blank");
         alert(`✅ Accès autorisé. Nouveau solde : ${response.data.remainingBalance} DT`);
       }
     } catch (err) {
+      console.error("❌ Erreur dans handleAccessPremium :", err);
       if (err.response?.status === 403) {
         alert("❌ Solde insuffisant pour accéder à ce cours.");
       } else {
         alert("Erreur serveur.");
       }
+    }
+  };
+  
+  
+
+  const handleDownloadAndOpen = async (pdfUrl, title) => {
+    const fileUrl = `http://localhost:3000${pdfUrl}`;
+    window.open(fileUrl, '_blank');
+
+    try {
+      const response = await axios.get(fileUrl, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${title}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Erreur de téléchargement :', error);
     }
   };
 
@@ -50,9 +97,12 @@ const Marketplace = () => {
                 <p>{course.category}</p>
                 <p><strong>Instructeur :</strong> {course.instructor?.name || "Inconnu"}</p>
                 {course.pdfUrl && (
-                  <a href={`http://localhost:3000${course.pdfUrl}`} target="_blank" rel="noopener noreferrer" className="download-btn">
+                  <button
+                    className="download-btn"
+                    onClick={() => handleDownloadAndOpen(course.pdfUrl, course.title)}
+                  >
                     Télécharger PDF
-                  </a>
+                  </button>
                 )}
               </motion.div>
             ))}
