@@ -14,7 +14,7 @@ const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
 const coursesRouter = require("./routes/courses");
-const avisRouter = require ("./routes/Avis");
+const avisRouter = require("./routes/Avis");
 const packRoutes = require("./routes/pack");
 const publicationRouter = require("./routes/publication");
 
@@ -35,8 +35,10 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
+// Servir les fichiers statiques du dossier public uniquement via /public
 app.use('/public', express.static(path.join(__dirname, 'public')));
+// Servir les fichiers statiques du dossier uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Configuration de la session pour Passport
 app.use(
@@ -58,15 +60,16 @@ mongo
   .catch((err) => console.error("❌ Could not connect to MongoDB:", err));
 
 // Active CORS pour le frontend React (http://localhost:5173)
-app.use(cors({
-  origin: 'http://localhost:5173', // Permet l'accès depuis ce domaine
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // Ajout de la méthode PATCH
-  allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'], // Autoriser ces en-têtes spécifiques
-}));
+app.use(
+  cors({
+    origin: 'http://localhost:5173', // Permet l'accès depuis ce domaine
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // Ajout de la méthode PATCH
+    allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'], // Autoriser ces en-têtes spécifiques
+  })
+);
 
 // ✅ Déclaration des routes (ORDRE IMPORTANT)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use("/auth", authRouter);  // ✅ Correction de la route Facebook
+app.use("/auth", authRouter); // ✅ Correction de la route Facebook
 app.use("/index", indexRouter);
 app.use("/users", usersRouter);
 app.use("/courses", coursesRouter);

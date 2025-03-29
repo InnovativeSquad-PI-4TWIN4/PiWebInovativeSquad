@@ -1,23 +1,41 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { FaExchangeAlt } from 'react-icons/fa';
 import { FiLogOut, FiSun, FiMoon } from 'react-icons/fi';
 import { MdManageAccounts } from 'react-icons/md';
 import { Link, useNavigate } from 'react-router-dom';
-import { ThemeContext } from '../../../context/ThemeContext'; // 🔹 Import du contexte du thème
+import { ThemeContext } from '../../../context/ThemeContext';
 import './Navbar.scss';
 import AdminNavbar from '../../backoffice/Adminnavbar/adminnavbar';
 
 const Navbar = ({ user, onLogout }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const { theme, toggleTheme } = useContext(ThemeContext); // 🔹 Utilisation du contexte du thème
+    const { theme, toggleTheme } = useContext(ThemeContext);
     const navigate = useNavigate();
+    const dropdownRef = useRef(null); // Créer une référence pour le menu déroulant
 
     const toggleDropdown = () => setIsOpen(!isOpen);
 
     const handleLogout = () => {
         onLogout();
-        navigate('/signin'); // Redirection après déconnexion
+        navigate('/signin');
     };
+
+    // Gérer le clic à l'extérieur pour fermer le menu déroulant
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false); // Fermer le menu si le clic est à l'extérieur
+            }
+        };
+
+        // Ajouter un écouteur d'événements au document
+        document.addEventListener('mousedown', handleClickOutside);
+
+        // Nettoyer l'écouteur d'événements lors du démontage du composant
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []); // Tableau de dépendances vide : cela s'exécute une fois au montage et se nettoie au démontage
 
     // Si l'utilisateur est un admin, afficher la navbar admin
     if (user && user.role === "admin") {
@@ -59,7 +77,7 @@ const Navbar = ({ user, onLogout }) => {
                                 </div>
 
                                 {isOpen && (
-                                    <div className="dropdown-menu">
+                                    <div className="dropdown-menu" ref={dropdownRef}>
                                         <div className="user-info">
                                             <div className="user-initials-lg">
                                                 {user.name.charAt(0).toUpperCase()}
@@ -74,12 +92,12 @@ const Navbar = ({ user, onLogout }) => {
                                         <div className="menu-links">
                                             <div className="menu-item" onClick={() => navigate('/manage-profile')}>
                                                 <MdManageAccounts className="menu-icon" />
-                                                Manage Profile
+                                                Gérer le profil
                                             </div>
 
                                             <div className="menu-item" onClick={handleLogout}>
                                                 <FiLogOut className="menu-icon logout-icon" />
-                                                Log out
+                                                Se déconnecter
                                             </div>
                                         </div>
                                     </div>
@@ -89,8 +107,8 @@ const Navbar = ({ user, onLogout }) => {
                     </>
                 ) : (
                     <>
-                        <li><Link to="/signin">Sign In</Link></li>
-                        <li><Link to="/signup" className="signup-btn">Sign Up</Link></li>
+                        <li><Link to="/signin">Se connecter</Link></li>
+                        <li><Link to="/signup" className="signup-btn">S'inscrire</Link></li>
 
                         {/* Bouton de bascule Light/Dark Mode */}
                         <li>
