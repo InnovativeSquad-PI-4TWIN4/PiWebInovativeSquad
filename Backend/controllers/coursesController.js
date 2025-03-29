@@ -7,19 +7,31 @@ exports.accessPremiumCourse = async (req, res) => {
   const courseId = req.params.id;
   const userId = req.body.userId;
 
+  console.log("📥 Requête reçue - courseId:", courseId, "userId:", userId);
+
+  // 🔒 Vérification que l'ID utilisateur est valide
+  if (!userId || userId === "undefined") {
+    return res.status(400).json({ message: "ID utilisateur invalide ou manquant." });
+  }
+
   try {
     const course = await Course.findById(courseId);
-    if (!course) return res.status(404).json({ message: "Cours non trouvé." });
+    if (!course) {
+      return res.status(404).json({ message: "Cours non trouvé." });
+    }
 
+    // 🔍 Vérifie que le cours est bien premium
     if (!course.isPremium) {
       return res.status(400).json({ message: "Ce cours n'est pas premium." });
     }
 
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "Utilisateur non trouvé." });
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
 
+    // 💰 Vérifie le solde
     if (user.solde >= course.price) {
-      // ✅ Déduire le solde correct
       user.solde -= course.price;
       await user.save();
 
@@ -29,13 +41,14 @@ exports.accessPremiumCourse = async (req, res) => {
         remainingBalance: user.solde
       });
     } else {
-      return res.status(403).json({ message: "Solde insuffisant." });
+      return res.status(403).json({ message: "❌ Solde insuffisant." });
     }
   } catch (error) {
     console.error("❌ Erreur dans accessPremiumCourse :", error);
-    res.status(500).json({ message: "Erreur serveur." });
+    return res.status(500).json({ message: "Erreur serveur." });
   }
 };
+
 
 
 // ✅ Ajouter un nouveau cours (avec support Premium)
