@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaSearch, FaPlus, FaEdit, FaTrash, FaFire, FaCheck } from 'react-icons/fa';
 import AddCourses from "./AddCourses";
-import { jsPDF } from 'jspdf';
-import '@react-pdf-viewer/core/lib/styles/index.css';
-import { Worker, Viewer } from '@react-pdf-viewer/core';
 import './CoursesAdmin.scss';
 
 const CoursesAdmin = () => {
@@ -14,8 +11,6 @@ const CoursesAdmin = () => {
   const [sortOption, setSortOption] = useState('dateDesc');
   const [showForm, setShowForm] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
-  const [message, setMessage] = useState('');
-  const [pdfFile, setPdfFile] = useState(null);
 
   useEffect(() => {
     fetch("http://localhost:3000/courses/getallcourses")
@@ -145,28 +140,6 @@ const CoursesAdmin = () => {
     }
   };
 
-  const handleDownload = (course) => {
-    const doc = new jsPDF();
-    doc.setFont("helvetica");
-    doc.setFontSize(16);
-    doc.text("Cours: " + course.title, 10, 10);
-    doc.text("Catégorie: " + course.category, 10, 20);
-    doc.text("Instructeur: " + (course.instructor?.name || "Inconnu"), 10, 30);
-    doc.text("Date de création: " + new Date(course.createdAt).toLocaleDateString(), 10, 40);
-    doc.text("Description: " + (course.description || "Aucune description disponible."), 10, 50);
-    doc.save(course.title + ".pdf");
-    setMessage('Téléchargement effectué avec succès !');
-  };
-
-  const handleShowPDF = (pdfUrl) => {
-    const isPdf = pdfUrl && pdfUrl.endsWith('.pdf');
-    if (isPdf) {
-      setPdfFile(pdfUrl);
-    } else {
-      alert('Le fichier sélectionné n\'est pas un PDF valide.');
-    }
-  };
-
   return (
     <div className="courses-admin">
       <div className="controls">
@@ -221,14 +194,6 @@ const CoursesAdmin = () => {
                   >
                     <FaCheck /> Terminé
                   </button>
-                )}
-              </div>
-              <div className="course-actions">
-                <button onClick={() => handleDownload(course)}>Télécharger en PDF</button>
-                {course.pdfUrl && (
-                  <div className="pdf-viewer">
-                    <button onClick={() => handleShowPDF(course.pdfUrl)}>Afficher le PDF</button>
-                  </div>
                 )}
               </div>
             </div>
@@ -302,16 +267,6 @@ const CoursesAdmin = () => {
               </div>
             </form>
           </div>
-        </div>
-      )}
-
-      {message && <div className="success-message">{message}</div>}
-
-      {pdfFile && (
-        <div className="pdf-container">
-          <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js`}>
-            <Viewer fileUrl={pdfFile} />
-          </Worker>
         </div>
       )}
     </div>
