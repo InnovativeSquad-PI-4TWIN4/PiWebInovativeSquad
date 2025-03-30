@@ -1,7 +1,69 @@
 // PremiumCoursesController.js
 
 const User = require("../models/User");
-const Course = require("../models/Courses");
+const Course = require("../models/Courses"); // ou ton modèle de cours
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
+
+// ✅ Ajouter un cours premium
+exports.addPremiumCourse = async (req, res) => {
+  try {
+    console.log("📦 Données reçues :", req.body);
+
+    const { title, category, instructor, meetLink, price } = req.body;
+
+    if (!title || !category || !instructor || !meetLink || !price) {
+      return res.status(400).json({ message: "Tous les champs sont requis" });
+    }
+
+    const newCourse = new Course({
+      title,
+      category,
+      instructor: new ObjectId(instructor), // ✅ conversion ici
+      meetLink,
+      price,
+      isPremium: true,
+      isMeetEnded: false,
+      videoReplayUrl: "",
+    });
+
+    await newCourse.save();
+
+    res.status(201).json({ message: "✅ Cours premium ajouté avec succès", course: newCourse });
+  } catch (error) {
+    console.error("❌ Erreur dans addPremiumCourse:", error);
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
+  }
+};
+exports.updatePremiumCourse = async (req, res) => {
+  try {
+    const { title, category, instructor, videoReplayUrl } = req.body;
+
+    const course = await Course.findById(req.params.id);
+    if (!course || !course.isPremium) {
+      return res.status(404).json({ message: "Cours premium non trouvé" });
+    }
+
+    const updatedFields = {
+      title,
+      category,
+      instructor,
+      videoReplayUrl: videoReplayUrl || course.videoReplayUrl
+    };
+
+    const updatedCourse = await Course.findByIdAndUpdate(
+      req.params.id,
+      { $set: updatedFields },
+      { new: true }
+    );
+
+    res.status(200).json({ message: "Cours premium mis à jour", course: updatedCourse });
+  } catch (error) {
+    console.error("Erreur update cours premium:", error);
+    res.status(500).json({ message: "Erreur serveur", error });
+  }
+};
+
 
 // ✅ Marquer un cours comme terminé
 exports.markMeetEnded = async (req, res) => {
