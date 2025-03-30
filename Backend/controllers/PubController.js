@@ -5,10 +5,26 @@ const Publication = require('../models/publication'); // Assurez-vous que le che
 exports.getAllPub = async (req, res) => {
   try {
     const publications = await Publication.find()
-      .populate('user', 'name surname image')
+      .populate('user', 'name surname image') // Utilisateur de la publication
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'user',
+          select: 'name surname image' // Utilisateur des commentaires
+        }
+      })
+      .populate({
+        path: 'comments.replies',
+        populate: {
+          path: 'user',
+          select: 'name surname image' // Utilisateur des réponses
+        }
+      })
       .sort({ createdAt: -1 });
+    console.log('Publications renvoyées :', JSON.stringify(publications, null, 2)); // Log pour débogage
     res.status(200).json(publications);
   } catch (error) {
+    console.error('Erreur dans getAllPub :', error);
     res.status(500).json({ error: error.message });
   }
 };
