@@ -1,23 +1,25 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const upload = multer(); // Aucune config de stockage car pas de fichier
 
 const {
+  addPremiumCourse,
   accessPremiumCourse,
   rechargeBalance,
   markMeetEnded,
   updateReplayLink,
+  updatePremiumCourse,
 } = require("../controllers/PremiumCoursesController");
 
-// 🔐 Accès aux cours premium (avec vérification de solde)
+// ✅ Middleware ici 👇
+router.post("/addpremium", upload.none(), addPremiumCourse);
+
 router.post("/access/:id", accessPremiumCourse);
-
-// 🔋 Recharge du solde utilisateur
 router.post("/recharge/:id", rechargeBalance);
-
-// ✅ Marquer un cours comme terminé (fin du Meet)
 router.put("/mark-meet-ended/:id", markMeetEnded);
-
-// ✅ Ajouter ou modifier un lien de replay
 router.put("/replay/:id", updateReplayLink);
+router.put("/update/:id", updatePremiumCourse);
+
 
 module.exports = router;
