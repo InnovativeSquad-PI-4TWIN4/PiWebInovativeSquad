@@ -5,7 +5,6 @@ import SignIn from './components/frontoffice/signin/signin';
 import SignUp from './components/frontoffice/signup/signup';
 import ForgotPassword from './components/frontoffice/forgotpassword/forgotpassword';
 import ResetPassword from './components/frontoffice/resetpassword/resetpassword';
-import Courses from './components/frontoffice/courses/courses';
 import Contact from './components/frontoffice/contact/contact';
 import Footer from './components/frontoffice/footer/footer';
 import DashbordAdmin from './components/backoffice/dashbordAdmin/dashbordAdmin';
@@ -27,6 +26,8 @@ import AddAdmin from './components/backoffice/ManageAdmins/AddAdmin';
 import Avis from './components/frontoffice/noticeWebsite/noticeWebsite';
 import Packs from './components/frontoffice/Packs/Packs';
 import Marketplace from './components/frontoffice/Marketplace/Marketplace';
+import PremiumCourses from './components/frontoffice/Marketplace/PremiumCourses';
+import FreeCourses from './components/frontoffice/Marketplace/FreeCourses';
 
 
 import { ThemeProvider } from "./context/ThemeContext";  // ✅ Import correct
@@ -107,6 +108,9 @@ const App = () => {
                             <Route path="/forgot-password" element={<ForgotPassword />} />
                             <Route path="/reset-password/:token" element={<ResetPassword />} />
                             <Route path="/marketplace" element={<Marketplace />} />
+                            <Route path="/marketplace/premium" element={<PremiumCourses />} />
+                            <Route path="/marketplace/free" element={<FreeCourses />} />
+
                             <Route path="/AvisWebsite" element={<Avis />} />
                             <Route path="/Ourpacks" element={<Packs />} />
                             <Route path="/contact" element={<Contact />} />
