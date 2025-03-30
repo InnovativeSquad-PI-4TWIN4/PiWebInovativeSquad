@@ -122,6 +122,13 @@ $hover-shadow: rgba(0, 0, 0, 0.25);
       font-size: 1.2rem;
       font-weight: bold;
       color: $dark-color;
+
+      svg {
+        margin-left: 6px;
+        font-size: 1.1rem;
+        color: orange;
+        vertical-align: middle;
+      }
     }
 
     .teacher {
@@ -198,43 +205,24 @@ $hover-shadow: rgba(0, 0, 0, 0.25);
   }
 }
 
-/* Boutons PDF */
-.course-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
+.premium-border {
+  border: 2px dashed orange;
+  box-shadow: 0 0 12px rgba(255, 165, 0, 0.6);
+  position: relative;
+}
 
-  button {
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    width: 100%;
-
-    &:hover {
-      transform: scale(1.05);
-    }
-
-    &:first-child {
-      background-color: #007bff;
-
-      &:hover {
-        background-color: #0056b3;
-      }
-    }
-
-    &:last-child {
-      background-color: #28a745;
-
-      &:hover {
-        background-color: #218838;
-      }
-    }
-  }
+.course-card.premium-border::before {
+  content: '🔥 PREMIUM';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: orange;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 5px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
 /* Formulaire modal */
@@ -305,7 +293,6 @@ $hover-shadow: rgba(0, 0, 0, 0.25);
   }
 }
 
-/* Animation d’apparition */
 @keyframes fadeInUp {
   from {
     opacity: 0;
