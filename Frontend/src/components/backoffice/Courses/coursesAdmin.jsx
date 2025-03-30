@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaSearch, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaSearch, FaPlus, FaEdit, FaTrash, FaFire, FaCheck } from 'react-icons/fa';
 import AddCourses from "./AddCourses";
 import { jsPDF } from 'jspdf';
 import '@react-pdf-viewer/core/lib/styles/index.css';
@@ -71,6 +71,26 @@ const CoursesAdmin = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const markMeetAsEnded = async (course) => {
+    const updatedCourse = { ...course, isMeetEnded: true };
+    try {
+      const response = await fetch(`http://localhost:3000/premium/mark-meet-ended/${course._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedCourse)
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert("Le meet a été marqué comme terminé.");
+        setCourses(prev => prev.map(c => c._id === course._id ? updatedCourse : c));
+      } else {
+        alert("Erreur : " + data.message);
+      }
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour :", err);
+    }
+  };
+
   const handleUpdate = async (e) => {
     e.preventDefault();
     if (!editingCourse) return;
@@ -84,11 +104,17 @@ const CoursesAdmin = () => {
       body.append("category", editingCourse.category);
       body.append("instructor", typeof editingCourse.instructor === "object" ? editingCourse.instructor._id : editingCourse.instructor);
       body.append("file", editingCourse.pdfFile);
+      body.append("isPremium", editingCourse.isPremium);
+      body.append("isMeetEnded", editingCourse.isMeetEnded);
+      body.append("videoReplayUrl", editingCourse.videoReplayUrl || "");
     } else {
       body = JSON.stringify({
         title: editingCourse.title,
         category: editingCourse.category,
         instructor: typeof editingCourse.instructor === "object" ? editingCourse.instructor._id : editingCourse.instructor,
+        isPremium: editingCourse.isPremium,
+        isMeetEnded: editingCourse.isMeetEnded,
+        videoReplayUrl: editingCourse.videoReplayUrl || ""
       });
       headers["Content-Type"] = "application/json";
     }
@@ -101,15 +127,13 @@ const CoursesAdmin = () => {
       });
 
       const data = await response.json();
-      console.log("Réponse du serveur :", data);
-
       if (response.ok) {
         alert("Cours mis à jour avec succès !");
         setEditingCourse(null);
         setCourses(prevCourses =>
           prevCourses.map(course =>
             course._id === editingCourse._id
-              ? { ...course, title: editingCourse.title, category: editingCourse.category, instructor: editingCourse.instructor }
+              ? { ...course, ...editingCourse }
               : course
           )
         );
@@ -180,13 +204,24 @@ const CoursesAdmin = () => {
           <p>Aucun cours disponible.</p>
         ) : (
           filteredAndSortedCourses.map((course, index) => (
-            <div key={course._id} className="course-card" style={{ animationDelay: `${index * 0.1}s` }}>
+            <div key={course._id} className={`course-card ${course.isPremium ? 'premium-border' : ''}`} style={{ animationDelay: `${index * 0.1}s` }}>
               <span className="category">{course.category}</span>
-              <h3 className="title">{course.title}</h3>
+              <h3 className="title">
+                {course.title} {course.isPremium && <FaFire className="premium-icon" />}
+              </h3>
               <p className="teacher">Ajouté par : <strong>{course.instructor?.name || "Inconnu"}</strong></p>
               <div className="actions">
                 <button className="edit-btn" onClick={() => handleEdit(course)}><FaEdit /> Modifier</button>
                 <button className="delete-btn" onClick={() => handleDelete(course._id)}><FaTrash /> Supprimer</button>
+                {course.isPremium && !course.isMeetEnded && (
+                  <button
+                    className="mark-ended-btn"
+                    onClick={() => markMeetAsEnded(course)}
+                    title="Marquer comme terminé"
+                  >
+                    <FaCheck /> Terminé
+                  </button>
+                )}
               </div>
               <div className="course-actions">
                 <button onClick={() => handleDownload(course)}>Télécharger en PDF</button>
@@ -203,7 +238,6 @@ const CoursesAdmin = () => {
 
       {showForm && <AddCourses onClose={() => setShowForm(false)} admins={admins} />}
 
-      {/* ✅ Nouveau formulaire de modification stylisé */}
       {editingCourse && (
         <div className="overlay">
           <div className="edit-form-modal">
@@ -231,6 +265,36 @@ const CoursesAdmin = () => {
 
               <label>Fichier PDF (facultatif)</label>
               <input type="file" onChange={(e) => setEditingCourse({ ...editingCourse, pdfFile: e.target.files[0] })} />
+
+              <label>
+                <input
+                  type="checkbox"
+                  checked={editingCourse.isPremium || false}
+                  onChange={(e) => setEditingCourse({ ...editingCourse, isPremium: e.target.checked })}
+                /> Cours Premium
+              </label>
+
+              {editingCourse.isPremium && (
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={editingCourse.isMeetEnded || false}
+                    onChange={(e) => setEditingCourse({ ...editingCourse, isMeetEnded: e.target.checked })}
+                  /> Cours terminé (meet fini)
+                </label>
+              )}
+
+              {editingCourse.isPremium && editingCourse.isMeetEnded && (
+                <>
+                  <label>Lien de replay (vidéo)</label>
+                  <input
+                    type="url"
+                    placeholder="https://youtube.com/..."
+                    value={editingCourse.videoReplayUrl || ""}
+                    onChange={(e) => setEditingCourse({ ...editingCourse, videoReplayUrl: e.target.value })}
+                  />
+                </>
+              )}
 
               <div className="form-actions">
                 <button type="submit">✅ Sauvegarder</button>
