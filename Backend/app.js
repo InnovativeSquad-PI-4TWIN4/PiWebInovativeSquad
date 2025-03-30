@@ -13,6 +13,7 @@ const cors = require("cors");
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
+const premiumRouter = require("./routes/premiumCourses"); // ✅ cours premium
 const coursesRouter = require("./routes/courses");
 const avisRouter = require ("./routes/Avis");
 const packRoutes = require("./routes/pack");
@@ -69,7 +70,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use("/auth", authRouter);  // ✅ Correction de la route Facebook
 app.use("/index", indexRouter);
 app.use("/users", usersRouter);
-app.use("/courses", coursesRouter);
+app.use("/courses", coursesRouter);        // 🧠 Free + base routes
+app.use("/premium", premiumRouter);         // 🔥 Premium course routes
 app.use("/Avis", avisRouter);
 app.use("/packs", packRoutes);
 app.use("/publication", publicationRouter);

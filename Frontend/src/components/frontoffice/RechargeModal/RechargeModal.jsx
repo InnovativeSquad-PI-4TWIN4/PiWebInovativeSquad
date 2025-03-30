@@ -16,7 +16,7 @@ const RechargeModal = ({ isOpen, onClose, onSuccess, userId }) => {
 
     try {
       setLoading(true);
-      await axios.post(`http://localhost:3000/courses/recharge/${userId}`, {
+      await axios.post(`http://localhost:3000/premium/recharge/${userId}`, {
         amount: parseFloat(amount)
       });
       alert("✅ Recharge effectuée avec succès.");
