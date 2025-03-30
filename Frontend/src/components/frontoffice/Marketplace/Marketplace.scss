@@ -1,7 +1,13 @@
 .courses {
+  min-height: 100vh;
   padding: 2rem;
   text-align: center;
   color: #fff;
+
+  // ✅ Nouveau fond dégradé stylé
+  background: linear-gradient(145deg, #0d0d0d, #1a1a2e, #000000);
+  background-repeat: no-repeat;
+  background-size: cover;
 
   h1 {
     font-size: 2.5rem;
@@ -11,9 +17,8 @@
 
   .back-btn {
     position: absolute;
-    top: 100px; // ✨ Ajuste cette valeur selon ta navbar
+    top: 100px;
     left: 30px;
-  
     background: transparent;
     border: 2px solid #00ffe7;
     color: #00ffe7;
@@ -24,15 +29,13 @@
     cursor: pointer;
     transition: 0.2s ease-in-out;
     z-index: 1000;
-  
+
     &:hover {
       background-color: #00ffe7;
       color: #000;
       transform: scale(1.1);
     }
   }
-  
-  
 
   .marketplace-cards {
     display: flex;
@@ -105,6 +108,24 @@
     &.premium {
       border: 2px solid #ff6f61;
       background: #2c1f2f;
+    }
+
+    .replay-btn {
+      margin-top: 1rem;
+      background: #ffb347;
+      color: #000;
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
+      border: none;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+      transition: 0.3s;
+
+      &:hover {
+        background: #ff9840;
+        transform: scale(1.05);
+      }
     }
   }
 }
