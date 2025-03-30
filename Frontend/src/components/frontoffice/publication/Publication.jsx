@@ -11,8 +11,8 @@ const Publication = () => {
     description: '',
   });
   const [currentUser, setCurrentUser] = useState(null);
-  const [newComments, setNewComments] = useState({}); // État pour stocker les nouveaux commentaires
-  const [newReplies, setNewReplies] = useState({}); // État pour stocker les nouvelles réponses
+  const [newComments, setNewComments] = useState({});
+  const [newReplies, setNewReplies] = useState({});
 
   const API_URL = 'http://localhost:3000/publication';
   const USER_API_URL = 'http://localhost:3000/users/profile';
@@ -36,6 +36,7 @@ const Publication = () => {
         });
 
         if (response.data.status === 'SUCCESS') {
+          console.log('Utilisateur connecté :', response.data.user); // Log pour débogage
           setCurrentUser(response.data.user);
         } else {
           setError('Erreur lors de la récupération des informations utilisateur');
@@ -53,6 +54,7 @@ const Publication = () => {
     const fetchPublications = async () => {
       try {
         const response = await axios.get(`${API_URL}/getAllPub`);
+        console.log('Données des publications :', response.data); // Log pour débogage
         setPublications(response.data);
         setLoading(false);
       } catch (err) {
@@ -107,7 +109,6 @@ const Publication = () => {
     }
   };
 
-  // Fonction pour gérer le "J'aime"
   const handleLike = async (publicationId) => {
     try {
       const token = localStorage.getItem('token');
@@ -131,7 +132,6 @@ const Publication = () => {
     }
   };
 
-  // Gérer le changement de texte pour un nouveau commentaire
   const handleCommentChange = (publicationId, value) => {
     setNewComments((prev) => ({
       ...prev,
@@ -139,7 +139,6 @@ const Publication = () => {
     }));
   };
 
-  // Gérer le changement de texte pour une nouvelle réponse
   const handleReplyChange = (commentId, value) => {
     setNewReplies((prev) => ({
       ...prev,
@@ -147,7 +146,6 @@ const Publication = () => {
     }));
   };
 
-  // Ajouter un commentaire
   const handleAddComment = async (publicationId) => {
     const content = newComments[publicationId];
     if (!content || content.trim().length === 0) {
@@ -181,7 +179,6 @@ const Publication = () => {
     }
   };
 
-  // Ajouter une réponse à un commentaire
   const handleAddReply = async (publicationId, commentId) => {
     const content = newReplies[commentId];
     if (!content || content.trim().length === 0) {
@@ -215,6 +212,17 @@ const Publication = () => {
     }
   };
 
+  // Fonction pour générer l'URL de l'image avec débogage
+  const getImageUrl = (image) => {
+    if (!image) {
+      console.warn('Image manquante, utilisation de l\'image par défaut');
+      return 'https://via.placeholder.com/40';
+    }
+    const url = image.startsWith('http') ? image : `${BASE_URL}${image}`;
+    console.log('URL générée pour l\'image :', url);
+    return url;
+  };
+
   if (loading) {
     return <div>Chargement des publications...</div>;
   }
@@ -230,16 +238,13 @@ const Publication = () => {
         <form onSubmit={handleSubmit}>
           <div className="create-publication-header">
             <img
-              src={
-                currentUser?.image
-                  ? currentUser.image.startsWith('http')
-                    ? currentUser.image
-                    : `${BASE_URL}${currentUser.image}`
-                  : 'https://via.placeholder.com/40'
-              }
-              alt={`${currentUser?.name} ${currentUser?.surname}`}
+              src={getImageUrl(currentUser?.image)}
+              alt={`${currentUser?.name || 'Utilisateur'} ${currentUser?.surname || ''}`}
               className="user-avatar"
-              onError={(e) => (e.target.src = 'https://via.placeholder.com/40')}
+              onError={(e) => {
+                console.error('Erreur de chargement de l\'image pour l\'utilisateur connecté');
+                e.target.src = 'https://via.placeholder.com/40';
+              }}
             />
             <select
               name="type"
@@ -271,16 +276,13 @@ const Publication = () => {
         <div key={pub._id} className="publication-card">
           <div className="publication-header">
             <img
-              src={
-                pub.user?.image
-                  ? pub.user.image.startsWith('http')
-                    ? pub.user.image
-                    : `${BASE_URL}${pub.user.image}`
-                  : 'https://via.placeholder.com/40'
-              }
-              alt={`${pub.user?.name} ${pub.user?.surname}`}
+              src={getImageUrl(pub.user?.image)}
+              alt={`${pub.user?.name || 'Utilisateur'} ${pub.user?.surname || ''}`}
               className="user-avatar"
-              onError={(e) => (e.target.src = 'https://via.placeholder.com/40')}
+              onError={(e) => {
+                console.error('Erreur de chargement de l\'image pour', pub.user?.name);
+                e.target.src = 'https://via.placeholder.com/40';
+              }}
             />
             <div className="user-info">
               <span className="user-name">
@@ -320,7 +322,6 @@ const Publication = () => {
 
           {/* Section des commentaires */}
           <div className="comments-section">
-            {/* Formulaire pour ajouter un commentaire */}
             <div className="add-comment">
               <textarea
                 value={newComments[pub._id] || ''}
@@ -336,23 +337,19 @@ const Publication = () => {
               </button>
             </div>
 
-            {/* Liste des commentaires */}
             {pub.comments && pub.comments.length > 0 && (
               <div className="comments-list">
                 {pub.comments.map((comment) => (
                   <div key={comment._id} className="comment">
                     <div className="comment-header">
                       <img
-                        src={
-                          comment.user?.image
-                            ? comment.user.image.startsWith('http')
-                              ? comment.user.image
-                              : `${BASE_URL}${comment.user.image}`
-                            : 'https://via.placeholder.com/40'
-                        }
-                        alt={`${comment.user?.name} ${comment.user?.surname}`}
+                        src={getImageUrl(comment.user?.image)}
+                        alt={`${comment.user?.name || 'Utilisateur'} ${comment.user?.surname || ''}`}
                         className="user-avatar"
-                        onError={(e) => (e.target.src = 'https://via.placeholder.com/40')}
+                        onError={(e) => {
+                          console.error('Erreur de chargement de l\'image pour', comment.user?.name);
+                          e.target.src = 'https://via.placeholder.com/40';
+                        }}
                       />
                       <div className="comment-info">
                         <span className="user-name">
@@ -371,23 +368,19 @@ const Publication = () => {
                     </div>
                     <p className="comment-content">{comment.content}</p>
 
-                    {/* Liste des réponses */}
                     {comment.replies && comment.replies.length > 0 && (
                       <div className="replies-list">
                         {comment.replies.map((reply) => (
                           <div key={reply._id} className="reply">
                             <div className="reply-header">
                               <img
-                                src={
-                                  reply.user?.image
-                                    ? reply.user.image.startsWith('http')
-                                      ? reply.user.image
-                                      : `${BASE_URL}${reply.user.image}`
-                                    : 'https://via.placeholder.com/40'
-                                }
-                                alt={`${reply.user?.name} ${reply.user?.surname}`}
+                                src={getImageUrl(reply.user?.image)}
+                                alt={`${reply.user?.name || 'Utilisateur'} ${reply.user?.surname || ''}`}
                                 className="user-avatar"
-                                onError={(e) => (e.target.src = 'https://via.placeholder.com/40')}
+                                onError={(e) => {
+                                  console.error('Erreur de chargement de l\'image pour', reply.user?.name);
+                                  e.target.src = 'https://via.placeholder.com/40';
+                                }}
                               />
                               <div className="reply-info">
                                 <span className="user-name">
@@ -410,7 +403,6 @@ const Publication = () => {
                       </div>
                     )}
 
-                    {/* Formulaire pour ajouter une réponse (seul le créateur peut répondre) */}
                     {currentUser && pub.user && pub.user._id === currentUser._id && (
                       <div className="add-reply">
                         <textarea
