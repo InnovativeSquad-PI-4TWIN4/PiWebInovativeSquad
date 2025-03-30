@@ -90,32 +90,26 @@ const CoursesAdmin = () => {
     e.preventDefault();
     if (!editingCourse) return;
 
+    let endpoint = editingCourse.isPremium
+      ? `http://localhost:3000/premium/replay/${editingCourse._id}`
+      : `http://localhost:3000/courses/updatecourses/${editingCourse._id}`;
+
     let body;
     let headers = {};
 
-    if (editingCourse.pdfFile) {
+    if (editingCourse.isPremium) {
+      body = JSON.stringify({ videoReplayUrl: editingCourse.videoReplayUrl });
+      headers["Content-Type"] = "application/json";
+    } else {
       body = new FormData();
       body.append("title", editingCourse.title);
       body.append("category", editingCourse.category);
       body.append("instructor", typeof editingCourse.instructor === "object" ? editingCourse.instructor._id : editingCourse.instructor);
-      body.append("file", editingCourse.pdfFile);
-      body.append("isPremium", editingCourse.isPremium);
-      body.append("isMeetEnded", editingCourse.isMeetEnded);
-      body.append("videoReplayUrl", editingCourse.videoReplayUrl || "");
-    } else {
-      body = JSON.stringify({
-        title: editingCourse.title,
-        category: editingCourse.category,
-        instructor: typeof editingCourse.instructor === "object" ? editingCourse.instructor._id : editingCourse.instructor,
-        isPremium: editingCourse.isPremium,
-        isMeetEnded: editingCourse.isMeetEnded,
-        videoReplayUrl: editingCourse.videoReplayUrl || ""
-      });
-      headers["Content-Type"] = "application/json";
+      if (editingCourse.pdfFile) body.append("file", editingCourse.pdfFile);
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/courses/updatecourses/${editingCourse._id}`, {
+      const response = await fetch(endpoint, {
         method: "PUT",
         body: body,
         headers: headers,
@@ -228,14 +222,18 @@ const CoursesAdmin = () => {
                 ))}
               </select>
 
-              <label>Fichier PDF (facultatif)</label>
-              <input type="file" onChange={(e) => setEditingCourse({ ...editingCourse, pdfFile: e.target.files[0] })} />
+              {!editingCourse.isPremium && (
+                <>
+                  <label>Fichier PDF (facultatif)</label>
+                  <input type="file" onChange={(e) => setEditingCourse({ ...editingCourse, pdfFile: e.target.files[0] })} />
+                </>
+              )}
 
               <label>
                 <input
                   type="checkbox"
                   checked={editingCourse.isPremium || false}
-                  onChange={(e) => setEditingCourse({ ...editingCourse, isPremium: e.target.checked })}
+                  disabled
                 /> Cours Premium
               </label>
 

@@ -10,7 +10,13 @@ const CourseSchema = new Schema({
         ref: "users", // Vérifie que le nom correspond à celui défini dans mongoose.model
         required: true 
     },
-    pdfUrl: { type: String, required: true },
+    pdfUrl: {
+        type: String,
+        required: function () {
+          return !this.isPremium; // requis seulement si le cours est gratuit
+        }
+      },
+      
 
     // ✅ Champs pour cours premium
     isPremium: { type: Boolean, default: false },

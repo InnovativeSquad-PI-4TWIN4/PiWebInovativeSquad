@@ -53,36 +53,32 @@ exports.getCourseById = async (req, res) => {
 // ✅ Mettre à jour un cours (avec gestion des champs Premium)
 exports.updateCourse = async (req, res) => {
   try {
-    const { title, category, instructor, isPremium, meetLink, videoReplayUrl } = req.body;
+    const { title, category, instructor } = req.body;
     let pdfUrl = req.file ? "/uploads/" + req.file.filename : undefined;
 
-    const updatedFields = {
-      title,
-      category,
-      instructor,
-      isPremium: isPremium === 'true',
-      meetLink,
-      videoReplayUrl
-    };
+    const course = await Course.findById(req.params.id);
+    if (!course) return res.status(404).json({ message: "Cours non trouvé" });
 
+    if (course.isPremium) {
+      return res.status(400).json({ message: "Ce cours est premium, utilisez l'endpoint dédié." });
+    }
+
+    const updatedFields = { title, category, instructor };
     if (pdfUrl) updatedFields.pdfUrl = pdfUrl;
 
     const updatedCourse = await Course.findByIdAndUpdate(
       req.params.id,
       { $set: updatedFields },
       { new: true }
-    ).populate("instructor", "name");
+    );
 
-    if (!updatedCourse) {
-      return res.status(404).json({ message: "Cours non trouvé" });
-    }
-
-    res.status(200).json({ message: "Cours mis à jour avec succès", course: updatedCourse });
+    res.status(200).json({ message: "Cours gratuit mis à jour avec succès", course: updatedCourse });
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du cours :", error);
+    console.error("Erreur update cours gratuit:", error);
     res.status(500).json({ message: "Erreur serveur", error });
   }
 };
+
 
 // ✅ Supprimer un cours
 exports.deleteCourse = async (req, res) => {
