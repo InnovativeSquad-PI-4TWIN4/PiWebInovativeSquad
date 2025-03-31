@@ -15,6 +15,7 @@ const coursesRouter = require("./routes/courses");
 const avisRouter = require("./routes/Avis");
 const packRoutes = require("./routes/pack");
 const publicationRouter = require("./routes/publication");
+const messageRouter = require("./routes/message");
 
 require("dotenv").config();
 require("./config/passport");
@@ -71,6 +72,7 @@ app.use("/premium", premiumRouter);
 app.use("/avis", avisRouter);
 app.use("/packs", packRoutes);
 app.use("/publication", publicationRouter);
+app.use("/messages", messageRouter);
 
 app.use((req, res, next) => {
   res.status(404).json({ error: "❌ La page demandée n'a pas été trouvée !" });

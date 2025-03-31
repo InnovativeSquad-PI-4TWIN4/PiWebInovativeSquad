@@ -28,7 +28,7 @@ import Packs from './components/frontoffice/Packs/Packs';
 import Marketplace from './components/frontoffice/Marketplace/Marketplace';
 import PremiumCourses from './components/frontoffice/Marketplace/PremiumCourses';
 import FreeCourses from './components/frontoffice/Marketplace/FreeCourses';
-
+import Messenger from './components/frontoffice/messenger/messenger'
 
 import { ThemeProvider } from "./context/ThemeContext";  // ✅ Import correct
 
@@ -118,6 +118,7 @@ const App = () => {
                             <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
                             <Route path="/manage-profile" element={<ManageProfile />} />
                             <Route path="/publication" element={<Publication />} />
+                            <Route path="/messenger" element={<Messenger />} />
                             {/* ROUTE FACEBOOK LOGIN */}
                             <Route path="/auth/success" element={<AuthSuccess />} />
                         </>
