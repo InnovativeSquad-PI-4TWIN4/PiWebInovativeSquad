@@ -35,5 +35,17 @@ status: { type: String, enum: ['unapproved', 'pending', 'approved'], default: 'u
  User.virtual('wallet').get(function() {
      return Math.floor(this.solde * 1.3) + ' pts'; 
  });
-    
+ User.methods.buyPack = async function (pack) {
+    const packPrice = pack.priceAfterDiscount; // Prix du pack après réduction
+
+    if (this.wallet < packPrice) { // Vérifie si le wallet a assez de points
+        throw new Error("Points insuffisants pour acheter ce pack.");
+    }
+
+    this.wallet -= packPrice; // Déduit le prix du pack du wallet
+    this.abonnement.push(pack._id); // Ajoute le pack aux abonnements
+
+    await this.save();
+    return this;
+};
 module.exports = mongo.model('users', User);
