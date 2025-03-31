@@ -1,0 +1,106 @@
+
+.messenger-container {
+    width: 100vw; /* Full width */
+    height: 100vh; /* Full screen height */
+    display: flex;
+    flex-direction: row;
+    color: white;
+    background-color: #121212;
+
+
+}
+
+.sidebar {
+    width: 30%;
+    background-color: #1a1a1a;
+    padding: 10px;
+    border-right: 1px solid #333;
+}
+
+.search-bar {
+    width: 100%;
+    padding: 8px;
+    background: #2a2a2a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.user-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.user-list li {
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.user-list li:hover {
+    background-color: #333;
+}
+
+.chat-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #121212;
+}
+
+.chat-header {
+    padding: 15px;
+    border-bottom: 1px solid #333;
+    background: #1a1a1a;
+}
+
+.messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.message {
+    max-width: 70%;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+}
+
+.sent {
+    background: #0078ff;
+    align-self: flex-end;
+}
+
+.received {
+    background: #333;
+}
+
+.message-input {
+    display: flex;
+    padding: 10px;
+    background: #1a1a1a;
+}
+
+textarea {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    background: #2a2a2a;
+    color: white;
+    resize: none;
+}
+
+button {
+    margin-left: 10px;
+    padding: 10px 15px;
+    background: #0078ff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
