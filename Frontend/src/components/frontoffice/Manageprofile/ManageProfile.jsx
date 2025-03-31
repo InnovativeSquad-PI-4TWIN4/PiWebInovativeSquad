@@ -1,16 +1,20 @@
     import React, { useEffect, useState } from "react";
     import { useNavigate } from "react-router-dom";
     import './ManageProfile.scss';
-    import { FaCheckCircle } from "react-icons/fa";
+    import { FaCheckCircle,FaWallet } from "react-icons/fa";
     import { FaFacebookMessenger } from 'react-icons/fa';  // Icône Messenger
+    import { motion, AnimatePresence } from "framer-motion";
+    import { GiTwoCoins } from "react-icons/gi";
 
     const ManageProfile = () => {
         const [user, setUser] = useState(null);
         const [loading, setLoading] = useState(true);
         const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+        const [isWalletOpen, setIsWalletOpen] = useState(false);
+
         const navigate = useNavigate();
         const token = localStorage.getItem("token");
-
+        
         // ✅ Récupérer le profil utilisateur
         useEffect(() => {
             const fetchUser = async () => {
@@ -128,8 +132,30 @@
 </h2>
                     <p>Email : {user.email}</p>
                     <p>Skill : {user.Skill}</p>
-                    <p>Wallet : {user.wallet}</p>
-
+                    
+                    <p className="wallet-section" onClick={() => setIsWalletOpen(true)}>
+                    Click to see your points 
+                    <FaWallet size={20} color="#4d6e59" />
+                </p>
+                
+                <AnimatePresence>
+                    {isWalletOpen && (
+                        <motion.div 
+                            className="wallet-popup"
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            transition={{ duration: 0.5 }}
+                            onClick={() => setIsWalletOpen(false)}
+                        >
+                            <div className="wallet-content">
+                                <GiTwoCoins size={50} color="#4d6e59" />
+                                <h3>Your Balance</h3>
+                                <p>{user.wallet} Points</p>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
                     <button onClick={() => navigate("/update-profile")} className="update-btn">Modifier</button>
                     <button onClick={handleDelete} className="delete-btn">Supprimer</button>
 
