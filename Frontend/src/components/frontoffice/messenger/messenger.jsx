@@ -42,7 +42,7 @@ const Messenger = () => {
 
     const fetchMessages = async (userId) => {
         try {
-            const response = await fetch(`http://localhost:3000/messages/messages/${userId}?page=1&limit=10`, {
+            const response = await fetch(`http://localhost:3000/messages/conversation/${userId}?page=1&limit=10`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
