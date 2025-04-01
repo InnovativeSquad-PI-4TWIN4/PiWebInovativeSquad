@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
-import './PersonalSpace.scss';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import './PersonalSpace.scss';
 
 const PersonalSpace = () => {
   const [file, setFile] = useState(null);
@@ -54,20 +54,16 @@ const PersonalSpace = () => {
     setError(null);
 
     try {
-      // Read the PDF file
       const fileReader = new FileReader();
       fileReader.readAsArrayBuffer(file);
       
       fileReader.onload = async () => {
         try {
-          // Convert PDF to text (simplified - in a real app, you'd use a PDF parsing library)
-          // Here we're just using base64 encoding as a placeholder
           const base64 = btoa(
             new Uint8Array(fileReader.result)
               .reduce((data, byte) => data + String.fromCharCode(byte), '')
           );
 
-          // Send the PDF content to Gemini API
           const apiKey = import.meta.env.VITE_API_KEY;
           const apiUrl = `${import.meta.env.VITE_API_URL}?key=${apiKey}`;
           
@@ -101,15 +97,12 @@ const PersonalSpace = () => {
 
           let summaryText = data.candidates[0].content.parts[0].text;
           
-          // Format the summary - replace markdown with our custom formatting
-          // Replace ## headings with numbered section headings
           let sectionCount = 0;
           summaryText = summaryText.replace(/## (.*?)(?:\r\n|\n|$)/g, (match, p1) => {
             sectionCount++;
             return `<div class="section-heading" data-number="${sectionCount}">${p1}</div>\n`;
           });
           
-          // Replace **text** with highlights
           summaryText = summaryText.replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
           
           setSummary(summaryText);
@@ -135,37 +128,29 @@ const PersonalSpace = () => {
   const handleDownload = () => {
     if (!summary) return;
 
-    // Create new PDF document
     const doc = new jsPDF();
     const fileNameWithoutExt = fileName.replace('.pdf', '');
     
-    // Set PDF properties
     doc.setProperties({
       title: `Summary of ${fileNameWithoutExt}`,
       subject: 'Document Summary',
       creator: 'PDF Summarizer'
     });
     
-    // Set font
     doc.setFont('helvetica', 'normal');
-    
-    // Add title
     doc.setFontSize(20);
-    doc.setTextColor(0, 150, 136); // Teal color for title
+    doc.setTextColor(0, 255, 136); // Neon green
     doc.text(`Summary of ${fileNameWithoutExt}`, 15, 20);
     
-    // Add date
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
     doc.text(`Generated on ${new Date().toLocaleDateString()}`, 15, 28);
     
-    // Process summary content
     const plainText = summary
       .replace(/<div class="section-heading" data-number="\d+">(.*?)<\/div>/g, '## $1')
       .replace(/<span class="highlight">(.*?)<\/span>/g, '$1')
       .replace(/<br\s*\/?>/g, '\n');
     
-    // Split by lines for processing
     const lines = plainText.split('\n');
     let yPos = 40;
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -175,68 +160,49 @@ const PersonalSpace = () => {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       
-      // Skip empty lines
       if (!line) continue;
       
-      // Check if this is a section heading
       if (line.startsWith('## ')) {
-        // Move to next page if near bottom
         if (yPos > 250) {
           doc.addPage();
           yPos = 20;
         }
         
-        // Add some space before section headings
         yPos += 5;
-        
-        // Format section heading
         doc.setFontSize(14);
-        doc.setTextColor(0, 150, 136); // Teal
+        doc.setTextColor(0, 255, 136); // Neon green
         doc.text(line.replace('## ', ''), 15, yPos);
-        
-        // Reset text style
         doc.setFontSize(11);
-        doc.setTextColor(50, 50, 50); // Dark grey
-        
+        doc.setTextColor(200, 200, 200); // Light gray
         yPos += 7;
-      }
-      // Regular paragraph
-      else {
-        // Check if we need to add a new page
+      } else {
         if (yPos > 270) {
           doc.addPage();
           yPos = 20;
         }
         
-        // Split long text into lines that fit the page width
         const splitLines = doc.splitTextToSize(line, textWidth);
-        
-        // Add each line to the PDF
         for (let j = 0; j < splitLines.length; j++) {
           doc.text(splitLines[j], 15, yPos);
           yPos += 7;
           
-          // Add a new page if needed
           if (yPos > 270 && j < splitLines.length - 1) {
             doc.addPage();
             yPos = 20;
           }
         }
-        
-        yPos += 3; // Add some space after paragraphs
+        yPos += 3;
       }
     }
     
-    // Add footer with page numbers
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       doc.setFontSize(9);
-      doc.setTextColor(150, 150, 150);
+      doc.setTextColor(100, 100, 100);
       doc.text(`Page ${i} of ${pageCount}`, pageWidth - 25, doc.internal.pageSize.getHeight() - 10);
     }
     
-    // Save the PDF
     doc.save(`${fileNameWithoutExt}_summary.pdf`);
   };
 
@@ -258,7 +224,13 @@ const PersonalSpace = () => {
           onDrop={handleDrop}
           onClick={() => fileInputRef.current.click()}
         >
-          <div className="upload-icon">📄</div>
+          <div className="upload-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00ff88" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
           <h3>Drag & Drop your PDF here</h3>
           <p>or click to browse files</p>
           <input 
@@ -278,7 +250,12 @@ const PersonalSpace = () => {
               onClick={handleSubmit}
               disabled={isLoading}
             >
-              {isLoading ? 'Summarizing...' : 'Summarize Document'}
+              {isLoading ? (
+                <>
+                  <span className="spinner"></span>
+                  Summarizing...
+                </>
+              ) : 'Summarize Document'}
             </button>
           </div>
         )}
@@ -297,6 +274,11 @@ const PersonalSpace = () => {
             <div className="summary-header">
               <h3>Document Summary</h3>
               <button className="download-button" onClick={handleDownload}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
                 Download PDF
               </button>
             </div>
