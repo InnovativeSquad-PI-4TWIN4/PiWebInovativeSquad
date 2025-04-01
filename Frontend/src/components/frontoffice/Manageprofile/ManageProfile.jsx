@@ -102,6 +102,27 @@
       const handleMessengerClick = () => {
         navigate("/messenger");  // Redirige vers le composant Messenger
     };
+    const handleRequestApproval = async () => {
+        try {
+            const response = await fetch("http://localhost:3000/users/request-approval", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ userId: user._id }),
+            });
+    
+            if (!response.ok) {
+                throw new Error("Erreur lors de la demande d'approbation");
+            }
+    
+            alert("Votre demande a été envoyée avec succès !");
+        } catch (error) {
+            console.error("Erreur:", error.message);
+            alert("Échec de l'envoi de la demande.");
+        }
+    };
         return (
             
             <div className="manage-profile-container">
