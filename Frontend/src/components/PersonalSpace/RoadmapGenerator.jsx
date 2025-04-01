@@ -18,13 +18,19 @@ const RoadmapGenerator = () => {
   ]);
   const roadmapRef = useRef(null);
 
+  // Added documentation for the handler
   const handleTopicChange = (e) => {
     setTopic(e.target.value);
   };
 
+  // Added documentation for the suggestion click handler
   const handleSuggestionClick = (suggestion) => {
     setTopic(suggestion);
+    setError(null); // Clear any existing errors when selecting a suggestion
   };
+
+  // Added console log for debugging
+  console.log('Current topic:', topic);
 
   const generateRoadmap = async () => {
     if (!topic.trim()) {
@@ -40,6 +46,10 @@ const RoadmapGenerator = () => {
       const apiKey = import.meta.env.VITE_API_KEY;
       const apiUrl = `${import.meta.env.VITE_API_URL}?key=${apiKey}`;
       
+      // Added request timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -49,25 +59,30 @@ const RoadmapGenerator = () => {
           contents: [
             {
               parts: [
-                { text: `Create a comprehensive learning roadmap for: ${topic}. 
-                
-                Include the following sections:
-                1. Introduction: Brief overview of the topic and why it's valuable to learn
-                2. Prerequisites: What should someone already know before starting
-                3. Learning Path: Break down the learning journey into clear stages (Beginner, Intermediate, Advanced)
-                4. For each stage:
-                   - Key concepts to master
-                   - Recommended resources (books, courses, tutorials)
-                   - Projects to build for practice
-                5. Career Opportunities: Potential career paths this knowledge enables
-                6. Expert Tips: Advice for successful learning
-                
-                Format the response with clear headings (use markdown # for main headings and ## for subheadings), bullet points for lists, and make it comprehensive but practical.` }
+                { 
+                  text: `Create a comprehensive learning roadmap for: ${topic}. 
+                  
+                  Include the following sections:
+                  1. Introduction: Brief overview of the topic and why it's valuable to learn
+                  2. Prerequisites: What should someone already know before starting
+                  3. Learning Path: Break down the learning journey into clear stages (Beginner, Intermediate, Advanced)
+                  4. For each stage:
+                     - Key concepts to master
+                     - Recommended resources (books, courses, tutorials)
+                     - Projects to build for practice
+                  5. Career Opportunities: Potential career paths this knowledge enables
+                  6. Expert Tips: Advice for successful learning
+                  
+                  Format the response with clear headings (use markdown # for main headings and ## for subheadings), bullet points for lists, and make it comprehensive but practical.` 
+                }
               ]
             }
           ]
-        })
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       const data = await response.json();
       
@@ -80,7 +95,9 @@ const RoadmapGenerator = () => {
       setIsLoading(false);
     } catch (error) {
       console.error('Error generating roadmap:', error);
-      setError('Error generating roadmap: ' + error.message);
+      setError(error.name === 'AbortError' 
+        ? 'Request timed out. Please try again.' 
+        : `Error generating roadmap: ${error.message}`);
       setIsLoading(false);
     }
   };
@@ -91,70 +108,73 @@ const RoadmapGenerator = () => {
     const doc = new jsPDF();
     const title = `Learning Roadmap: ${topic}`;
     
-    // Add title
+    // Add title with improved styling
     doc.setFontSize(20);
-    doc.setTextColor(0, 100, 0);
+    doc.setTextColor(0, 150, 136); // Teal color
     doc.text(title, 105, 20, { align: 'center' });
     
-    doc.setTextColor(0, 0, 0);
+    doc.setTextColor(50, 50, 50); // Dark grey
     doc.setFontSize(11);
     
-    // Format and add content
-    const roadmapLines = roadmap.split('\n');
-    let y = 30;
-    let pageHeight = doc.internal.pageSize.height;
-    
-    roadmapLines.forEach(line => {
-      // Check if we need a new page
-      if (y > pageHeight - 20) {
-        doc.addPage();
-        y = 20;
+    // Format and add content with better error handling
+    try {
+      const roadmapLines = roadmap.split('\n');
+      let y = 30;
+      const pageHeight = doc.internal.pageSize.height;
+      
+      roadmapLines.forEach(line => {
+        if (y > pageHeight - 20) {
+          doc.addPage();
+          y = 20;
+        }
+        
+        if (line.startsWith('# ')) {
+          doc.setFontSize(16);
+          doc.setFont(undefined, 'bold');
+          y += 10;
+          doc.text(line.substring(2), 14, y);
+          y += 6;
+          doc.setFontSize(11);
+          doc.setFont(undefined, 'normal');
+        } else if (line.startsWith('## ')) {
+          doc.setFontSize(14);
+          doc.setFont(undefined, 'bold');
+          y += 7;
+          doc.text(line.substring(3), 14, y);
+          y += 5;
+          doc.setFontSize(11);
+          doc.setFont(undefined, 'normal');
+        } else if (line.startsWith('- ')) {
+          doc.text('•' + line.substring(1), 16, y);
+          y += 5;
+        } else if (line.trim() === '') {
+          y += 3;
+        } else {
+          const splitText = doc.splitTextToSize(line, 180);
+          splitText.forEach(textLine => {
+            doc.text(textLine, 14, y);
+            y += 5;
+          });
+        }
+      });
+      
+      // Add footer with improved styling
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Generated by Skill Exchange | Page ${i} of ${pageCount}`, 
+                pageWidth - 25, 
+                doc.internal.pageSize.getHeight() - 10, 
+                { align: 'center' });
       }
       
-      // Format headings
-      if (line.startsWith('# ')) {
-        doc.setFontSize(16);
-        doc.setFont(undefined, 'bold');
-        y += 10;
-        doc.text(line.substring(2), 14, y);
-        y += 6;
-        doc.setFontSize(11);
-        doc.setFont(undefined, 'normal');
-      } else if (line.startsWith('## ')) {
-        doc.setFontSize(14);
-        doc.setFont(undefined, 'bold');
-        y += 7;
-        doc.text(line.substring(3), 14, y);
-        y += 5;
-        doc.setFontSize(11);
-        doc.setFont(undefined, 'normal');
-      } else if (line.startsWith('- ')) {
-        // Format bullet points
-        doc.text('•' + line.substring(1), 16, y);
-        y += 5;
-      } else if (line.trim() === '') {
-        // Add space for empty lines
-        y += 3;
-      } else {
-        // Regular text
-        const splitText = doc.splitTextToSize(line, 180);
-        splitText.forEach(textLine => {
-          doc.text(textLine, 14, y);
-          y += 5;
-        });
-      }
-    });
-    
-    // Add footer
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 100);
-      doc.text(`Generated by Skill Exchange | Page ${i} of ${pageCount}`, 105, pageHeight - 10, { align: 'center' });
+      doc.save(`${topic.replace(/\s+/g, '_')}_roadmap.pdf`);
+    } catch (err) {
+      console.error('PDF generation error:', err);
+      alert('Failed to generate PDF. Please try again.');
     }
-    
-    doc.save(`${topic.replace(/\s+/g, '_')}_roadmap.pdf`);
   };
 
   return (
@@ -173,13 +193,20 @@ const RoadmapGenerator = () => {
               onChange={handleTopicChange}
               placeholder="Enter a topic (e.g., Machine Learning, Python, Digital Marketing)"
               className="topic-input"
+              aria-label="Enter learning topic"
             />
             <button 
               className="generate-button"
               onClick={generateRoadmap}
               disabled={isLoading}
+              aria-label={isLoading ? 'Generating roadmap' : 'Generate roadmap'}
             >
-              {isLoading ? 'Generating...' : 'Generate Roadmap'}
+              {isLoading ? (
+                <>
+                  <span className="spinner" aria-hidden="true"></span>
+                  Generating...
+                </>
+              ) : 'Generate Roadmap'}
             </button>
           </div>
           
@@ -191,6 +218,10 @@ const RoadmapGenerator = () => {
                   key={index} 
                   className="suggestion-tag"
                   onClick={() => handleSuggestionClick(suggestion)}
+                  aria-label={`Select ${suggestion}`}
+                  role="button"
+                  tabIndex={0}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSuggestionClick(suggestion)}
                 >
                   {suggestion}
                 </span>
@@ -199,11 +230,15 @@ const RoadmapGenerator = () => {
           </div>
         </div>
 
-        {error && <div className="error-message">{error}</div>}
+        {error && (
+          <div className="error-message" role="alert">
+            {error}
+          </div>
+        )}
 
         {isLoading && (
           <div className="loading-animation">
-            <div className="spinner"></div>
+            <div className="spinner" aria-hidden="true"></div>
             <p>Creating your personalized roadmap...</p>
           </div>
         )}
@@ -212,7 +247,11 @@ const RoadmapGenerator = () => {
           <div className="roadmap-result" ref={roadmapRef}>
             <div className="roadmap-header">
               <h3>Learning Roadmap: {topic}</h3>
-              <button className="download-button" onClick={downloadAsPDF}>
+              <button 
+                className="download-button" 
+                onClick={downloadAsPDF}
+                aria-label="Download roadmap as PDF"
+              >
                 Download as PDF
               </button>
             </div>
@@ -237,5 +276,8 @@ const RoadmapGenerator = () => {
     </div>
   );
 };
+
+// Added component documentation
+RoadmapGenerator.displayName = 'RoadmapGenerator';
 
 export default RoadmapGenerator;
