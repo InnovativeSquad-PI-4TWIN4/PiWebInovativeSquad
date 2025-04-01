@@ -2,29 +2,49 @@ const Message = require('../models/Message');
 const mongoose = require('mongoose');
 
 // Backend : récupérer les messages entre deux utilisateurs
+// exports.getConversationMessages = async (req, res) => {
+//     const { senderId, receiverId } = req.params;
+
+//     try {
+//         const messages = await Message.find({
+//             $or: [
+//                 { sender: senderId, receiver: receiverId },
+//                 { sender: receiverId, receiver: senderId }
+//             ]
+//         }).sort({ createdAt: 1 }) // Sort by time for better UI experience
+//         .populate('sender receiver'); // Populate user details
+
+//         res.status(200).json({ messages });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ error: 'Erreur lors de la récupération des messages.' });
+//     }
+// };
 exports.getConversationMessages = async (req, res) => {
     const { senderId, receiverId } = req.params;
+    const userId = req.user.id; // Récupère l'utilisateur connecté depuis le token JWT
 
+    // Vérifie si l'utilisateur connecté fait bien partie de la conversation
+    if (userId !== senderId && userId !== receiverId) {
+        return res.status(403).json({ error: "Accès interdit : vous n'avez pas accès à cette conversation." });
+    }
+ const conversationId = [senderId, receiverId].sort().join('_');
     try {
-        const messages = await Message.find({
-            $or: [
-                { sender: senderId, receiver: receiverId },
-                { sender: receiverId, receiver: senderId }
-            ]
-        }).sort({ createdAt: 1 }) // Sort by time for better UI experience
-        .populate('sender receiver'); // Populate user details
+                const messages = await Message.find({ conversationId }).sort({ createdAt: 1 })
 
-        res.status(200).json({ messages });
+        .populate('sender receiver', 'username profilePicture');
+
+        res.status(200).json(messages);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Erreur lors de la récupération des messages.' });
+        res.status(500).json({ error: "Erreur lors de la récupération des messages." });
     }
 };
-
 // Send a message
+
 exports.sendMessage = async (req, res) => {
     const { senderId, receiverId, content } = req.body;
-
+    const conversationId = [senderId, receiverId].sort().join('_');  
     if (!senderId || !receiverId || !content) {
         return res.status(400).json({ error: 'Tous les champs sont requis.' });
     }
@@ -38,7 +58,7 @@ exports.sendMessage = async (req, res) => {
         const message = new Message({
             sender: new mongoose.Types.ObjectId(senderId),
             receiver: new mongoose.Types.ObjectId(receiverId),
-            content: content,
+            content: content,conversationId
         });
 
         const savedMessage = await message.save();
