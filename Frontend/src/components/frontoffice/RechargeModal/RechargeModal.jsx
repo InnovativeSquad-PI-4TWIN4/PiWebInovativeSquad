@@ -53,7 +53,7 @@ const RechargeModal = ({ isOpen, onClose, userId }) => {
         <div className="btn-group">
           <button className="cancel-btn" onClick={onClose}>Close</button>
           <button className="confirm-btn" onClick={handleStripePayment} disabled={loading}>
-            {loading ? 'Redirection...' : 'Payer avec Stripe'}
+            {loading ? 'Redirection...' : 'Payer'}
           </button>
         </div>
       </div>
