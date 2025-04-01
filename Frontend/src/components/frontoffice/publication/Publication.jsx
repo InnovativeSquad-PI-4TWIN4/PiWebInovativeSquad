@@ -13,12 +13,12 @@ const Publication = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [newComments, setNewComments] = useState({});
   const [newReplies, setNewReplies] = useState({});
+  const [openMenuId, setOpenMenuId] = useState(null);
 
   const API_URL = 'http://localhost:3000/publication';
   const USER_API_URL = 'http://localhost:3000/users/profile';
   const BASE_URL = 'http://localhost:3000';
 
-  // Récupérer les informations de l'utilisateur connecté
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -36,7 +36,6 @@ const Publication = () => {
         });
 
         if (response.data.status === 'SUCCESS') {
-          console.log('Utilisateur connecté :', response.data.user); // Log pour débogage
           setCurrentUser(response.data.user);
         } else {
           setError('Erreur lors de la récupération des informations utilisateur');
@@ -49,12 +48,10 @@ const Publication = () => {
     fetchCurrentUser();
   }, []);
 
-  // Récupérer toutes les publications
   useEffect(() => {
     const fetchPublications = async () => {
       try {
         const response = await axios.get(`${API_URL}/getAllPub`);
-        console.log('Données des publications :', response.data); // Log pour débogage
         setPublications(response.data);
         setLoading(false);
       } catch (err) {
@@ -65,6 +62,51 @@ const Publication = () => {
 
     fetchPublications();
   }, []);
+
+  const toggleMenu = (id) => {
+    setOpenMenuId(prev => (prev === id ? null : id));
+  };
+
+  const handleDelete = async (publicationId) => {
+    if (window.confirm("Voulez-vous vraiment supprimer cette publication ?")) {
+      try {
+        const token = localStorage.getItem("token");
+        await axios.delete(`${API_URL}/deletePub/${publicationId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setPublications((prev) => prev.filter((pub) => pub._id !== publicationId));
+      } catch (err) {
+        alert("Erreur lors de la suppression.");
+      }
+    }
+  };
+
+  const handleEdit = (publication) => {
+    const newContent = prompt("Modifier la publication :", publication.description);
+    if (newContent && newContent.trim() !== "") {
+      updatePublication(publication._id, newContent);
+    }
+  };
+
+  const updatePublication = async (id, newDescription) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(`${API_URL}/updatePub/${id}`, {
+        description: newDescription,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setPublications((prev) =>
+        prev.map((pub) => (pub._id === id ? response.data.updatedPublication : pub))
+      );
+    } catch (err) {
+      alert("Erreur lors de la modification.");
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -212,24 +254,16 @@ const Publication = () => {
     }
   };
 
-  // Fonction pour générer l'URL de l'image avec débogage
   const getImageUrl = (image) => {
     if (!image) {
-      console.warn('Image manquante, utilisation de l\'image par défaut');
       return 'https://via.placeholder.com/40';
     }
-    const url = image.startsWith('http') ? image : `${BASE_URL}${image}`;
-    console.log('URL générée pour l\'image :', url);
-    return url;
+    return image.startsWith('http') ? image : `${BASE_URL}${image}`;
   };
 
-  if (loading) {
-    return <div>Chargement des publications...</div>;
-  }
+  if (loading) return <div>Chargement des publications...</div>;
+  if (error) return <div>{error}</div>;
 
-  if (error) {
-    return <div>{error}</div>;
-  }
 
   return (
     <div className="publications-container">
@@ -306,12 +340,16 @@ const Publication = () => {
             <p className="publication-description">{pub.description}</p>
           </div>
           <div className="publication-actions">
-            <button
-              className="action-btn like-btn"
+             <button
+              className={`action-btn like-btn ${pub.likes.includes(currentUser?._id) ? 'liked' : ''}`}
               onClick={() => handleLike(pub._id)}
-            >
-              <span className="icon">👍</span> Like ({pub.likes ? pub.likes.length : 0})
-            </button>
+             >
+             <span className="icon">
+             {pub.likes.includes(currentUser?._id) ? '👎' : '👍'}
+             </span>
+              {pub.likes.includes(currentUser?._id) ? 'Dislike' : 'Like'} ({pub.likes.length})
+             </button>
+
             <button className="action-btn comment-btn">
               <span className="icon">💬</span> Commenter
             </button>
