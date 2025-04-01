@@ -29,6 +29,7 @@ import Marketplace from './components/frontoffice/Marketplace/Marketplace';
 import PremiumCourses from './components/frontoffice/Marketplace/PremiumCourses';
 import FreeCourses from './components/frontoffice/Marketplace/FreeCourses';
 import Messenger from './components/frontoffice/messenger/messenger'
+import Success from './components/frontoffice/RechargeModal/Success';
 
 import { ThemeProvider } from "./context/ThemeContext";  // ✅ Import correct
 
@@ -110,6 +111,7 @@ const App = () => {
                             <Route path="/marketplace" element={<Marketplace />} />
                             <Route path="/marketplace/premium" element={<PremiumCourses />} />
                             <Route path="/marketplace/free" element={<FreeCourses />} />
+                            <Route path="/success" element={<Success />} />
 
                             <Route path="/AvisWebsite" element={<Avis />} />
                             <Route path="/Ourpacks" element={<Packs />} />

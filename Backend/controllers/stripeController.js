@@ -28,7 +28,8 @@ exports.createCheckoutSession = async (req, res) => {
       cancel_url: `http://localhost:5173/cancel`,
     });
 
-    res.status(200).json({ id: session.id });
+    res.status(200).json({ url: session.url });
+
   } catch (error) {
     console.error('Erreur Stripe:', error);
     res.status(500).json({ message: 'Erreur de création de session Stripe', error: error.message });
