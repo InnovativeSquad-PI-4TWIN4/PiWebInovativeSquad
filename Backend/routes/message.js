@@ -10,5 +10,7 @@ router.get('/messages/:userId', messageController.getMessages);
 
 // Mark a message as read
 router.put('/messages/:messageId/read', messageController.markAsRead);
+router.get('/messages/getMessages/:senderId/:receiverId', messageController.getMessages);
+router.get('/conversation/:senderId/:receiverId', messageController.getConversationMessages);
 
 module.exports = router;

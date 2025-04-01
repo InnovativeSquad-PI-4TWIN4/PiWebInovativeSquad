@@ -123,6 +123,7 @@
             alert("Échec de l'envoi de la demande.");
         }
     };
+    
         return (
             
             <div className="manage-profile-container">
