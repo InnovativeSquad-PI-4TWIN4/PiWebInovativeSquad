@@ -1,4 +1,25 @@
 const Message = require('../models/Message');
+const mongoose = require('mongoose');
+
+// Backend : récupérer les messages entre deux utilisateurs
+exports.getConversationMessages = async (req, res) => {
+    const { senderId, receiverId } = req.params;
+
+    try {
+        const messages = await Message.find({
+            $or: [
+                { sender: senderId, receiver: receiverId },
+                { sender: receiverId, receiver: senderId }
+            ]
+        }).sort({ createdAt: 1 }) // Sort by time for better UI experience
+        .populate('sender receiver'); // Populate user details
+
+        res.status(200).json({ messages });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erreur lors de la récupération des messages.' });
+    }
+};
 
 // Send a message
 exports.sendMessage = async (req, res) => {
@@ -8,24 +29,28 @@ exports.sendMessage = async (req, res) => {
         return res.status(400).json({ error: 'Tous les champs sont requis.' });
     }
 
+    // Vérifier si senderId et receiverId sont des ObjectId valides
+    if (!mongoose.Types.ObjectId.isValid(senderId) || !mongoose.Types.ObjectId.isValid(receiverId)) {
+        return res.status(400).json({ error: 'ID d\'utilisateur invalide.' });
+    }
+
     try {
         const message = new Message({
-            sender: senderId,
-            receiver: receiverId,
+            sender: new mongoose.Types.ObjectId(senderId),
+            receiver: new mongoose.Types.ObjectId(receiverId),
             content: content,
         });
 
         const savedMessage = await message.save();
         res.status(201).json({
             message: 'Message envoyé avec succès !',
-            savedMessage // Return the saved message data for confirmation
+            savedMessage 
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Erreur lors de l\'envoi du message.' });
     }
 };
-
 
 // Fetch all messages for a user (sent or received)
 exports.getMessages = async (req, res) => {
