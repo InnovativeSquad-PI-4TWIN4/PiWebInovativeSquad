@@ -16,6 +16,7 @@ const avisRouter = require("./routes/Avis");
 const packRoutes = require("./routes/pack");
 const publicationRouter = require("./routes/publication");
 const messageRouter = require("./routes/message");
+const stripeRouter = require("./routes/stripe");
 
 require("dotenv").config();
 require("./config/passport");
@@ -73,6 +74,9 @@ app.use("/avis", avisRouter);
 app.use("/packs", packRoutes);
 app.use("/publication", publicationRouter);
 app.use("/messages", messageRouter);
+app.use("/api/stripe", stripeRouter);
+
+
 
 app.use((req, res, next) => {
   res.status(404).json({ error: "❌ La page demandée n'a pas été trouvée !" });
