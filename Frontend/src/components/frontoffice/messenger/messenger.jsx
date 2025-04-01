@@ -10,6 +10,7 @@ const Messenger = () => {
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
     const navigate = useNavigate();
+    const [messageText, setMessageText] = useState("");
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -41,7 +42,7 @@ const Messenger = () => {
 
     const fetchMessages = async (userId) => {
         try {
-            const response = await fetch(`http://localhost:3000/messages/getMessages/${userId}?page=1&limit=10`, {
+            const response = await fetch(`http://localhost:3000/messages/messages/${userId}?page=1&limit=10`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -52,45 +53,77 @@ const Messenger = () => {
             console.error("Error fetching messages:", error);
         }
     };
-
-    const handleSendMessage = async () => {
-        if (!message.trim()) return;
-
+   
+    const sendMessage = async () => {
+        if (!messageText.trim()) {
+            console.error("Le message est vide.");
+            return;
+        }
+    
+        const user = JSON.parse(localStorage.getItem("user"));
+        const senderId = user?.id;  
+        const receiverId = selectedUser?._id;
+    
+        if (!senderId || !receiverId) {
+            console.error("Erreur : Champs manquants.");
+            return;
+        }
+    
         try {
             const response = await fetch("http://localhost:3000/messages/send-message", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
                 },
-                body: JSON.stringify({
-                    senderId: userId,
-                    receiverId: selectedUser._id,
-                    content: message,
-                }),
+                body: JSON.stringify({ senderId, receiverId, content: messageText })
             });
-
-            if (!response.ok) return;
+    
             const data = await response.json();
-            setMessages([...messages, data.savedMessage]);
-            setMessage('');
+            if (response.ok) {
+                console.log("Message envoyé :", data);
+                
+                // Met à jour la liste des messages en ajoutant le nouveau message
+                setMessages((prevMessages) => [...prevMessages, data.savedMessage]);
+                await fetchMessages();
+                setMessageText(""); // Réinitialise l'input après l'envoi
+            } else {
+                console.error("Erreur backend :", data.error);
+            }
         } catch (error) {
-            console.error("Error sending message:", error);
+            console.error("Erreur d'envoi :", error);
         }
     };
+    
+    
+       
 
     return (
         <div className="messenger-container">
             <div className="sidebar">
-                <input type="text" placeholder="Search..." className="search-bar" />
-                <ul className="user-list">
-                    {users.map((user) => (
-                        <li key={user._id} onClick={() => startChat(user)} className={selectedUser?._id === user._id ? "active" : ""}>
-                            {user.name} {user.surname}
-                        </li>
-                    ))}
-                </ul>
-            </div>
+    <input type="text" placeholder="Search..." className="search-bar" />
+    <ul className="user-list">
+        {users.map((user) => (
+            <li 
+                key={user._id} 
+                onClick={() => startChat(user)} 
+                className={selectedUser?._id === user._id ? "active" : ""}
+            >
+                <div className="user-info">
+                    {/* Image de profil */}
+                    <img
+                        src={user.image ? `http://localhost:3000${user.image}` : "/default-profile.png"}
+                        alt="Profil"
+                        className="profile-image"
+                    />
+                    {/* Nom et prénom */}
+                    <span className="user-name">{user.name} {user.surname}</span>
+                </div>
+            </li>
+        ))}
+    </ul>
+</div>
+
 
             <div className="chat-area">
                 {selectedUser ? (
@@ -101,18 +134,18 @@ const Messenger = () => {
                         <div className="messages">
                             {messages.map((msg) => (
                                 <div key={msg._id} className={msg.sender._id === userId ? "message sent" : "message received"}>
-                                    <p>{msg.content}</p>
-                                    <small>{msg.sender._id === userId ? "You" : msg.sender.name}</small>
+                                    <p>{msg.sender._id === userId ? "You" : msg.sender.name}</p>
+                                    <h4>{msg.content}</h4>
                                 </div>
                             ))}
                         </div>
                         <div className="message-input">
                             <textarea
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
+                                value={messageText}
+                                onChange={(e) => setMessageText(e.target.value)}
                                 placeholder="Write a message..."
                             />
-                            <button onClick={handleSendMessage}>Send</button>
+                            <button onClick={sendMessage}>Send</button>
                         </div>
                     </>
                 ) : (
