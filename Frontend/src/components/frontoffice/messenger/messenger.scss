@@ -1,3 +1,41 @@
+.user-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.user-list li {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+    background-color: #e0e0e0;
+    color: #333333;
+}
+
+.user-list li.active {
+    background-color: #57d1aa76;
+    color: #ffffff;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacement entre l'image et le texte */
+}
+
+.profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 70%;
+    object-fit: cover;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 400;
+}
 
 .messenger-container {
     width: 100vw; /* Full width */
@@ -11,10 +49,10 @@
 }
 
 .sidebar {
-    width: 30%;
+    width: 20%;
     background-color: #1a1a1a;
     padding: 10px;
-    border-right: 1px solid #333;
+    border-right: 1px solid #ffffff;
 }
 
 .search-bar {
@@ -41,43 +79,65 @@
 }
 
 .user-list li:hover {
-    background-color: #333;
+    background-color: #a3e6a358;
 }
 
 .chat-box {
-    flex: 1;
+    flex: 3; // Increase the chat area relative to the sidebar
     display: flex;
     flex-direction: column;
+    background-color: #121212;
+    height: 100vh; // Ensure it fills the full height of the screen
+}
+
+.chat-area {
+    flex: 1; // Allows it to take all available space
+    display: flex;
+    flex-direction: column;
+    height: 100vh; // Full height
     background-color: #121212;
 }
 
 .chat-header {
     padding: 15px;
     border-bottom: 1px solid #333;
-    background: #1a1a1a;
+    background: #57d1aa76;
 }
 
 .messages {
     flex: 1;
-    padding: 10px;
+    padding: 20px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
+
+
 .message {
-    max-width: 70%;
-    padding: 10px;
-    border-radius: 10px;
-    margin-bottom: 5px;
+    max-width: 90%; // Allow messages to expand more
+    width: fit-content; // Adjust width dynamically based on content
+    padding: 15px; // Increase padding for better spacing
+    border-radius: 15px;
+    margin-bottom: 10px;
+    word-wrap: break-word; // Ensure long words don't overflow
+    font-size: 16px; // Make text slightly larger for readability
+    line-height: 1.5; // Improve text spacing
 }
+
 
 .sent {
     background: #0078ff;
     align-self: flex-end;
+    text-align: right;
 }
 
 .received {
     background: #333;
+    align-self: flex-start;
+    text-align: left;
 }
+
 
 .message-input {
     display: flex;
@@ -98,7 +158,7 @@ textarea {
 button {
     margin-left: 10px;
     padding: 10px 15px;
-    background: #0078ff;
+    background: #57d1aa76;
     color: white;
     border: none;
     border-radius: 5px;
