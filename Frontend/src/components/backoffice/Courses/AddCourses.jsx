@@ -87,7 +87,7 @@ const AddCourses = ({ onClose }) => {
   return (
     <div className="add-course-container">
       <button className="close-button" onClick={onClose}>✖</button>
-      <h2>Ajouter un nouveau cours</h2>
+      <h2>Add Courses</h2>
       <form className="add-course-form" onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Type de cours :</label>
