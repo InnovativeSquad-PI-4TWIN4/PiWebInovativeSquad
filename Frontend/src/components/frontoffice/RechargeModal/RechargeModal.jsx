@@ -1,29 +1,37 @@
 import React, { useState } from 'react';
 import './RechargeModal.scss';
-import axios from 'axios';
+import { loadStripe } from '@stripe/stripe-js';
 
-const RechargeModal = ({ isOpen, onClose, onSuccess, userId }) => {
+const stripePromise = loadStripe("pk_test_51R95PeH6REffr..."); // ta clé publique
+
+const RechargeModal = ({ isOpen, onClose, userId }) => {
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleRecharge = async () => {
+  const handleStripePayment = async () => {
     if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
       alert("Montant invalide.");
       return;
     }
 
+    setLoading(true);
+
     try {
-      setLoading(true);
-      await axios.post(`http://localhost:3000/premium/recharge/${userId}`, {
-        amount: parseFloat(amount)
+      const res = await fetch("http://localhost:3000/api/stripe/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount, userId }),
       });
-      alert("✅ Recharge effectuée avec succès.");
-      onSuccess();
-    } catch (err) {
-      console.error("Erreur lors de la recharge:", err);
-      alert("Erreur serveur lors de la recharge.");
+
+      const data = await res.json();
+    window.location.href = data.url;
+
+
+    } catch (error) {
+      console.error("Erreur Stripe :", error);
+      alert("Erreur lors de la redirection vers Stripe.");
     } finally {
       setLoading(false);
     }
@@ -44,8 +52,8 @@ const RechargeModal = ({ isOpen, onClose, onSuccess, userId }) => {
         </div>
         <div className="btn-group">
           <button className="cancel-btn" onClick={onClose}>Close</button>
-          <button className="confirm-btn" onClick={handleRecharge} disabled={loading}>
-            {loading ? 'Traitement...' : 'Recharge'}
+          <button className="confirm-btn" onClick={handleStripePayment} disabled={loading}>
+            {loading ? 'Redirection...' : 'Payer avec Stripe'}
           </button>
         </div>
       </div>
