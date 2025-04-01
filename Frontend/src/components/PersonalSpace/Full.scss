@@ -1,19 +1,19 @@
 // Full.scss - Modern futuristic styling
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
-// Variables
-$primary-color: #6e56cf;
-$secondary-color: #4cc9f0;
-$background-dark: #111827;
-$background-light: #1e293b;
-$glass-bg: rgba(30, 41, 59, 0.4);
-$highlight-color: #fb7185;
-$success-color: #10b981;
-$text-color: #f9fafb;
-$text-secondary: #94a3b8;
-$transition-speed: 0.5s;
+// Variables - Updated with comments
+$primary-color: #6e56cf;   // Main purple color
+$secondary-color: #4cc9f0; // Bright blue accent
+$background-dark: #111827; // Dark background
+$background-light: #1e293b; // Lighter background
+$glass-bg: rgba(30, 41, 59, 0.4); // Glass effect background
+$highlight-color: #fb7185; // Pink highlight
+$success-color: #10b981;   // Green success color
+$text-color: #f9fafb;      // Primary text color
+$text-secondary: #94a3b8;  // Secondary text
+$transition-speed: 0.5s;   // Animation speed
 
-// Main container
+
 .dashboard-container {
   display: flex;
   flex-direction: column;
