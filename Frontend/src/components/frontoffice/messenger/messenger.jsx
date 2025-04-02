@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Messenger.scss';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Messenger.scss";
 
 const Messenger = () => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [messages, setMessages] = useState([]);
-    const [message, setMessage] = useState('');
-    const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('userId');
-    const navigate = useNavigate();
     const [messageText, setMessageText] = useState("");
 
+    const token = localStorage.getItem("token");
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const userId = storedUser?.id || localStorage.getItem("userId");
+
+    const navigate = useNavigate();
+
+    // ✅ Fetch all users
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -20,7 +23,10 @@ const Messenger = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                if (!response.ok) return console.error("Failed to fetch users");
+                if (!response.ok) {
+                    console.error("Failed to fetch users");
+                    return;
+                }
                 const data = await response.json();
                 setUsers(data);
             } catch (error) {
@@ -35,37 +41,92 @@ const Messenger = () => {
         }
     }, [navigate, token]);
 
+    // ✅ Fetch messages when a user is selected
+    useEffect(() => {
+        if (selectedUser) {
+            fetchMessages(selectedUser._id);
+        }
+    }, [selectedUser]);
+
+    // ✅ Start chat
     const startChat = (user) => {
         setSelectedUser(user);
-        fetchMessages(user._id);
     };
 
-    const fetchMessages = async (userId) => {
+    // ✅ Fetch messages between the logged-in user and the selected user
+    const fetchMessages = async (receiverId) => {
+        if (!userId || !receiverId) {
+            console.error("Missing senderId or receiverId");
+            return;
+        }
+
+        console.log(`Fetching messages for sender: ${userId}, receiver: ${receiverId}`);
+
         try {
-            const response = await fetch(`http://localhost:3000/messages/conversation/${userId}?page=1&limit=10`, {
+            const response = await fetch(`http://localhost:3000/messages/conversation/${userId}/${receiverId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            if (!response.ok) return console.error("Failed to fetch messages");
+            if (!response.ok) {
+                console.error("Failed to fetch messages:", response.statusText);
+                return;
+            }
+
             const data = await response.json();
-            setMessages(data);
+            console.log("Messages received:", data.messages);
+            setMessages(data.messages);
         } catch (error) {
             console.error("Error fetching messages:", error);
         }
     };
-   
+
+    // ✅ Send message
+    // const sendMessage = async () => {
+    //     if (!messageText.trim()) {
+    //         console.error("Message is empty.");
+    //         return;
+    //     }
+
+    //     const receiverId = selectedUser?._id;
+    //     if (!userId || !receiverId) {
+    //         console.error("Missing senderId or receiverId.");
+    //         return;
+    //     }
+
+    //     try {
+    //         const response = await fetch("http://localhost:3000/messages/send-message", {
+    //             method: "POST",
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //                 Authorization: `Bearer ${token}`,
+    //             },
+    //             body: JSON.stringify({ senderId: userId, receiverId, content: messageText }),
+    //         });
+
+    //         const data = await response.json();
+    //         if (response.ok) {
+    //             console.log("Message sent:", data);
+
+    //             // ✅ Add new message to the state
+    //             setMessages((prevMessages) => [...prevMessages, data.savedMessage]);
+    //             fetchMessages(receiverId); // ✅ Refetch messages
+    //             setMessageText(""); // ✅ Clear input after sending
+    //         } else {
+    //             console.error("Backend error:", data.error);
+    //         }
+    //     } catch (error) {
+    //         console.error("Error sending message:", error);
+    //     }
+    // };
     const sendMessage = async () => {
         if (!messageText.trim()) {
-            console.error("Le message est vide.");
+            console.error("Message is empty.");
             return;
         }
     
-        const user = JSON.parse(localStorage.getItem("user"));
-        const senderId = user?.id;  
         const receiverId = selectedUser?._id;
-    
-        if (!senderId || !receiverId) {
-            console.error("Erreur : Champs manquants.");
+        if (!userId || !receiverId) {
+            console.error("Missing senderId or receiverId.");
             return;
         }
     
@@ -74,62 +135,53 @@ const Messenger = () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ senderId, receiverId, content: messageText })
+                body: JSON.stringify({ senderId: userId, receiverId, content: messageText }),
             });
     
             const data = await response.json();
             if (response.ok) {
-                console.log("Message envoyé :", data);
-                
-                // Met à jour la liste des messages en ajoutant le nouveau message
+                console.log("Message sent:", data);
+    
+                // Add new message to the state
                 setMessages((prevMessages) => [...prevMessages, data.savedMessage]);
-                await fetchMessages();
-                setMessageText(""); // Réinitialise l'input après l'envoi
+                fetchMessages(receiverId); // Refetch messages
+                setMessageText(""); // Clear input after sending
             } else {
-                console.error("Erreur backend :", data.error);
+                console.error("Backend error:", data.error);
             }
         } catch (error) {
-            console.error("Erreur d'envoi :", error);
+            console.error("Error sending message:", error);
         }
     };
     
-    
-       
 
     return (
         <div className="messenger-container">
             <div className="sidebar">
-    <input type="text" placeholder="Search..." className="search-bar" />
-    <ul className="user-list">
-        {users.map((user) => (
-            <li 
-                key={user._id} 
-                onClick={() => startChat(user)} 
-                className={selectedUser?._id === user._id ? "active" : ""}
-            >
-                <div className="user-info">
-                    {/* Image de profil */}
-                    <img
-                        src={user.image ? `http://localhost:3000${user.image}` : "/default-profile.png"}
-                        alt="Profil"
-                        className="profile-image"
-                    />
-                    {/* Nom et prénom */}
-                    <span className="user-name">{user.name} {user.surname}</span>
-                </div>
-            </li>
-        ))}
-    </ul>
-</div>
-
+                <input type="text" placeholder="Search..." className="search-bar" />
+                <ul className="user-list">
+                    {users.map((user) => (
+                        <li key={user._id} onClick={() => startChat(user)} className={selectedUser?._id === user._id ? "active" : ""}>
+                            <div className="user-info">
+                                <img
+                                    src={user.image ? `http://localhost:3000${user.image}` : "/default-profile.png"}
+                                    alt="Profile"
+                                    className="profile-image"
+                                />
+                                <span className="user-name">{user.name} {user.surname}</span>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
 
             <div className="chat-area">
                 {selectedUser ? (
                     <>
                         <div className="chat-header">
-                            <h3>{selectedUser.name}</h3>
+                            <h3>{selectedUser.name} {selectedUser.surname}</h3>
                         </div>
                         <div className="messages">
                             {messages.map((msg) => (
