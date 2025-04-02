@@ -49,6 +49,7 @@ const Navbar = ({ user, onLogout }) => {
 
             <ul className="navbar-links">
                 <li><Link to="/overview" className="overview">Challenges</Link></li>
+                <li><Link to="/underline ">Underline</Link></li>
 
                 {user ? (
                     <>
