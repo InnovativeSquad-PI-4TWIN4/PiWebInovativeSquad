@@ -80,44 +80,7 @@ const Messenger = () => {
         }
     };
 
-    // ✅ Send message
-    // const sendMessage = async () => {
-    //     if (!messageText.trim()) {
-    //         console.error("Message is empty.");
-    //         return;
-    //     }
 
-    //     const receiverId = selectedUser?._id;
-    //     if (!userId || !receiverId) {
-    //         console.error("Missing senderId or receiverId.");
-    //         return;
-    //     }
-
-    //     try {
-    //         const response = await fetch("http://localhost:3000/messages/send-message", {
-    //             method: "POST",
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //                 Authorization: `Bearer ${token}`,
-    //             },
-    //             body: JSON.stringify({ senderId: userId, receiverId, content: messageText }),
-    //         });
-
-    //         const data = await response.json();
-    //         if (response.ok) {
-    //             console.log("Message sent:", data);
-
-    //             // ✅ Add new message to the state
-    //             setMessages((prevMessages) => [...prevMessages, data.savedMessage]);
-    //             fetchMessages(receiverId); // ✅ Refetch messages
-    //             setMessageText(""); // ✅ Clear input after sending
-    //         } else {
-    //             console.error("Backend error:", data.error);
-    //         }
-    //     } catch (error) {
-    //         console.error("Error sending message:", error);
-    //     }
-    // };
     const sendMessage = async () => {
         if (!messageText.trim()) {
             console.error("Message is empty.");
