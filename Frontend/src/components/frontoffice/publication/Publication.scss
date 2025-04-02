@@ -8,8 +8,6 @@ $border-dark: #2c2c2c;
 $radius: 12px;
 $transition: all 0.3s ease;
 
-
-
 .publications-container {
   max-width: 700px;
   margin: 30px auto;
@@ -179,126 +177,268 @@ $transition: all 0.3s ease;
 
   .comments-section {
     margin-top: 15px;
-    border-top: 1px solid $border-dark;
     padding-top: 10px;
 
-    .add-comment,
-    .add-reply {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 12px;
-
-      textarea {
-        border-radius: 10px;
-        border: 1px solid $border-dark;
-        padding: 10px;
-        resize: vertical;
+    .comments-header {
+      margin-bottom: 10px;
+      .comments-sort {
         font-size: 14px;
-        background: #2a2a2a;
-        color: $text-light;
-
-        &:focus {
-          border-color: $primary;
-        }
-      }
-
-      button {
-        align-self: flex-end;
-        background: $primary;
-        color: white;
-        border: none;
-        padding: 6px 15px;
-        border-radius: 8px;
-        font-size: 14px;
-        margin-top: 5px;
+        color: $text-muted;
         cursor: pointer;
-
         &:hover {
-          background: darken($primary, 10%);
+          color: $primary;
         }
       }
     }
 
     .comments-list {
+      margin-bottom: 15px;
+
+      .no-comments {
+        font-size: 14px;
+        color: $text-muted;
+        text-align: center;
+      }
+
       .comment {
+        display: flex;
+        flex-direction: column;
         margin-bottom: 12px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid $border-dark;
 
-        .comment-header {
+        .comment-body {
           display: flex;
-          align-items: center;
+          align-items: flex-start;
+          gap: 10px;
 
-          .user-avatar {
+          .comment-avatar {
             width: 35px;
             height: 35px;
             border-radius: 50%;
-            margin-right: 8px;
             object-fit: cover;
           }
 
-          .comment-info {
-            .user-name {
-              font-weight: 500;
-              font-size: 14px;
-              color: white;
+          .comment-content-wrapper {
+            flex: 1;
+
+            .comment-content {
+              background: #2a2a2a;
+              border-radius: 18px;
+              padding: 8px 12px;
+              position: relative;
+
+              .comment-user-name {
+                font-weight: 600;
+                font-size: 14px;
+                color: white;
+                margin-bottom: 2px;
+              }
+
+              p {
+                font-size: 14px;
+                color: $text-light;
+                margin: 0;
+              }
             }
 
-            .comment-date {
-              font-size: 12px;
-              color: $text-muted;
+            .comment-meta {
+              margin-top: 4px;
+              margin-left: 12px;
+              display: flex;
+              align-items: center;
+              gap: 10px;
+
+              .comment-time {
+                font-size: 12px;
+                color: $text-muted;
+              }
+
+              .like-btn,
+              .reply-btn {
+                background: none;
+                border: none;
+                font-size: 12px;
+                color: $text-muted;
+                cursor: pointer;
+                font-weight: 500;
+
+                &:hover {
+                  color: $primary;
+                }
+              }
+
+              .like-count {
+                font-size: 12px;
+                color: $text-muted;
+              }
             }
           }
-        }
-
-        .comment-content {
-          margin: 6px 0;
-          font-size: 14px;
-          color: $text-light;
         }
 
         .replies-list {
           margin-top: 10px;
-          padding-left: 20px;
+          padding-left: 45px; // Indentation pour aligner avec l'avatar du commentaire
+          position: relative;
+
+          &:before {
+            content: '';
+            position: absolute;
+            left: 25px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: $border-dark; // Ligne de connexion
+          }
 
           .reply {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
             margin-bottom: 10px;
-            padding-left: 10px;
-            border-left: 3px solid $primary;
+            position: relative;
 
-            .reply-header {
-              display: flex;
-              align-items: center;
+            &:before {
+              content: '';
+              position: absolute;
+              left: -20px;
+              top: 18px;
+              width: 20px;
+              height: 2px;
+              background: $border-dark; // Ligne horizontale de connexion
+            }
 
-              .user-avatar {
-                width: 30px;
-                height: 30px;
-                border-radius: 50%;
-                margin-right: 8px;
-              }
+            .reply-avatar {
+              width: 35px;
+              height: 35px;
+              border-radius: 50%;
+              object-fit: cover;
+            }
 
-              .reply-info {
-                .user-name {
+            .reply-content-wrapper {
+              flex: 1;
+
+              .reply-content {
+                background: #2a2a2a;
+                border-radius: 18px;
+                padding: 8px 12px;
+
+                .reply-user-name {
+                  font-weight: 600;
                   font-size: 14px;
-                  font-weight: 500;
                   color: white;
+                  margin-bottom: 2px;
                 }
 
-                .reply-date {
+                p {
+                  font-size: 14px;
+                  color: $text-light;
+                  margin: 0;
+                }
+              }
+
+              .reply-meta {
+                margin-top: 4px;
+                margin-left: 12px;
+
+                .reply-time {
                   font-size: 12px;
                   color: $text-muted;
                 }
               }
             }
+          }
+        }
+      }
+    }
 
-            .reply-content {
-              font-size: 14px;
-              color: $text-light;
-              margin-top: 4px;
+    .add-comment,
+    .add-reply {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+
+      .comment-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .comment-input-wrapper {
+        flex: 1;
+        position: relative;
+
+        .comment-suggestions {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 12px; // Espacement entre les suggestions et le champ de texte
+          flex-wrap: wrap;
+
+          .suggestion-btn {
+            background: #2a2a2a;
+            border: 1px solid $border-dark;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 13px;
+            color: $text-light;
+            cursor: pointer;
+            transition: background 0.2s;
+
+            &:hover {
+              background: lighten(#2a2a2a, 10%);
+            }
+          }
+        }
+
+        .comment-input-container {
+          position: relative;
+          display: flex;
+          align-items: center;
+
+          textarea {
+            width: 100%;
+            border-radius: 18px;
+            border: 1px solid $border-dark;
+            padding: 8px 40px 8px 12px;
+            font-size: 14px;
+            background: #2a2a2a;
+            color: $text-light;
+            resize: none;
+            min-height: 40px;
+
+            &:focus {
+              border-color: $primary;
+            }
+
+            &::placeholder {
+              color: $text-muted;
+            }
+          }
+
+          .submit-comment-icon,
+          .submit-reply-icon {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: $text-muted;
+            transition: color 0.2s;
+
+            &.active {
+              color: $primary;
+            }
+
+            svg {
+              font-size: 16px;
             }
           }
         }
       }
+    }
+
+    .add-reply {
+      padding-left: 0;
     }
   }
 }
