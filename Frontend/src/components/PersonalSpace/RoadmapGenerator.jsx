@@ -220,7 +220,7 @@ A comprehensive guide to mastering ${topic}. This roadmap will take you from beg
         <div className="title-container">
           <GiBrain className="brain-icon" />
           <h1 className="dashboard-title">
-            Learning <span className="highlight">Roadmap Generator</span>
+            Learning Roadmap Generator
           </h1>
         </div>
       </header>
