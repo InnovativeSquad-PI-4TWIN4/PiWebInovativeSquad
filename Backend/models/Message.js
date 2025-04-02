@@ -2,6 +2,7 @@ const mongo = require("mongoose");
 const Schema = mongo.Schema;
 
 const Message = new Schema({
+    conversationId: { type: String, required: true, index: true },
     sender: { type: Schema.Types.ObjectId, ref: 'users', required: true },
     receiver: { type: Schema.Types.ObjectId, ref: 'users', required: true },
     content: { type: String, required: true },
