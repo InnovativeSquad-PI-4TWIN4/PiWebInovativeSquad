@@ -318,7 +318,7 @@ const PersonalSpace = () => {
         <div className="title-container">
           <GiBrain className="brain-icon" />
           <h1 className="dashboard-title">
-            PDF <span className="highlight">Summarizer</span>
+            PDF Summarizer
           </h1>
         </div>
       </header>
