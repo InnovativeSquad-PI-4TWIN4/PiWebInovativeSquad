@@ -1,6 +1,6 @@
 const Message = require('../models/Message');
 const mongoose = require('mongoose');
-
+const User = require('../models/User'); 
 
 // exports.getConversationMessages = async (req, res) => {
 //     const { senderId, receiverId } = req.params;
@@ -102,6 +102,36 @@ exports.getConversationMessages = async (req, res) => {
 };
 
 // ✅ Send a message
+// exports.sendMessage = async (req, res) => {
+//     const { senderId, receiverId, content } = req.body;
+//     const conversationId = [senderId, receiverId].sort().join("_");
+
+//     if (!senderId || !receiverId || !content) {
+//         return res.status(400).json({ error: "All fields are required." });
+//     }
+
+//     if (!mongoose.Types.ObjectId.isValid(senderId) || !mongoose.Types.ObjectId.isValid(receiverId)) {
+//         return res.status(400).json({ error: "Invalid user ID." });
+//     }
+
+//     try {
+//         const message = new Message({ sender: senderId, receiver: receiverId, content, conversationId });
+//         const savedMessage = await message.save();
+//         const sender = await User.findById(senderId);
+//         const receiver = await User.findById(receiverId);
+//         res.status(201).json({
+//             message: 'Message sent successfully!',
+//             savedMessage: {
+//                 ...savedMessage._doc,
+//                 sender: { ...sender._doc, name: sender.name },
+//                 receiver: { ...receiver._doc, name: receiver.name }
+//             }
+//         });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ error: "Error sending message." });
+//     }
+// };
 exports.sendMessage = async (req, res) => {
     const { senderId, receiverId, content } = req.body;
     const conversationId = [senderId, receiverId].sort().join("_");
@@ -115,10 +145,19 @@ exports.sendMessage = async (req, res) => {
     }
 
     try {
+        // Save the message
         const message = new Message({ sender: senderId, receiver: receiverId, content, conversationId });
         const savedMessage = await message.save();
+
+        // Check if sender and receiver exist
         const sender = await User.findById(senderId);
         const receiver = await User.findById(receiverId);
+
+        if (!sender || !receiver) {
+            return res.status(404).json({ error: "Sender or receiver not found." });
+        }
+
+        // Respond with the saved message and sender/receiver info
         res.status(201).json({
             message: 'Message sent successfully!',
             savedMessage: {
@@ -128,8 +167,8 @@ exports.sendMessage = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Error sending message." });
+        console.error("Error in sendMessage:", error); // Log full error for debugging
+        res.status(500).json({ error: "Error sending message. Please check the server logs." });
     }
 };
 
