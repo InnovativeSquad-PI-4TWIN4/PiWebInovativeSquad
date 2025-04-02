@@ -35,9 +35,9 @@ const CyberpunkTitle = () => {
       </div>
       
       <h1 ref={titleRef} className="cyberpunk-title">
-        <span className="title-main">NEURAL</span>
+        <span className="title-main">Work</span>
         <span className="title-divider">//</span>
-        <span className="title-highlight">NEXUS</span>
+        <span className="title-highlight">Smarter</span>
       </h1>
       
       <div className="subtitle-container">
