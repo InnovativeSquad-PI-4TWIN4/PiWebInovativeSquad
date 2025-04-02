@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { FaDownload, FaFileUpload } from 'react-icons/fa';
+import { GiBrain } from 'react-icons/gi';
 import './PersonalSpace.scss';
 
 const PersonalSpace = () => {
@@ -95,15 +97,27 @@ const PersonalSpace = () => {
             throw new Error(data.error.message || 'Error processing the PDF');
           }
 
+          // Improved formatting of summary text
           let summaryText = data.candidates[0].content.parts[0].text;
           
+          // Process section headings with improved structure
           let sectionCount = 0;
           summaryText = summaryText.replace(/## (.*?)(?:\r\n|\n|$)/g, (match, p1) => {
             sectionCount++;
-            return `<div class="section-heading" data-number="${sectionCount}">${p1}</div>\n`;
+            return `<div class="section-heading" data-number="${sectionCount}"><span class="section-number">${sectionCount}</span>${p1}</div>\n`;
           });
           
+          // Process bullet points to ensure proper formatting
+          summaryText = summaryText.replace(/- (.*?)(?:\r\n|\n|$)/g, '<li class="summary-item">$1</li>\n');
+          summaryText = summaryText.replace(/<li class="summary-item">(.*?)<\/li>\n<li class="summary-item">/g, '<li class="summary-item">$1</li>\n<li class="summary-item">');
+          summaryText = summaryText.replace(/(?:<li class="summary-item">.*?<\/li>\n)+/g, '<ul class="summary-list">\n$&</ul>\n');
+          
+          // Format highlighted text
           summaryText = summaryText.replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
+          
+          // Properly wrap paragraphs
+          summaryText = summaryText.replace(/(?<!\n<\/div>|\n<\/ul>|\n<ul|\n<li|\n<\/li>)(\n\n+)(?!<div|<ul|<\/ul>|<li)/g, '</p><p>');
+          summaryText = summaryText.replace(/(?<!<\/div>\n|<\/ul>\n|<ul|<li|<\/li>\n|<p>|<\/p>)([^\n<].+?(?:\n(?!<div|<ul|<\/ul>|<li|<\/li>)[^\n<].*?)*)(?=\n<div|\n<ul|$)/gs, '<p>$1</p>');
           
           setSummary(summaryText);
           setIsLoading(false);
@@ -131,76 +145,164 @@ const PersonalSpace = () => {
     const doc = new jsPDF();
     const fileNameWithoutExt = fileName.replace('.pdf', '');
     
+    // Set document properties
     doc.setProperties({
       title: `Summary of ${fileNameWithoutExt}`,
       subject: 'Document Summary',
       creator: 'PDF Summarizer'
     });
     
-    doc.setFont('helvetica', 'normal');
+    // Define consistent colors for PDF - using RGB values (0-255)
+    const primaryColor = [38, 43, 89]; // Darker blue
+    const textColor = [50, 50, 50]; // Dark gray for body text
+    const headingColor = [70, 82, 179]; // Medium blue for headings
+    const bulletColor = [70, 82, 179]; // Blue for bullets
+    
+    // Header styling
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(20);
-    doc.setTextColor(0, 255, 136); // Neon green
-    doc.text(`Summary of ${fileNameWithoutExt}`, 15, 20);
+    doc.setTextColor(...primaryColor);
+    doc.text(`Summary of ${fileNameWithoutExt}`, 20, 20);
     
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 15, 28);
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100); // Gray for date
+    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 20, 28);
     
-    const plainText = summary
-      .replace(/<div class="section-heading" data-number="\d+">(.*?)<\/div>/g, '## $1')
-      .replace(/<span class="highlight">(.*?)<\/span>/g, '$1')
-      .replace(/<br\s*\/?>/g, '\n');
+    // Add a decorative line with proper RGB values
+    doc.setDrawColor(...primaryColor);
+    doc.setLineWidth(0.5);
+    doc.line(20, 32, 190, 32);
     
-    const lines = plainText.split('\n');
+    // Process summary content for the PDF - fixing text extraction
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = summary;
+    
+    // Extract proper text structure from HTML
+    const sections = [];
+    const headings = tempDiv.querySelectorAll('.section-heading');
+    
+    headings.forEach(heading => {
+      const sectionNumber = heading.getAttribute('data-number');
+      const sectionTitle = heading.textContent.replace(sectionNumber, '').trim();
+      
+      // Get content until the next heading
+      let content = [];
+      let currentEl = heading.nextElementSibling;
+      
+      while (currentEl && !currentEl.classList.contains('section-heading')) {
+        if (currentEl.tagName === 'UL') {
+          const bullets = Array.from(currentEl.querySelectorAll('li')).map(li => `• ${li.textContent.trim()}`);
+          content = [...content, ...bullets];
+        } else if (currentEl.tagName === 'P') {
+          content.push(currentEl.textContent.trim());
+        }
+        currentEl = currentEl.nextElementSibling;
+      }
+      
+      sections.push({
+        title: sectionTitle,
+        content: content
+      });
+    });
+    
+    // If no sections were found, extract text directly
+    if (sections.length === 0) {
+      const paragraphs = tempDiv.querySelectorAll('p');
+      const bullets = tempDiv.querySelectorAll('li');
+      
+      const content = [
+        ...Array.from(paragraphs).map(p => p.textContent.trim()),
+        ...Array.from(bullets).map(li => `• ${li.textContent.trim()}`)
+      ];
+      
+      sections.push({
+        title: 'Summary',
+        content: content
+      });
+    }
+    
+    // Start rendering from this Y position
     let yPos = 40;
     const pageWidth = doc.internal.pageSize.getWidth();
-    const margin = 15;
+    const margin = 20;
     const textWidth = pageWidth - (margin * 2);
     
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
+    // Process each section
+    sections.forEach((section, index) => {
+      // Add page break if needed
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
       
-      if (!line) continue;
+      // Add space before section title (except first section)
+      if (index > 0) {
+        yPos += 10;
+      }
       
-      if (line.startsWith('## ')) {
-        if (yPos > 250) {
-          doc.addPage();
-          yPos = 20;
-        }
+      // Format section title
+      doc.setFontSize(16);
+      doc.setTextColor(...headingColor);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${index + 1}. ${section.title}`, 20, yPos);
+      
+      // Reset text format for content
+      doc.setFontSize(12);
+      doc.setTextColor(...textColor);
+      doc.setFont('helvetica', 'normal');
+      yPos += 8;
+      
+      // Process each content piece
+      section.content.forEach(line => {
+        // Skip empty lines
+        if (!line.trim()) return;
         
-        yPos += 5;
-        doc.setFontSize(14);
-        doc.setTextColor(0, 255, 136); // Neon green
-        doc.text(line.replace('## ', ''), 15, yPos);
-        doc.setFontSize(11);
-        doc.setTextColor(200, 200, 200); // Light gray
-        yPos += 7;
-      } else {
+        // Add page break if needed
         if (yPos > 270) {
           doc.addPage();
           yPos = 20;
         }
         
-        const splitLines = doc.splitTextToSize(line, textWidth);
-        for (let j = 0; j < splitLines.length; j++) {
-          doc.text(splitLines[j], 15, yPos);
-          yPos += 7;
+        // Handle bullet points
+        if (line.startsWith('•')) {
+          // Format bullet point with proper indentation
+          const bulletText = line.substring(1).trim();
+          const splitLines = doc.splitTextToSize(bulletText, textWidth - 8);
           
-          if (yPos > 270 && j < splitLines.length - 1) {
-            doc.addPage();
-            yPos = 20;
-          }
+          // Add bullet symbol with proper color
+          doc.setTextColor(...bulletColor);
+          doc.setFont('helvetica', 'bold');
+          doc.text('•', 20, yPos);
+          
+          // Reset text format for bullet text
+          doc.setTextColor(...textColor);
+          doc.setFont('helvetica', 'normal');
+          
+          // Add bullet text with indentation
+          doc.text(splitLines, 25, yPos);
+          
+          // Increment Y position based on number of lines in this bullet
+          yPos += 6 * splitLines.length;
+        } 
+        // Handle regular paragraphs
+        else {
+          const splitLines = doc.splitTextToSize(line, textWidth);
+          doc.text(splitLines, 20, yPos);
+          yPos += 6 * splitLines.length;
         }
-        yPos += 3;
-      }
-    }
+        
+        // Add a small gap after each content piece
+        yPos += 2;
+      });
+    });
     
+    // Add page numbers
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
-      doc.setFontSize(9);
+      doc.setFontSize(10);
       doc.setTextColor(100, 100, 100);
-      doc.text(`Page ${i} of ${pageCount}`, pageWidth - 25, doc.internal.pageSize.getHeight() - 10);
+      doc.text(`Page ${i} of ${pageCount}`, pageWidth - 40, doc.internal.pageSize.getHeight() - 15);
     }
     
     doc.save(`${fileNameWithoutExt}_summary.pdf`);
@@ -211,84 +313,92 @@ const PersonalSpace = () => {
   };
 
   return (
-    <div className="pdf-summarizer">
-      <div className="hero-section">
-        <h1>PDF Summarizer</h1>
-        <p>Upload your documents and get professional AI-powered summaries in seconds.</p>
-      </div>
-
-      <div className="summarizer-container">
-        <div 
-          className="upload-area" 
-          onDragOver={handleDragOver} 
-          onDrop={handleDrop}
-          onClick={() => fileInputRef.current.click()}
-        >
-          <div className="upload-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00ff88" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-          </div>
-          <h3>Drag & Drop your PDF here</h3>
-          <p>or click to browse files</p>
-          <input 
-            type="file" 
-            accept=".pdf" 
-            onChange={handleFileChange} 
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-          />
+    <div className="dashboard-container">
+      <header className="dashboard-header">
+        <div className="title-container">
+          <GiBrain className="brain-icon" />
+          <h1 className="dashboard-title">
+            PDF <span className="highlight">Summarizer</span>
+          </h1>
         </div>
-
-        {fileName && (
-          <div className="file-info">
-            <span>Selected file: {fileName}</span>
-            <button 
-              className="summarize-button"
-              onClick={handleSubmit}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <span className="spinner"></span>
-                  Summarizing...
-                </>
-              ) : 'Summarize Document'}
-            </button>
+      </header>
+      
+      <div className="dashboard-content">
+        <div className="glass-panel">
+          <div className="section-header">
+            <FaFileUpload className="section-icon" />
+            <h2>Upload Your Document</h2>
           </div>
-        )}
-
-        {error && <div className="error-message">{error}</div>}
-
-        {isLoading && (
-          <div className="loading-animation">
-            <div className="spinner"></div>
-            <p>Analyzing your document...</p>
-          </div>
-        )}
-
-        {summary && (
-          <div className="summary-result">
-            <div className="summary-header">
-              <h3>Document Summary</h3>
-              <button className="download-button" onClick={handleDownload}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                Download PDF
-              </button>
+          
+          <div 
+            className="upload-area" 
+            onDragOver={handleDragOver} 
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current.click()}
+          >
+            <div className="upload-icon">
+              <FaFileUpload />
             </div>
-            <div 
-              className="summary-content"
-              dangerouslySetInnerHTML={createMarkup(summary)}
-              ref={summaryContentRef}
+            <h3>Drag & Drop your PDF here</h3>
+            <p>or click to browse files</p>
+            <input 
+              type="file" 
+              accept=".pdf" 
+              onChange={handleFileChange} 
+              ref={fileInputRef}
+              style={{ display: 'none' }}
             />
           </div>
-        )}
+
+          {fileName && (
+            <div className="file-info">
+              <div className="file-name-container">
+                <span className="file-label">Selected file:</span>
+                <span className="file-name">{fileName}</span>
+              </div>
+              <button 
+                className="generate-btn"
+                onClick={handleSubmit}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <span className="spinner"></span>
+                    Summarizing...
+                  </>
+                ) : 'Summarize Document'}
+              </button>
+            </div>
+          )}
+
+          {error && <div className="error-message">{error}</div>}
+
+          {isLoading && (
+            <div className="loading-animation">
+              <div className="spinner"></div>
+              <p>Analyzing your document...</p>
+            </div>
+          )}
+
+          {summary && (
+            <div className="summary-result">
+              <div className="section-header">
+                <div className="header-content">
+                  <h2>Document Summary</h2>
+                  <button className="download-btn" onClick={handleDownload}>
+                    <FaDownload className="btn-icon" />
+                    Download PDF
+                  </button>
+                </div>
+              </div>
+              <div 
+                className="summary-content"
+                dangerouslySetInnerHTML={createMarkup(summary)}
+                ref={summaryContentRef}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
