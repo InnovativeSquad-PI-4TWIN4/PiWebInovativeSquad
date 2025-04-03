@@ -89,6 +89,15 @@
     background-color: #121212;
     height: 100vh; // Ensure it fills the full height of the screen
 }
+.message-status {
+    font-size: 14px;
+    color: gray;
+    margin-left: 10px;
+}
+
+.sent .message-status {
+    color: #fefefe; // Blue tick if read
+}
 
 .chat-area {
     flex: 1; // Allows it to take all available space
