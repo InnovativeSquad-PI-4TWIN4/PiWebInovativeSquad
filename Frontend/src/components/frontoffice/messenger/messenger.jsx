@@ -167,8 +167,10 @@ const Messenger = () => {
                 {selectedUser ? (
                     <>
                         <div className="chat-header">
-                            <h3>{selectedUser.name} {selectedUser.surname}</h3>
+                            <h3>{selectedUser.name} {selectedUser.surname}<p> Skill : {selectedUser.Skill} </p>
+                            </h3>
                         </div>
+                        
                         <div className="messages">
                             {messages.map((msg) => (
                                 <div key={msg._id} className={msg.sender._id === userId ? "message sent" : "message received"}>
