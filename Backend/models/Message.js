@@ -8,9 +8,6 @@ const Message = new Schema({
     content: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
     read: { type: Boolean, default: false }
-}, { 
-    toJSON: { virtuals: true }, 
-    toObject: { virtuals: true }
 });
 
 module.exports = mongo.model('messages', Message);

@@ -2,58 +2,6 @@ const Message = require('../models/Message');
 const mongoose = require('mongoose');
 const User = require('../models/User'); 
 
-// exports.getConversationMessages = async (req, res) => {
-//     const { senderId, receiverId } = req.params;
-
-//     if (!senderId || !receiverId) {
-//         return res.status(400).json({ error: "Sender or Receiver ID is missing" });
-//     }
-
-//     console.log(`Fetching messages for sender: ${senderId}, receiver: ${receiverId}`);
-
-//     const conversationId = [senderId, receiverId].sort().join('_');
-
-//     try {
-//         const messages = await Message.find({ conversationId }).sort({ createdAt: 1 })
-//             .populate('sender receiver', 'username profilePicture');
-
-//         res.status(200).json({ messages });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ error: "Error retrieving messages" });
-//     }
-// };
-
-
-// exports.sendMessage = async (req, res) => {
-//     const { senderId, receiverId, content } = req.body;
-//     const conversationId = [senderId, receiverId].sort().join('_');  
-//     if (!senderId || !receiverId || !content) {
-//         return res.status(400).json({ error: 'Tous les champs sont requis.' });
-//     }
-
-//     // Vérifier si senderId et receiverId sont des ObjectId valides
-//     if (!mongoose.Types.ObjectId.isValid(senderId) || !mongoose.Types.ObjectId.isValid(receiverId)) {
-//         return res.status(400).json({ error: 'ID d\'utilisateur invalide.' });
-//     }
-
-//     try {
-//         const message = new Message({
-//             sender: new mongoose.Types.ObjectId(senderId),
-//             receiver: new mongoose.Types.ObjectId(receiverId),
-//             content: content,conversationId
-//         });
-
-//         const savedMessage = await message.save();
-//         res.status(201).json({
-//             message: 'Message envoyé avec succès !',
-//             savedMessage 
-//         });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ error: 'Erreur lors de l\'envoi du message.' });
-//     }
-// };
 
 // Fetch all messages for a user (sent or received)
 exports.getMessages = async (req, res) => {
@@ -94,6 +42,11 @@ exports.getConversationMessages = async (req, res) => {
             .sort({ createdAt: 1 })
             .populate("sender receiver", "username profilePicture");
 
+ // ✅ Mettre les messages reçus comme "lus"
+        await Message.updateMany(
+            { senderId: receiverId, receiverId: senderId, read: false },
+            { $set: { read: true } }
+        );
         res.status(200).json({ messages });
     } catch (error) {
         console.error(error);
@@ -101,37 +54,6 @@ exports.getConversationMessages = async (req, res) => {
     }
 };
 
-// ✅ Send a message
-// exports.sendMessage = async (req, res) => {
-//     const { senderId, receiverId, content } = req.body;
-//     const conversationId = [senderId, receiverId].sort().join("_");
-
-//     if (!senderId || !receiverId || !content) {
-//         return res.status(400).json({ error: "All fields are required." });
-//     }
-
-//     if (!mongoose.Types.ObjectId.isValid(senderId) || !mongoose.Types.ObjectId.isValid(receiverId)) {
-//         return res.status(400).json({ error: "Invalid user ID." });
-//     }
-
-//     try {
-//         const message = new Message({ sender: senderId, receiver: receiverId, content, conversationId });
-//         const savedMessage = await message.save();
-//         const sender = await User.findById(senderId);
-//         const receiver = await User.findById(receiverId);
-//         res.status(201).json({
-//             message: 'Message sent successfully!',
-//             savedMessage: {
-//                 ...savedMessage._doc,
-//                 sender: { ...sender._doc, name: sender.name },
-//                 receiver: { ...receiver._doc, name: receiver.name }
-//             }
-//         });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ error: "Error sending message." });
-//     }
-// };
 exports.sendMessage = async (req, res) => {
     const { senderId, receiverId, content } = req.body;
     const conversationId = [senderId, receiverId].sort().join("_");
@@ -173,23 +95,24 @@ exports.sendMessage = async (req, res) => {
 };
 
 
-
-// Mark message as read
-exports.markAsRead = async (req, res) => {
-    const { messageId } = req.params;
-
+exports.markMessageAsRead = async (req, res) => {
     try {
+        const { messageId } = req.params; // Assure-toi que tu passes bien l'ID du message
         const message = await Message.findById(messageId);
 
         if (!message) {
-            return res.status(404).json({ error: 'Message non trouvé.' });
+            return res.status(404).json({ error: 'Message not found' });
         }
 
+        // Met à jour l'attribut 'read' du message
         message.read = true;
+
+        // Sauvegarde du message mis à jour
         await message.save();
-        res.status(200).json({ message: 'Message marqué comme lu.' });
+
+        return res.status(200).json({ message: 'Message marked as read' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Erreur lors de la mise à jour du message.' });
+        console.error("Error marking message as read:", error);
+        res.status(500).json({ error: 'Error updating message' });
     }
 };

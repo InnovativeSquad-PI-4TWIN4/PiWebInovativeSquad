@@ -47,7 +47,8 @@
 
   p {
     font-size: 17px;
-    line-height: 1.6;
+    color: #000000;
+    line-height: 1.8;
     margin: 10px 0;
     text-align: left;
     width: 100%;
@@ -62,18 +63,18 @@
 }
 
 .close-button {
-  background: #b01827;
-  color: white;
+  background: #b0182700;
+  color: rgb(249, 0, 0);
   border: none;
-  padding: 12px 18px;
-  margin-top: 15px;
+  padding: 5px 8px;
+  margin-top: -7px;
   cursor: pointer;
-  border-radius: 50%;
-  font-size: 18px;
+  border-radius: 70%;
+  font-size: 12px;
   transition: all 0.3s ease;
 
   &:hover {
-    background: #e03b4f;
+    background: #e03b4e4e;
     transform: scale(1.1);
   }
 }
