@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import './noticeWebsite';
 
 const Avis = () => {
     const [avis, setAvis] = useState([]);
@@ -62,16 +63,17 @@ const Avis = () => {
     };
 
     return (
-        <div style={{ maxWidth: "600px", margin: "auto", textAlign: "center" }}>
-            <h2 style={{ color: "white" }}>Give Your Feedback</h2>
+        <div className="container">
+            <h2>Give Your Feedback</h2>
             {client ? (
-                <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                    <p style={{ color: "white" }}><strong>User:</strong> {client}</p>
-                    <div style={{ display: "flex", justifyContent: "center", gap: "5px" }}>
+                <form onSubmit={handleSubmit} className="form-container">
+                    <p className="client-info"><strong>User:</strong> {client}</p>
+                    <div className="stars">
                         {[1, 2, 3, 4, 5].map((star) => (
                             <span
                                 key={star}
-                                style={{ fontSize: "24px", cursor: "pointer", color: star <= rating ? "#FFD700" : "#ccc" }}
+                                className="star"
+                                style={{ color: star <= rating ? "#FFD700" : "#ccc" }}
                                 onClick={() => setRating(star)}
                             >
                                 ★
@@ -83,27 +85,25 @@ const Avis = () => {
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         required
-                        style={{ padding: "8px", borderRadius: "5px", border: "1px solid #ccc", backgroundColor: "white" }}
                     />
-                    <button type="submit" style={{ padding: "10px", background: "#007BFF", color: "white", border: "none", borderRadius: "5px" }}>
-                        Submit
-                    </button>
+                    <button type="submit">Submit</button>
                 </form>
             ) : (
                 <p>Loading user information...</p>
             )}
 
-            <h2 style={{ marginTop: "20px", color: "white" }}>Customer Reviews</h2>
-            <div style={{ maxHeight: "300px", overflowY: "auto", padding: "10px", border: "1px solid #ccc", borderRadius: "5px", backgroundColor: "white" }}>
+            <h2>Customer Reviews</h2>
+            <div className="review-list">
                 {avis.map((item) => (
-                    <div key={item._id} style={{ borderBottom: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}>
-                        <h4 style={{ color: "black" }}>{item.client}</h4>
-                        <p>
+                    <div key={item._id} className="review-item">
+                        <p className="client-name">{item.client}</p>
+                        <div className="stars">
                             {Array.from({ length: 5 }, (_, i) => (
-                                <span key={i} style={{ color: i < item.rating ? "#FFD700" : "#ccc" }}>★</span>
+                                <span key={i} className="star" style={{ color: i < item.rating ? "#FFD700" : "#ccc" }}>★</span>
                             ))}
-                        </p>
-                        <p style={{ color: "black" }}>{item.description}</p>
+                        </div>
+                        <p className="description">{item.description}</p>
+                        <p>_________________</p>
                     </div>
                 ))}
             </div>
