@@ -75,24 +75,48 @@ const Messenger = () => {
             const data = await response.json();
             console.log("Messages received:", data.messages);
             setMessages(data.messages);
+
+            // ✅ Mark messages as read
+            data.messages.forEach(async (msg) => {
+                if (!msg.read) { // If the message is not already marked as read
+                    await markMessageAsRead(msg._id);
+                }
+            });
         } catch (error) {
             console.error("Error fetching messages:", error);
         }
     };
 
+    // ✅ Mark message as read
+    const markMessageAsRead = async (messageId) => {
+        try {
+            const response = await fetch(`http://localhost:3000/messages/mark-as-read/${messageId}`, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                console.error("Failed to mark message as read");
+            }
+        } catch (error) {
+            console.error("Error marking message as read:", error);
+        }
+    };
 
     const sendMessage = async () => {
         if (!messageText.trim()) {
             console.error("Message is empty.");
             return;
         }
-    
+
         const receiverId = selectedUser?._id;
         if (!userId || !receiverId) {
             console.error("Missing senderId or receiverId.");
             return;
         }
-    
+
         try {
             const response = await fetch("http://localhost:3000/messages/send-message", {
                 method: "POST",
@@ -102,11 +126,11 @@ const Messenger = () => {
                 },
                 body: JSON.stringify({ senderId: userId, receiverId, content: messageText }),
             });
-    
+
             const data = await response.json();
             if (response.ok) {
                 console.log("Message sent:", data);
-    
+
                 // Add new message to the state
                 setMessages((prevMessages) => [...prevMessages, data.savedMessage]);
                 fetchMessages(receiverId); // Refetch messages
@@ -118,7 +142,6 @@ const Messenger = () => {
             console.error("Error sending message:", error);
         }
     };
-    
 
     return (
         <div className="messenger-container">
@@ -151,6 +174,15 @@ const Messenger = () => {
                                 <div key={msg._id} className={msg.sender._id === userId ? "message sent" : "message received"}>
                                     <p>{msg.sender._id === userId ? "You" : msg.sender.name}</p>
                                     <h4>{msg.content}</h4>
+
+                                    {/* Message status (ticks) */}
+                                    {msg.sender._id === userId && (
+                                        <div className="message-status">
+                                            <span className={msg.read ? "read" : "unread"}>
+                                                {msg.read ? "✔ ✔" : "✔"} {/* Checkmark for sent messages */}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
