@@ -1,0 +1,361 @@
+// CyberpunkTitle.scss
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap');
+
+// Variables
+$neon-blue: #0ff;
+$neon-pink: #f0c;
+$neon-purple: #93f;
+$dark-bg: #080b12;
+$circuit-color: rgba(0, 255, 255, 0.3);
+$glitch-color-1: #f0c;
+$glitch-color-2: #0ff;
+
+// Container
+.cyberpunk-title-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 0;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  
+  &::before, &::after {
+    content: "";
+    position: absolute;
+    width: 150%;
+    height: 1px;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      $neon-blue 15%, 
+      $neon-blue 30%, 
+      transparent 50%,
+      $neon-blue 70%,
+      transparent 100%
+    );
+    animation: scanline 8s linear infinite;
+  }
+  
+  &::before {
+    top: 0;
+  }
+  
+  &::after {
+    bottom: 0;
+    animation-delay: 4s;
+  }
+}
+
+// Title decorations
+.title-decorations {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.circuit-line {
+  position: absolute;
+  height: 2px;
+  background: $circuit-color;
+  top: 50%;
+  
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border: 2px solid $circuit-color;
+    border-radius: 50%;
+    top: -4px;
+  }
+  
+  &.left {
+    width: 120px;
+    left: 0;
+    transform: translateX(-60%);
+    
+    &::before {
+      left: 0;
+    }
+    
+    &::after {
+      right: 0;
+    }
+  }
+  
+  &.right {
+    width: 120px;
+    right: 0;
+    transform: translateX(60%);
+    
+    &::before {
+      left: 0;
+    }
+    
+    &::after {
+      right: 0;
+    }
+  }
+}
+
+// Main title
+.cyberpunk-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  position: relative;
+  color: white;
+  text-shadow: 0 0 10px rgba($neon-blue, 0.7);
+  margin: 0;
+  padding: 0.5rem 1rem;
+  z-index: 2;
+  transition: all 0.3s ease;
+  
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      rgba($neon-purple, 0.1) 0%, 
+      rgba($neon-blue, 0.1) 50%, 
+      rgba($neon-pink, 0.1) 100%);
+    filter: blur(4px);
+    z-index: -1;
+  }
+  
+  .title-prefix, .title-suffix {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
+    position: relative;
+  }
+  
+  .title-main {
+    color: white;
+    position: relative;
+    letter-spacing: 2px;
+    margin: 0 0.2rem;
+  }
+  
+  .title-divider {
+    color: $neon-pink;
+    margin: 0 0.5rem;
+    position: relative;
+    animation: blinkDivider 2s infinite;
+  }
+  
+  .title-highlight {
+    color: $neon-blue;
+    position: relative;
+    text-shadow: 0 0 15px $neon-blue;
+    animation: pulseHighlight 4s infinite alternate;
+  }
+  
+  &.glitch-effect {
+    animation: glitch 0.2s linear 3;
+    
+    &::before, &::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    
+    &::before {
+      color: $glitch-color-1;
+      animation: glitch-animation 0.2s ease infinite;
+    }
+    
+    &::after {
+      color: $glitch-color-2;
+      animation: glitch-animation 0.2s ease reverse infinite;
+    }
+  }
+}
+
+// Subtitle and loading bar
+.subtitle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0.5rem;
+  width: 80%;
+  max-width: 500px;
+}
+
+.loading-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+  
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 5px;
+    background: $neon-blue;
+    filter: blur(3px);
+    animation: loadingBar 3s infinite;
+  }
+}
+
+.loading-progress {
+  height: 100%;
+  width: 85%;
+  background: linear-gradient(90deg, $neon-blue, $neon-purple);
+  position: relative;
+  animation: progressPulse 2s infinite alternate;
+}
+
+.subtitle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 1px;
+  margin: 0.3rem 0 0;
+  text-align: center;
+  animation: typewriter 3s steps(40) 1s 1 normal both;
+  overflow: hidden;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+// Animations
+@keyframes scanline {
+  0% {
+    transform: translateX(-30%);
+  }
+  100% {
+    transform: translateX(30%);
+  }
+}
+
+@keyframes pulseHighlight {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    text-shadow: 0 0 10px $neon-blue, 0 0 20px $neon-blue, 0 0 30px $neon-blue;
+  }
+  20%, 24%, 55% { 
+    text-shadow: none;
+  }
+}
+
+@keyframes blinkDivider {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 80% {
+    opacity: 0.3;
+  }
+  81%, 100% {
+    opacity: 1;
+  }
+}
+
+@keyframes glitch {
+  0% {
+    transform: translate(2px, 0) skew(0deg);
+  }
+  20% {
+    transform: translate(-2px, 0) skew(0deg);
+  }
+  40% {
+    transform: translate(2px, 0) skew(0deg);
+  }
+  60% {
+    transform: translate(-2px, 0) skew(0deg);
+  }
+  80% {
+    transform: translate(0, 2px) skew(0deg);
+  }
+  100% {
+    transform: translate(0, 0) skew(0deg);
+  }
+}
+
+@keyframes glitch-animation {
+  0% {
+    clip-path: inset(80% 0 0 0);
+    transform: translate(-2px, -2px);
+  }
+  20% {
+    clip-path: inset(20% 0 80% 0);
+    transform: translate(2px, 2px);
+  }
+  40% {
+    clip-path: inset(20% 0 20% 0);
+    transform: translate(-2px, 0);
+  }
+  60% {
+    clip-path: inset(40% 0 40% 0);
+    transform: translate(2px, 0);
+  }
+  80% {
+    clip-path: inset(80% 0 80% 0);
+    transform: translate(0, 2px);
+  }
+  100% {
+    clip-path: inset(10% 0 58% 0);
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes loadingBar {
+  0% {
+    left: -5px;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes progressPulse {
+  0% {
+    box-shadow: 0 0 5px $neon-blue, 0 0 10px $neon-blue;
+  }
+  100% {
+    box-shadow: 0 0 8px $neon-blue, 0 0 15px $neon-blue, 0 0 20px $neon-blue;
+  }
+}
+
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .cyberpunk-title {
+    font-size: 1.8rem;
+    
+    .title-prefix, .title-suffix {
+      font-size: 1.2rem;
+    }
+  }
+  
+  .circuit-line {
+    display: none;
+  }
+}

@@ -119,38 +119,43 @@ exports.deletePub = async (req, res) => {
   }
 };
 // ➤ Ajouter un "J'aime" à une publication
+// ➤ Ajouter ou retirer un "J'aime" à une publication (toggle like)
 exports.likePublication = async (req, res) => {
   try {
     const publicationId = req.params.id;
-    const userId = req.user.userId; // Récupéré via le middleware d'authentification
+    const userId = req.user.userId;
 
     const publication = await Publication.findById(publicationId);
     if (!publication) {
       return res.status(404).json({ error: 'Publication non trouvée' });
     }
 
-    // Vérifier si l'utilisateur a déjà aimé la publication
-    if (publication.likes.includes(userId)) {
-      return res.status(400).json({ error: 'Vous avez déjà aimé cette publication' });
+    const hasLiked = publication.likes.includes(userId);
+
+    if (hasLiked) {
+      // Dislike : retirer le like
+      publication.likes = publication.likes.filter(id => id.toString() !== userId);
+    } else {
+      // Like : ajouter le like
+      publication.likes.push(userId);
     }
 
-    // Ajouter l'ID de l'utilisateur au tableau likes
-    publication.likes.push(userId);
     await publication.save();
 
-    // Repeupler les données de l'utilisateur pour renvoyer la publication mise à jour
-    const updatedPublication = await Publication.findById(publicationId).populate(
-      'user',
-      'name surname image'
-    );
+    const updatedPublication = await Publication.findById(publicationId)
+      .populate('user', 'name surname image')
+      .populate('comments.user', 'name surname image')
+      .populate('comments.replies.user', 'name surname image');
+
     res.status(200).json({
-      message: 'J\'aime ajouté avec succès',
+      message: hasLiked ? 'Like retiré' : 'Like ajouté',
       publication: updatedPublication,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // ➤ Ajouter un commentaire à une publication
 exports.addComment = async (req, res) => {

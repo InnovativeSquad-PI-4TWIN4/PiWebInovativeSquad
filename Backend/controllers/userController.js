@@ -108,14 +108,12 @@ exports.signup = [
     try {
       let { name, surname, email, password, dateOfBirth, Skill, recaptchaToken } = req.body;
 
-      if (!name || !surname || !email || !password || !dateOfBirth || !Skill  ) {
+      if (!name || !surname || !email || !password || !dateOfBirth || !Skill) {
         return res.status(400).json({ status: "FAILED", message: "All fields are required!" });
       }
 
       // ✅ Vérification reCAPTCHA avec Google
       const googleVerifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
-      
-     
 
       console.log("✅ reCAPTCHA validé !");
 
@@ -152,7 +150,11 @@ exports.signup = [
       });
 
       await newUser.save();
-      const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '1h' });
+      const token = jwt.sign(
+        { userId: newUser._id, email: newUser.email, role: newUser.role }, // Harmoniser le payload
+        JWT_SECRET, // Utiliser la même clé que signin
+        { expiresIn: '1h' }
+      );
 
       return res.status(201).json({ status: "SUCCESS", message: "Sign-up successful!", token });
 
@@ -210,36 +212,30 @@ exports.signin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Vérification si l'email et le mot de passe sont fournis
     if (!email || !password) {
       return res.status(400).json({ status: "FAILED", message: "Email and password are required!" });
     }
 
-    // Recherche de l'utilisateur par email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ status: "FAILED", message: "Invalid credentials." });
     }
 
-    // Vérification si l'utilisateur est actif
     if (!user.isActive) {
       return res.status(403).json({ status: "FAILED", message: "Your account has been deactivated. Please contact support." });
     }
 
-    // Vérification du mot de passe
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       return res.status(401).json({ status: "FAILED", message: "Invalid credentials." });
     }
 
-    // Génération du token JWT
     const token = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
       JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    // Réponse réussie avec le token et les informations de l'utilisateur
     return res.json({
       status: "SUCCESS",
       message: "Sign-in successful!",

@@ -2,42 +2,64 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { FaHeart } from 'react-icons/fa';
 import './PremiumCourses.scss';
 import RechargeModal from '../RechargeModal/RechargeModal';
 
 const PremiumCourses = () => {
   const [courses, setCourses] = useState([]);
   const [paidCourses, setPaidCourses] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [showRechargeModal, setShowRechargeModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const navigate = useNavigate();
 
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
+  const userId = user?._id || user?.id;
+  const paidKey = `paidCourses_${userId}`;
+
   useEffect(() => {
+    // Charger les cours premium
     axios.get("http://localhost:3000/courses/getallcourses")
       .then(res => {
         const premium = res.data.filter(c => c.isPremium);
         setCourses(premium);
-        console.log("✅ Premium courses reçus :", premium);
       })
       .catch(err => console.error("Erreur chargement des cours premium :", err));
 
-    const paid = JSON.parse(localStorage.getItem('paidCourses')) || [];
+    // Récupérer les cours déjà payés pour cet utilisateur
+    const paid = JSON.parse(localStorage.getItem(paidKey)) || [];
     setPaidCourses(paid);
-  }, []);
+
+    // Charger les favoris
+    if (userId) {
+      axios.get(`http://localhost:3000/favorites/${userId}`)
+        .then(res => setFavorites(res.data.map(c => c._id)))
+        .catch(err => console.error("Erreur chargement des favoris :", err));
+    }
+  }, [userId]);
+
+  const toggleFavorite = async (courseId) => {
+    const isFavorite = favorites.includes(courseId);
+    const url = isFavorite ? "remove" : "add";
+
+    try {
+      await axios.post(`http://localhost:3000/favorites/${url}`, {
+        userId,
+        courseId
+      });
+
+      setFavorites(prev =>
+        isFavorite ? prev.filter(id => id !== courseId) : [...prev, courseId]
+      );
+    } catch (error) {
+      console.error("Erreur favoris :", error);
+    }
+  };
 
   const handleAccessPremium = async (courseId) => {
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) return alert("Utilisateur non connecté !");
-
-    let userId;
-    try {
-      const user = JSON.parse(storedUser);
-      userId = user?._id || user?.id;
-    } catch {
-      return alert("Erreur utilisateur !");
-    }
-
-    if (!userId) return alert("Impossible de récupérer l'utilisateur !");
+    if (!userId) return alert("Utilisateur non connecté !");
 
     if (paidCourses.includes(courseId)) {
       try {
@@ -61,7 +83,7 @@ const PremiumCourses = () => {
         window.open(res.data.meetLink, "_blank");
         alert(`✅ Accès autorisé. Nouveau solde : ${res.data.remainingBalance} DT`);
         const updated = [...new Set([...paidCourses, courseId])];
-        localStorage.setItem("paidCourses", JSON.stringify(updated));
+        localStorage.setItem(paidKey, JSON.stringify(updated));
         setPaidCourses(updated);
       }
     } catch (err) {
@@ -87,11 +109,17 @@ const PremiumCourses = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
+            {/* ❤️ Bouton favoris */}
+            <FaHeart
+              className={`heart-icon ${favorites.includes(course._id) ? "active" : ""}`}
+              onClick={() => toggleFavorite(course._id)}
+              title={favorites.includes(course._id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+            />
+
             <h2>{course.title}</h2>
             <p>{course.category}</p>
             <p><strong>Instructeur :</strong> {course.instructor?.name || "Inconnu"}</p>
             <p>💰 Prix : {course.price} DT</p>
-            {course.isMeetEnded && <span className="badge"></span>}
 
             {paidCourses.includes(course._id) ? (
               course.isMeetEnded ? (

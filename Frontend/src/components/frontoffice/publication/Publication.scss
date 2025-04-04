@@ -1,286 +1,546 @@
-$primary-color: #1a73e8;
-$secondary-color: #fbbc04;
-$background-color: white;
-$shadow-color: rgba(0, 0, 0, 0.1);
-$text-color: #333;
-$muted-text: #666;
-$card-width: 600px;
-$avatar-size: 40px;
+  $primary: #1a73e8;
+  $accent: #fbbc04;
+  $bg-dark: #121212;
+  $card-dark: #1e1e1e;
+  $text-light: #e4e6eb;
+  $text-muted: #b0b3b8;
+  $border-dark: #2c2c2c;
+  $radius: 12px;
+  $transition: all 0.3s ease;
 
-.publications-container {
-  max-width: $card-width;
-  margin: 20px auto;
-  padding: 0 10px;
-}
-
-.create-publication {
-  background: $background-color;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px $shadow-color;
-  padding: 15px;
-  margin-bottom: 20px;
-
-  .create-publication-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-
-    .user-avatar {
-      width: $avatar-size;
-      height: $avatar-size;
-      border-radius: 50%;
-      margin-right: 10px;
-      object-fit: cover;
-    }
-
-    .publication-type-select {
-      padding: 5px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-      background: #f5f5f5;
-    }
+  .publications-container {
+    max-width: 700px;
+    margin: 30px auto;
+    padding: 0 15px;
+    color: $text-light;
   }
 
-  .publication-textarea {
-    width: 100%;
-    min-height: 60px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    font-size: 14px;
-    resize: none;
-    background: #f5f5f5;
-    outline: none;
+  .create-publication {
+    background: $card-dark;
+    border-radius: $radius;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    margin-bottom: 20px;
 
-    &:focus {
-      border-color: $primary-color;
-    }
-  }
-
-  .create-publication-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 10px;
-
-    .submit-btn {
-      background: $primary-color;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.2s;
-
-      &:hover {
-        background: darken($primary-color, 10%);
-      }
-    }
-  }
-}
-
-.publication-card {
-  background: $background-color;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px $shadow-color;
-  margin-bottom: 20px;
-  padding: 15px;
-
-  .publication-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-
-    .user-avatar {
-      width: $avatar-size;
-      height: $avatar-size;
-      border-radius: 50%;
-      margin-right: 10px;
-      object-fit: cover;
-    }
-
-    .user-info {
-      display: flex;
-      flex-direction: column;
-
-      .user-name {
-        font-weight: bold;
-        color: #000000;
-        font-size: 14px;
-      }
-
-      .publication-date {
-        color: $muted-text;
-        font-size: 12px;
-      }
-    }
-  }
-
-  .publication-content {
-    margin-top: 10px;
-
-    .publication-type {
-      font-size: 12px;
-      padding: 2px 8px;
-      border-radius: 12px;
-      display: inline-block;
-      margin-bottom: 8px;
-
-      &.offer {
-        background-color: lighten($primary-color, 40%);
-        color: $primary-color;
-      }
-
-      &.request {
-        background-color: lighten($secondary-color, 40%);
-        color: $secondary-color;
-      }
-    }
-
-    .publication-description {
-      font-size: 14px;
-      line-height: 1.4;
-      color: $text-color;
-    }
-  }
-
-  .publication-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px solid #e0e0e0;
-
-    .action-btn {
-      background: none;
-      border: none;
-      color: $text-color;
-      font-size: 14px;
-      padding: 5px 15px;
-      cursor: pointer;
+    .create-publication-header {
       display: flex;
       align-items: center;
-      transition: color 0.2s;
+      margin-bottom: 10px;
 
-      &:hover {
-        color: $primary-color;
+      .user-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        margin-right: 12px;
+        object-fit: cover;
       }
 
-      .icon {
-        margin-right: 5px;
-        font-size: 16px;
+      .publication-type-select {
+        border: 1px solid $border-dark;
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 14px;
+        background: #2a2a2a;
+        color: $text-light;
       }
     }
 
-    .like-btn,
-    .negotiate-btn,
-    .comment-btn {
-      flex: 1;
-      justify-content: center;
+    .publication-textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 12px;
+      border-radius: $radius;
+      border: 1px solid $border-dark;
+      font-size: 14px;
+      background: #2a2a2a;
+      color: $text-light;
+      resize: none;
+
+      &:focus {
+        border-color: $primary;
+      }
+    }
+
+    .create-publication-actions {
+      text-align: right;
+      margin-top: 10px;
+
+      .submit-btn {
+        background: $primary;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+
+        &:hover {
+          background: darken($primary, 10%);
+        }
+      }
     }
   }
 
-  // Styles pour la section des commentaires
-  .comments-section {
-    margin-top: 20px;
-    padding: 10px;
-    border-top: 1px solid #e0e0e0;
-  }
-
-  .add-comment,
-  .add-reply {
-    display: flex;
-    flex-direction: column;
+  .publication-card {
+    background: $card-dark;
+    border-radius: $radius;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
     margin-bottom: 20px;
-  }
+    padding: 16px;
 
-  .comment-textarea,
-  .reply-textarea {
-    width: 100%;
-    min-height: 60px;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    resize: vertical;
-    font-size: 14px;
-    background: #f5f5f5;
-    outline: none;
+    .publication-header {
+      display: flex;
+      align-items: center;
 
-    &:focus {
-      border-color: $primary-color;
+      .user-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        margin-right: 10px;
+        object-fit: cover;
+      }
+
+      .user-info {
+        .user-name {
+          font-weight: 600;
+          font-size: 14px;
+          color: white;
+        }
+
+        .publication-date {
+          font-size: 12px;
+          color: $text-muted;
+        }
+      }
+    }
+
+    .publication-content {
+      margin: 10px 0;
+
+      .publication-type {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+        display: inline-block;
+        margin-bottom: 6px;
+
+        &.offer {
+          background-color: rgba(26, 115, 232, 0.2);
+          color: #42a5f5;
+        }
+
+        &.request {
+          background-color: rgba(251, 188, 4, 0.2);
+          color: $accent;
+        }
+      }
+
+      .publication-description {
+        font-size: 15px;
+        color: $text-light;
+        margin-top: 4px;
+      }
+    }
+
+    .publication-actions {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid $border-dark;
+
+      .action-btn {
+        background: none;
+        border: none;
+        font-weight: 500;
+        color: $text-muted;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        &:hover {
+          color: $primary;
+        }
+
+        &.liked {
+          color: $primary;
+        }
+
+        .icon {
+          font-size: 16px;
+        }
+      }
+    }
+
+    .comments-section {
+      margin-top: 15px;
+      padding-top: 10px;
+
+      .comments-header {
+        margin-bottom: 10px;
+        .comments-sort {
+          font-size: 14px;
+          color: $text-muted;
+          cursor: pointer;
+          &:hover {
+            color: $primary;
+          }
+        }
+      }
+
+      .comments-list {
+        margin-bottom: 15px;
+
+        .no-comments {
+          font-size: 14px;
+          color: $text-muted;
+          text-align: center;
+        }
+
+        .comment {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 12px;
+
+          .comment-body {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+
+            .comment-avatar {
+              width: 35px;
+              height: 35px;
+              border-radius: 50%;
+              object-fit: cover;
+            }
+
+            .comment-content-wrapper {
+              flex: 1;
+
+              .comment-content {
+                background: #2a2a2a;
+                border-radius: 18px;
+                padding: 8px 12px;
+                position: relative;
+
+                .comment-user-name {
+                  font-weight: 600;
+                  font-size: 14px;
+                  color: white;
+                  margin-bottom: 2px;
+                }
+
+                p {
+                  font-size: 14px;
+                  color: $text-light;
+                  margin: 0;
+                }
+              }
+
+              .comment-meta {
+                margin-top: 4px;
+                margin-left: 12px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+
+                .comment-time {
+                  font-size: 12px;
+                  color: $text-muted;
+                }
+
+                .like-btn,
+                .reply-btn {
+                  background: none;
+                  border: none;
+                  font-size: 12px;
+                  color: $text-muted;
+                  cursor: pointer;
+                  font-weight: 500;
+
+                  &:hover {
+                    color: $primary;
+                  }
+                }
+
+                .like-count {
+                  font-size: 12px;
+                  color: $text-muted;
+                }
+              }
+            }
+          }
+
+          .replies-list {
+            margin-top: 10px;
+            padding-left: 45px; // Indentation pour aligner avec l'avatar du commentaire
+            position: relative;
+
+            &:before {
+              content: '';
+              position: absolute;
+              left: 25px;
+              top: 0;
+              bottom: 0;
+              width: 2px;
+              background: $border-dark; // Ligne de connexion
+            }
+
+            .reply {
+              display: flex;
+              align-items: flex-start;
+              gap: 10px;
+              margin-bottom: 10px;
+              position: relative;
+
+              &:before {
+                content: '';
+                position: absolute;
+                left: -20px;
+                top: 18px;
+                width: 20px;
+                height: 2px;
+                background: $border-dark; // Ligne horizontale de connexion
+              }
+
+              .reply-avatar {
+                width: 35px;
+                height: 35px;
+                border-radius: 50%;
+                object-fit: cover;
+              }
+
+              .reply-content-wrapper {
+                flex: 1;
+
+                .reply-content {
+                  background: #2a2a2a;
+                  border-radius: 18px;
+                  padding: 8px 12px;
+
+                  .reply-user-name {
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: white;
+                    margin-bottom: 2px;
+                  }
+
+                  p {
+                    font-size: 14px;
+                    color: $text-light;
+                    margin: 0;
+                  }
+                }
+
+                .reply-meta {
+                  margin-top: 4px;
+                  margin-left: 12px;
+
+                  .reply-time {
+                    font-size: 12px;
+                    color: $text-muted;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .add-comment,
+      .add-reply {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 12px;
+
+        .comment-avatar {
+          width: 35px;
+          height: 35px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+
+        .comment-input-wrapper {
+          flex: 1;
+          position: relative;
+
+          .comment-suggestions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px; // Espacement entre les suggestions et le champ de texte
+            flex-wrap: wrap;
+
+            .suggestion-btn {
+              background: #2a2a2a;
+              border: 1px solid $border-dark;
+              border-radius: 20px;
+              padding: 6px 12px;
+              font-size: 13px;
+              color: $text-light;
+              cursor: pointer;
+              transition: background 0.2s;
+
+              &:hover {
+                background: lighten(#2a2a2a, 10%);
+              }
+            }
+          }
+
+          .comment-input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+
+            textarea {
+              width: 100%;
+              border-radius: 18px;
+              border: 1px solid $border-dark;
+              padding: 8px 40px 8px 12px;
+              font-size: 14px;
+              background: #2a2a2a;
+              color: $text-light;
+              resize: none;
+              min-height: 40px;
+
+              &:focus {
+                border-color: $primary;
+              }
+
+              &::placeholder {
+                color: $text-muted;
+              }
+            }
+
+            .submit-comment-icon,
+            .submit-reply-icon {
+              position: absolute;
+              right: 10px;
+              background: none;
+              border: none;
+              cursor: pointer;
+              color: $text-muted;
+              transition: color 0.2s;
+
+              &.active {
+                color: $primary;
+              }
+
+              svg {
+                font-size: 16px;
+              }
+            }
+          }
+        }
+      }
+
+      .add-reply {
+        padding-left: 0;
+      }
     }
   }
-
-  .submit-comment-btn,
-  .submit-reply-btn {
-    align-self: flex-end;
-    padding: 5px 15px;
-    background-color: $primary-color;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background 0.2s;
-
-    &:hover {
-      background: darken($primary-color, 10%);
-    }
-  }
-
-  .comments-list {
-    margin-top: 10px;
-  }
-
-  .comment {
-    padding: 10px;
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  .comment-header,
-  .reply-header {
+  .publication-type-switch {
+    position: relative;
     display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-
-    .user-avatar {
-      width: $avatar-size;
-      height: $avatar-size;
-      border-radius: 50%;
-      margin-right: 10px;
-      object-fit: cover;
+    background-color: #2a2a2a;
+    border: 1px solid $border-dark;
+    border-radius: 30px;
+    overflow: hidden;
+    width: fit-content;
+    margin-left: auto;
+    transition: $transition;
+  
+    .switch-option {
+      padding: 8px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: $text-muted;
+      cursor: pointer;
+      z-index: 2;
+      transition: $transition;
+      flex: 1;
+      text-align: center;
+  
+      &.active {
+        color: white;
+      }
+    }
+  
+    .switch-indicator {
+      position: absolute;
+      top: 2px;
+      bottom: 2px;
+      width: 50%;
+      background-color: $primary;
+      border-radius: 30px;
+      transition: $transition;
+      z-index: 1;
+  
+      &.offer {
+        left: 2px;
+      }
+  
+      &.request {
+        left: 50%;
+      }
     }
   }
-
-  .comment-info,
-  .reply-info {
-    margin-left: 10px;
+  .notification-icon {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+  
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: red;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 12px;
+    }
+  
+    .notification-dropdown {
+      position: absolute;
+      top: 40px;
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 1000;
+  
+      .notification-item {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+  
+        &.unread {
+          background: #f0f8ff;
+        }
+  
+        p {
+          margin: 0;
+          font-size: 14px;
+        }
+  
+        span {
+          font-size: 12px;
+          color: #666;
+        }
+  
+        &:hover {
+          background: #f5f5f5;
+        }
+      }
+    }
   }
-
-  .comment-date,
-  .reply-date {
-    display: block;
-    font-size: 12px;
-    color: $muted-text;
-  }
-
-  .comment-content,
-  .reply-content {
-    margin: 5px 0;
-    font-size: 14px;
-    color: $text-color;
-  }
-
-  .replies-list {
-    margin-left: 20px;
-    margin-top: 10px;
-  }
-
-  .reply {
-    padding: 5px 10px;
-    border-left: 2px solid $primary-color;
-    margin-bottom: 5px;
-  }
-}
