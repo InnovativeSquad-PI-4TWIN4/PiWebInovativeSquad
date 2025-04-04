@@ -3,28 +3,54 @@
     padding: 0;
     margin: 0;
 }
-.delete-float-btn {
-    background: transparent;   // ✅ Pas de fond
-    border: none;              // ✅ Pas de bordure
-    outline: none;             // ✅ Pas de contour au clic
-    cursor: pointer;
-    padding: 0;
-    margin-top: 5px;
+.message-row {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
+}
 
-    svg {
-        color: #ffffff;
-        transition: transform 0.2s, opacity 0.2s;
-        opacity: 0.7;
-    }
+// .message-content {
+//     background: #f1f1f1;
+//     padding: 10px 14px;
+//     border-radius: 10px;
+//     max-width: 100%;
+// }
+.message-content {
+    padding: 10px 15px;
+    border-radius: 12px;
+    max-width: 100%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    word-break: break-word;
+    transition: background 0.2s ease;
+}
 
-    &:hover svg {
-        opacity: 1;
+.message-content.sent {
+    background-color: #0078ff; // 💙 Bleu pour messages envoyés
+    color: #fff;
+    align-self: flex-end;
+}
+
+.message-content.received {
+    background-color: #322e2ec4; // 🤍 Gris clair pour messages reçus
+    color: #ffffff;
+    align-self: flex-start;
+}
+
+.delete-float-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: #cc0000;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+
+    &:hover {
         transform: scale(1.2);
+        opacity: 1;
     }
 }
+
 
 
 .unread-badge {
@@ -182,13 +208,13 @@
 
 
 .sent {
-    background: #0078ff;
+    background: #0077ff00;
     align-self: flex-end;
     text-align: right;
 }
 
 .received {
-    background: #333;
+    background: #e1e1e100;
     align-self: flex-start;
     text-align: left;
 }
