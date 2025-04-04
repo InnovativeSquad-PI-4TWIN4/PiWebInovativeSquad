@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaSearch, FaPlus, FaEdit, FaTrash, FaFire, FaCheck } from 'react-icons/fa';
+import { FaSearch, FaPlus, FaEdit, FaTrash, FaFire, FaCheck, FaCheckCircle } from 'react-icons/fa';
 import AddCourses from "./AddCourses";
 import './CoursesAdmin.scss';
 
@@ -67,22 +67,20 @@ const CoursesAdmin = () => {
   };
 
   const markMeetAsEnded = async (course) => {
-    const updatedCourse = { ...course, isMeetEnded: true };
     try {
       const response = await fetch(`http://localhost:3000/premium/mark-meet-ended/${course._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedCourse)
+        method: 'PUT'
       });
+
       const data = await response.json();
       if (response.ok) {
-        alert("Le meet a été marqué comme terminé.");
-        setCourses(prev => prev.map(c => c._id === course._id ? updatedCourse : c));
+        alert("✅ Le meet a été marqué comme terminé.");
+        setCourses(prev => prev.map(c => c._id === course._id ? { ...c, isMeetEnded: true, meetLink: null } : c));
       } else {
-        alert("Erreur : " + data.message);
+        alert("❌ " + data.message);
       }
     } catch (err) {
-      console.error("Erreur lors de la mise à jour :", err);
+      console.error("❌ Erreur lors de la mise à jour :", err);
     }
   };
 
@@ -117,7 +115,7 @@ const CoursesAdmin = () => {
 
       const data = await response.json();
       if (response.ok) {
-        alert("Cours mis à jour avec succès !");
+        alert("✅ Cours mis à jour avec succès !");
         setEditingCourse(null);
         setCourses(prevCourses =>
           prevCourses.map(course =>
@@ -127,10 +125,10 @@ const CoursesAdmin = () => {
           )
         );
       } else {
-        alert("Erreur : " + data.message);
+        alert("❌ " + data.message);
       }
     } catch (error) {
-      console.error("Erreur lors de la mise à jour :", error);
+      console.error("❌ Erreur lors de la mise à jour :", error);
     }
   };
 
@@ -174,21 +172,22 @@ const CoursesAdmin = () => {
             <div key={course._id} className={`course-card ${course.isPremium ? 'premium-border' : ''}`} style={{ animationDelay: `${index * 0.1}s` }}>
               <span className="category">{course.category}</span>
               <h3 className="title">
-                {course.title} {course.isPremium && <FaFire className="premium-icon" />}
+                {course.title}
+                {course.isPremium && <FaFire className="premium-icon" />}
+                {course.isPremium && course.isMeetEnded && (
+                  <FaCheckCircle className="ended-icon" title="Meet terminé" />
+                )}
+  {course.isPremium && !course.isMeetEnded && (
+  <button className="end-meet-btn" onClick={() => markMeetAsEnded(course)}>
+    <FaCheck /> Fin Meet
+  </button>
+)}
+
               </h3>
               <p className="teacher">Ajouté par : <strong>{course.instructor?.name || "Inconnu"}</strong></p>
               <div className="actions">
                 <button className="edit-btn" onClick={() => handleEdit(course)}><FaEdit /> Modifier</button>
                 <button className="delete-btn" onClick={() => handleDelete(course._id)}><FaTrash /> Supprimer</button>
-                {course.isPremium && !course.isMeetEnded && (
-                  <button
-                    className="mark-ended-btn"
-                    onClick={() => markMeetAsEnded(course)}
-                    title="Marquer comme terminé"
-                  >
-                    <FaCheck /> Terminé
-                  </button>
-                )}
               </div>
             </div>
           ))
@@ -236,16 +235,6 @@ const CoursesAdmin = () => {
                   disabled
                 /> Cours Premium
               </label>
-
-              {editingCourse.isPremium && (
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={editingCourse.isMeetEnded || false}
-                    onChange={(e) => setEditingCourse({ ...editingCourse, isMeetEnded: e.target.checked })}
-                  /> Cours terminé (meet fini)
-                </label>
-              )}
 
               {editingCourse.isPremium && editingCourse.isMeetEnded && (
                 <>
