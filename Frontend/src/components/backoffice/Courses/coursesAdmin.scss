@@ -303,3 +303,46 @@ $hover-shadow: rgba(0, 0, 0, 0.25);
     transform: translateY(0);
   }
 }
+.course-card .ended-icon {
+  margin-left: 6px;
+  font-size: 1.1rem;
+  color: green;
+  vertical-align: middle;
+}
+.click-to-end-icon {
+  font-size: 1.2rem;
+  color: #28a745;
+  margin-left: 6px;
+  cursor: pointer;
+  transition: transform 0.2s, color 0.3s;
+
+  &:hover {
+    transform: scale(1.2);
+    color: darken(#28a745, 10%);
+  }
+}
+.end-meet-btn {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+
+  &:hover {
+    background-color: darken(#28a745, 10%);
+    transform: scale(1.05);
+  }
+
+  svg {
+    font-size: 1rem;
+  }
+}
+
+
+
