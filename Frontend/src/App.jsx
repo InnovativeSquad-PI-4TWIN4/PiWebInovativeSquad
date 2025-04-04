@@ -28,111 +28,111 @@ import Packs from './components/frontoffice/Packs/Packs';
 import Marketplace from './components/frontoffice/Marketplace/Marketplace';
 import PremiumCourses from './components/frontoffice/Marketplace/PremiumCourses';
 import FreeCourses from './components/frontoffice/Marketplace/FreeCourses';
-import Messenger from './components/frontoffice/messenger/messenger'
+import Messenger from './components/frontoffice/messenger/messenger';
 import Success from './components/frontoffice/RechargeModal/Success';
-
-import { ThemeProvider } from "./context/ThemeContext";  // ✅ Import correct
-
 import Full from './components/PersonalSpace/Full';
 import Publication from './components/frontoffice/publication/Publication';
 
+import { ThemeProvider } from "./context/ThemeContext";
+
+// ✅ Notification globale (nouveau cours ajouté)
+import GlobalNotification from "./components/frontoffice/GlobalNotification/GlobalNotification";
+
+
 
 const App = () => {
-    const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
 
-    // 🔹 Vérifie si un utilisateur est déjà authentifié (OAuth inclus)
-    useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser)); // Restaurer l'utilisateur
-        } else {
-            fetch("http://localhost:3000/auth/current_user", {
-                credentials: "include",
-            })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data && data.id) {
-                    setUser(data);
-                    localStorage.setItem('user', JSON.stringify(data)); // Sauvegarde locale
-                }
-            })
-            .catch((err) => console.error("Erreur de récupération de l'utilisateur :", err));
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
+      fetch("http://localhost:3000/auth/current_user", {
+        credentials: "include",
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.id) {
+          setUser(data);
+          localStorage.setItem('user', JSON.stringify(data));
         }
-    }, []);
-    
-    const handleLogin = (userData) => {
-        localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('userId', userData._id); // ✅ Ajout essentiel ici
-        setUser(userData);
-      };
-      
+      })
+      .catch((err) => console.error("Erreur de récupération de l'utilisateur :", err));
+    }
+  }, []);
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setUser(null);
-    };
+  const handleLogin = (userData) => {
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('userId', userData._id);
+    setUser(userData);
+  };
 
-    return (
-        <ThemeProvider> {/* ✅ Ajout du ThemeProvider ici */}
-            <Router>
-                {user?.role === 'admin' ? (
-                    <AdminNavbar user={user} onLogout={handleLogout} />
-                ) : (
-                    <Navbar user={user} onLogout={handleLogout} />
-                )}
-                <Routes>
-                     {/* 🔹 Routes accessibles à tous */}
-                    <Route path="/update-admin-password" element={<UpdateAdminPassword />} />
-                    
-                    {/* REDIRECTION AUTOMATIQUE SI ADMIN */}
-                    {user?.role === 'admin' ? (
-                        <>
-                            <Route path="/" element={<Navigate to="/admin/dashboard" />} />
-                            <Route path="/admin/dashboard" element={<DashbordAdmin />} />
-                            <Route path="/admin/manage-users" element={<ManageUsers />} />
-                            <Route path="/admin/manage-admins" element={<ManageAdmins />} />
-                            <Route path="/admin/add-admin" element={<AddAdmin />} /> {/* 🔹 Ajout de la route */}
-                            <Route path="/coursesadmin" element={<CoursesAdmin />} />
-                            <Route path="/add-course" element={<AddCourses />} />
-                            <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
-                            <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
-                        </>
-                    ) : (
-                        <>
-                            {/* FRONT-OFFICE ROUTES */}
-                            <Route path="/" element={<Home />} />
-                            <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
-                            <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
-                            <Route path="/overview" element={<Overview />} />
-                            <Route path="/Full" element={<Full />} />
-                            <Route path="/forgot-password" element={<ForgotPassword />} />
-                            <Route path="/reset-password/:token" element={<ResetPassword />} />
-                            <Route path="/marketplace" element={<Marketplace />} />
-                            <Route path="/marketplace/premium" element={<PremiumCourses />} />
-                            <Route path="/marketplace/free" element={<FreeCourses />} />
-                            <Route path="/success" element={<Success />} />
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+  };
 
-                            <Route path="/AvisWebsite" element={<Avis />} />
-                            <Route path="/Ourpacks" element={<Packs />} />
-                            <Route path="/contact" element={<Contact />} />
-                            <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
-                            <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
-                            <Route path="/manage-profile" element={<ManageProfile />} />
-                            <Route path="/publication" element={<Publication />} />
-                            <Route path="/messenger" element={<Messenger />} />
-                            {/* ROUTE FACEBOOK LOGIN */}
-                            <Route path="/auth/success" element={<AuthSuccess />} />
-                        </>
-                    )}
+  return (
+    <ThemeProvider>
+      <Router>
+        {/* ✅ Notification visible uniquement pour les utilisateurs connectés */}
+       
 
-                    {/* REDIRECTION PAR DÉFAUT */}
-                    <Route path="*" element={<Home />} />
-                </Routes>
-                <Footer />
-            </Router>
-        </ThemeProvider>
-    );
+        {user?.role === 'admin' ? (
+          <AdminNavbar user={user} onLogout={handleLogout} />
+        ) : (
+          <Navbar user={user} onLogout={handleLogout} />
+        )}
+
+        <Routes>
+          <Route path="/update-admin-password" element={<UpdateAdminPassword />} />
+
+          {user?.role === 'admin' ? (
+            <>
+              <Route path="/" element={<Navigate to="/admin/dashboard" />} />
+              <Route path="/admin/dashboard" element={<DashbordAdmin />} />
+              <Route path="/admin/manage-users" element={<ManageUsers />} />
+              <Route path="/admin/manage-admins" element={<ManageAdmins />} />
+              <Route path="/admin/add-admin" element={<AddAdmin />} />
+              <Route path="/coursesadmin" element={<CoursesAdmin />} />
+              <Route path="/add-course" element={<AddCourses />} />
+              <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
+              <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
+            </>
+          ) : (
+            <>
+              <Route path="/" element={<Home />} />
+              <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
+              <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
+              <Route path="/overview" element={<Overview />} />
+              <Route path="/Full" element={<Full />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
+              <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/marketplace/premium" element={<PremiumCourses />} />
+              <Route path="/marketplace/free" element={<FreeCourses />} />
+              <Route path="/success" element={<Success />} />
+              <Route path="/AvisWebsite" element={<Avis />} />
+              <Route path="/Ourpacks" element={<Packs />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
+              <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
+              <Route path="/manage-profile" element={<ManageProfile />} />
+              <Route path="/publication" element={<Publication />} />
+              <Route path="/messenger" element={<Messenger />} />
+              <Route path="/auth/success" element={<AuthSuccess />} />
+            </>
+          )}
+
+          <Route path="*" element={<Home />} />
+        </Routes>
+
+        <Footer />
+      </Router>
+    </ThemeProvider>
+  );
 };
 
 export default App;
