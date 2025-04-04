@@ -65,7 +65,7 @@ const Publication = new Schema({
       ref: 'users',
     },
   ],
-  comments: [CommentSchema], // Champ comments déjà ajouté
+  comments: [CommentSchema],
 });
 
 module.exports = mongo.model('Publication', Publication);
