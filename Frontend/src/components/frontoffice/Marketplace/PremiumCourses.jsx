@@ -2,42 +2,62 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { FaHeart } from 'react-icons/fa';
 import './PremiumCourses.scss';
 import RechargeModal from '../RechargeModal/RechargeModal';
 
 const PremiumCourses = () => {
   const [courses, setCourses] = useState([]);
   const [paidCourses, setPaidCourses] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [showRechargeModal, setShowRechargeModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const navigate = useNavigate();
+
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
+  const userId = user?._id || user?.id;
 
   useEffect(() => {
     axios.get("http://localhost:3000/courses/getallcourses")
       .then(res => {
         const premium = res.data.filter(c => c.isPremium);
         setCourses(premium);
-        console.log("✅ Premium courses reçus :", premium);
       })
       .catch(err => console.error("Erreur chargement des cours premium :", err));
 
     const paid = JSON.parse(localStorage.getItem('paidCourses')) || [];
     setPaidCourses(paid);
+
+    if (userId) {
+      axios.get(`http://localhost:3000/favorites/${userId}`)
+        .then(res => setFavorites(res.data.map(c => c._id)))
+        .catch(err => console.error("Erreur chargement des favoris :", err));
+    }
   }, []);
 
-  const handleAccessPremium = async (courseId) => {
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) return alert("Utilisateur non connecté !");
+  const toggleFavorite = async (courseId) => {
+    const isFavorite = favorites.includes(courseId);
+    const url = isFavorite ? "remove" : "add";
 
-    let userId;
     try {
-      const user = JSON.parse(storedUser);
-      userId = user?._id || user?.id;
-    } catch {
-      return alert("Erreur utilisateur !");
-    }
+      await axios.post(`http://localhost:3000/favorites/${url}`, {
+        userId,
+        courseId
+      });
 
-    if (!userId) return alert("Impossible de récupérer l'utilisateur !");
+      if (isFavorite) {
+        setFavorites(prev => prev.filter(id => id !== courseId));
+      } else {
+        setFavorites(prev => [...prev, courseId]);
+      }
+    } catch (error) {
+      console.error("Erreur favoris :", error);
+    }
+  };
+
+  const handleAccessPremium = async (courseId) => {
+    if (!userId) return alert("Utilisateur non connecté !");
 
     if (paidCourses.includes(courseId)) {
       try {
@@ -87,6 +107,13 @@ const PremiumCourses = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
+            {/* ❤️ Favoris */}
+            <FaHeart
+              className={`heart-icon ${favorites.includes(course._id) ? "active" : ""}`}
+              onClick={() => toggleFavorite(course._id)}
+              title={favorites.includes(course._id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+            />
+
             <h2>{course.title}</h2>
             <p>{course.category}</p>
             <p><strong>Instructeur :</strong> {course.instructor?.name || "Inconnu"}</p>
