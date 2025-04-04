@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Publication.scss';
 import { FaPaperPlane } from 'react-icons/fa';
-import ChatComponent from '../chatcomponent/ChatComponent'; // Import corrigé
+import ChatComponent from '../chatcomponent/ChatComponent';
+import { useLocation } from 'react-router-dom';
 
 const Publication = () => {
   const [publications, setPublications] = useState([]);
@@ -19,11 +20,14 @@ const Publication = () => {
   const [activeReplyComment, setActiveReplyComment] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedPublication, setSelectedPublication] = useState(null);
+  const [hasConversation, setHasConversation] = useState(false); // Nouvel état pour vérifier l'existence d'une conversation
 
   const API_URL = 'http://localhost:3000/publication';
   const USER_API_URL = 'http://localhost:3000/users/profile';
-  const CHAT_API_URL = 'http://localhost:3000/chat';
   const BASE_URL = 'http://localhost:3000';
+  const CHAT_API_URL = 'http://localhost:3000/chat';
+
+  const location = useLocation();
 
   const commentSuggestions = [
     'Parfait',
@@ -32,6 +36,7 @@ const Publication = () => {
     'Bien joué',
   ];
 
+  // Récupérer l'utilisateur connecté
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -61,6 +66,7 @@ const Publication = () => {
     fetchCurrentUser();
   }, []);
 
+  // Récupérer les publications
   useEffect(() => {
     const fetchPublications = async () => {
       try {
@@ -75,6 +81,52 @@ const Publication = () => {
 
     fetchPublications();
   }, []);
+
+  // Vérifier les paramètres d'URL pour ouvrir le chat
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const publicationId = params.get('publicationId');
+    
+    if (publicationId && publications.length > 0 && currentUser) {
+      const publication = publications.find((pub) => pub._id === publicationId);
+      if (publication) {
+        setSelectedPublication(publication);
+
+        // Vérifier si une conversation existe déjà
+        const checkConversation = async () => {
+          try {
+            const token = localStorage.getItem('token');
+            const chatResponse = await axios.post(
+              `${CHAT_API_URL}/create`,
+              {
+                user1: currentUser._id,
+                user2: publication.user._id,
+                publicationId: publication._id,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            // Si des messages existent, une conversation a déjà été initiée
+            const conversationExists = chatResponse.data.messages && chatResponse.data.messages.length > 0;
+            setHasConversation(conversationExists);
+
+            // Si une conversation existe, ouvrir le chat
+            if (conversationExists) {
+              setChatOpen(true);
+            }
+          } catch (err) {
+            console.error('Erreur lors de la vérification de la conversation:', err);
+          }
+        };
+
+        checkConversation();
+      }
+    }
+  }, [location, publications, currentUser]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -549,6 +601,13 @@ const Publication = () => {
           currentUser={currentUser}
           onClose={() => setChatOpen(false)}
         />
+      )}
+
+      {/* Message si aucune conversation n'existe */}
+      {selectedPublication && !hasConversation && !chatOpen && (
+        <div className="no-conversation-message">
+          Aucune conversation n'a été initiée pour cette publication. Cliquez sur "Negotiate" pour commencer.
+        </div>
       )}
     </div>
   );
