@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Messenger.scss";
+import { FaTrashAlt } from "react-icons/fa";
+import {  MdDeleteForever } from "react-icons/md";
 
 const Messenger = () => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState("");
+    const [unreadCounts, setUnreadCounts] = useState({}); // ✅ NEW: Unread messages count
 
     const token = localStorage.getItem("token");
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -36,11 +39,35 @@ const Messenger = () => {
 
         if (token) {
             fetchUsers();
+            fetchUnreadCounts(); // ✅ Fetch unread counts on load
         } else {
             navigate("/signin");
         }
     }, [navigate, token]);
 
+    // ✅ Fetch unread message counts
+    const fetchUnreadCounts = async () => {
+        if (!userId) return;
+
+        try {
+            const response = await fetch(`http://localhost:3000/messages/unread-counts/${userId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setUnreadCounts(data.unreadCounts);
+            } else {
+                console.error("Erreur lors du chargement des messages non lus");
+            }
+        } catch (err) {
+            console.error("Erreur réseau (unreadCounts):", err);
+        }
+    };
+    //fetchUnreadCounts();
+    
     // ✅ Fetch messages when a user is selected
     useEffect(() => {
         if (selectedUser) {
@@ -51,6 +78,8 @@ const Messenger = () => {
     // ✅ Start chat
     const startChat = (user) => {
         setSelectedUser(user);
+        // Optionally reset unread count immediately
+        setUnreadCounts((prev) => ({ ...prev, [user._id]: 0 }));
     };
 
     // ✅ Fetch messages between the logged-in user and the selected user
@@ -75,10 +104,11 @@ const Messenger = () => {
             const data = await response.json();
             console.log("Messages received:", data.messages);
             setMessages(data.messages);
+            fetchUnreadCounts(); // ✅ Refresh counts
 
             // ✅ Mark messages as read
             data.messages.forEach(async (msg) => {
-                if (!msg.read) { // If the message is not already marked as read
+                if (!msg.read) {
                     await markMessageAsRead(msg._id);
                 }
             });
@@ -86,6 +116,33 @@ const Messenger = () => {
             console.error("Error fetching messages:", error);
         }
     };
+
+        //delete message
+    const handleDeleteMessage = async (messageId) => {
+    if (!messageId || !userId) return;
+
+    const confirm = window.confirm("Voulez-vous vraiment supprimer ce message ?");
+    if (!confirm) return;
+
+    try {
+        const response = await fetch(`http://localhost:3000/messages/delete-message/${messageId}/${userId}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.ok) {
+            // Retire le message supprimé du state
+            setMessages((prevMessages) => prevMessages.filter((msg) => msg._id !== messageId));
+        } else {
+            const data = await response.json();
+            alert(data.message || "Erreur lors de la suppression.");
+        }
+    } catch (error) {
+        console.error("Erreur lors de la suppression du message :", error);
+    }
+};
 
     // ✅ Mark message as read
     const markMessageAsRead = async (messageId) => {
@@ -134,7 +191,8 @@ const Messenger = () => {
                 // Add new message to the state
                 setMessages((prevMessages) => [...prevMessages, data.savedMessage]);
                 fetchMessages(receiverId); // Refetch messages
-                setMessageText(""); // Clear input after sending
+                fetchUnreadCounts(); // ✅ Refresh counts after sending
+                setMessageText("");
             } else {
                 console.error("Backend error:", data.error);
             }
@@ -148,19 +206,33 @@ const Messenger = () => {
             <div className="sidebar">
                 <input type="text" placeholder="Search..." className="search-bar" />
                 <ul className="user-list">
-                    {users.map((user) => (
-                        <li key={user._id} onClick={() => startChat(user)} className={selectedUser?._id === user._id ? "active" : ""}>
-                            <div className="user-info">
-                                <img
-                                    src={user.image ? `http://localhost:3000${user.image}` : "/default-profile.png"}
-                                    alt="Profile"
-                                    className="profile-image"
-                                />
-                                <span className="user-name">{user.name} {user.surname}</span>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+    {users.map((user) => {
+        const count = unreadCounts[user._id] || 0;
+
+        return (
+            <li
+                key={user._id}
+                onClick={() => startChat(user)}
+                className={selectedUser?._id === user._id ? "active" : ""}
+            >
+                <div className="user-info">
+                    <img
+                        src={user.image ? `http://localhost:3000${user.image}` : "/default-profile.png"}
+                        alt="Profile"
+                        className="profile-image"
+                    />
+                    <span className="user-name">
+                        {user.name} {user.surname}
+                    </span>
+
+                    {/* Badge des messages non lus */}
+                    {count > 0 && <span className="unread-badge">{count}</span>}
+                </div>
+            </li>
+        );
+    })}
+</ul>
+
             </div>
 
             <div className="chat-area">
@@ -170,22 +242,30 @@ const Messenger = () => {
                             <h3>{selectedUser.name} {selectedUser.surname}<p> Skill : {selectedUser.Skill} </p>
                             </h3>
                         </div>
+                                   
                         
                         <div className="messages">
+                            
                             {messages.map((msg) => (
+                                
                                 <div key={msg._id} className={msg.sender._id === userId ? "message sent" : "message received"}>
+                                    
                                     <p>{msg.sender._id === userId ? "You" : msg.sender.name}</p>
                                     <h4>{msg.content}</h4>
-
-                                    {/* Message status (ticks) */}
+                                    
                                     {msg.sender._id === userId && (
                                         <div className="message-status">
                                             <span className={msg.read ? "read" : "unread"}>
-                                                {msg.read ? "✔ ✔" : "✔"} {/* Checkmark for sent messages */}
+                                                {msg.read ? "seen ✔✔" : "✔"}
+                                               
                                             </span>
-                                        </div>
+                                            <button className="delete-float-btn" onClick={() => handleDeleteMessage(msg._id)}>
+                                                 <MdDeleteForever size={22} />
+                                            </button>
+                                              </div>
                                     )}
                                 </div>
+                                
                             ))}
                         </div>
                         <div className="message-input">
