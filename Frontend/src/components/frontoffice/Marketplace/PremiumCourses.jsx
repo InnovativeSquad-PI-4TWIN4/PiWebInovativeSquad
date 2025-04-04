@@ -17,8 +17,10 @@ const PremiumCourses = () => {
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
   const userId = user?._id || user?.id;
+  const paidKey = `paidCourses_${userId}`;
 
   useEffect(() => {
+    // Charger les cours premium
     axios.get("http://localhost:3000/courses/getallcourses")
       .then(res => {
         const premium = res.data.filter(c => c.isPremium);
@@ -26,15 +28,17 @@ const PremiumCourses = () => {
       })
       .catch(err => console.error("Erreur chargement des cours premium :", err));
 
-    const paid = JSON.parse(localStorage.getItem('paidCourses')) || [];
+    // Récupérer les cours déjà payés pour cet utilisateur
+    const paid = JSON.parse(localStorage.getItem(paidKey)) || [];
     setPaidCourses(paid);
 
+    // Charger les favoris
     if (userId) {
       axios.get(`http://localhost:3000/favorites/${userId}`)
         .then(res => setFavorites(res.data.map(c => c._id)))
         .catch(err => console.error("Erreur chargement des favoris :", err));
     }
-  }, []);
+  }, [userId]);
 
   const toggleFavorite = async (courseId) => {
     const isFavorite = favorites.includes(courseId);
@@ -46,11 +50,9 @@ const PremiumCourses = () => {
         courseId
       });
 
-      if (isFavorite) {
-        setFavorites(prev => prev.filter(id => id !== courseId));
-      } else {
-        setFavorites(prev => [...prev, courseId]);
-      }
+      setFavorites(prev =>
+        isFavorite ? prev.filter(id => id !== courseId) : [...prev, courseId]
+      );
     } catch (error) {
       console.error("Erreur favoris :", error);
     }
@@ -81,7 +83,7 @@ const PremiumCourses = () => {
         window.open(res.data.meetLink, "_blank");
         alert(`✅ Accès autorisé. Nouveau solde : ${res.data.remainingBalance} DT`);
         const updated = [...new Set([...paidCourses, courseId])];
-        localStorage.setItem("paidCourses", JSON.stringify(updated));
+        localStorage.setItem(paidKey, JSON.stringify(updated));
         setPaidCourses(updated);
       }
     } catch (err) {
@@ -107,7 +109,7 @@ const PremiumCourses = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            {/* ❤️ Favoris */}
+            {/* ❤️ Bouton favoris */}
             <FaHeart
               className={`heart-icon ${favorites.includes(course._id) ? "active" : ""}`}
               onClick={() => toggleFavorite(course._id)}
@@ -118,7 +120,6 @@ const PremiumCourses = () => {
             <p>{course.category}</p>
             <p><strong>Instructeur :</strong> {course.instructor?.name || "Inconnu"}</p>
             <p>💰 Prix : {course.price} DT</p>
-            {course.isMeetEnded && <span className="badge"></span>}
 
             {paidCourses.includes(course._id) ? (
               course.isMeetEnded ? (
