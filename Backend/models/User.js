@@ -25,7 +25,10 @@ status: { type: String, enum: ['unapproved', 'pending', 'approved'], default: 'u
      solde: { type: Number, default: 0 },
 
      // ✅ Abonnements (packs achetés)
-     abonnement: [{ type: Schema.Types.ObjectId, ref: "Pack" }]
+     abonnement: [{ type: Schema.Types.ObjectId, ref: "Pack" }],
+     // ✅ Liste des cours favoris
+favorites: [{ type: Schema.Types.ObjectId, ref: "courses" }],
+
  }, { 
      toJSON: { virtuals: true }, 
      toObject: { virtuals: true }
