@@ -1,256 +1,201 @@
-button {
-    padding: 4px 25px;
-    font-size: 14px;
-    font-weight: bold;
-    border: none;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-  
-    &:hover {
-      transform: scale(1.05);
-    }
-    
-    &:active {
-      transform: scale(0.95);
-    }
-  }
-  
-  // Style pour le bouton "Accepter"
-  .accept-button {
-    background-color: #52d871;
-    color: white;
-  
-    &:hover {
-      background-color: #218838;
-    }
-  }
-  
-  // Style pour le bouton "Refuser"
-  .reject-button {
-    background-color: #cf7a82;
-    color: white;
-  
-    &:hover {
-      background-color: #c82333;
-    }
-  }
-  
+$primary: #6366f1;
+$secondary: #10b981;
+$danger: #ef4444;
+$warning: #f59e0b;
+$bg-light: #f9fafb;
+$dark: #1f2937;
+
 .admin-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  background-color: $bg-light;
+
+  .sidebar {
+    width: 250px;
+    background-color: $dark;
+    color: white;
+    padding: 2rem 1rem;
     display: flex;
-    height: 100vh;
-    background: #f9fafb;
+    flex-direction: column;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
 
-    .sidebar {
-        width: 250px;
-        background: #374151; // Assombrissement du fond
-        color: white;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-
-            li {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 10px;
-                cursor: pointer;
-                border-radius: 8px;
-                transition: background 0.3s ease-in-out;
-
-                &:hover,
-                &.active {
-                    background: #374151;
-                }
-            }
-        }
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: $primary;
+      margin-bottom: 2rem;
+      text-align: center;
     }
-    .pending-requests {
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        margin-top: 20px;
-    
-        h2 {
-            font-size: 1.5rem;
-            color: #374151;
-            margin-bottom: 15px;
-            text-align: center;
+
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.8rem 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+
+        &:hover,
+        &.active {
+          background-color: lighten($dark, 10%);
         }
-    
-        .request-list {
-            list-style: none;
-            padding: 0;
-            max-height: 300px;
-            overflow-y: auto;
-    
-            li {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                background: #f9fafb;
-                padding: 15px;
-                border-radius: 8px;
-                margin-bottom: 10px;
-                transition: background 0.3s ease-in-out;
-    
-                &:hover {
-                    background: #e5e7eb;
-                }
-    
-                .user-info {
-                    flex: 1;
-                    font-size: 1rem;
-                    font-weight: 500;
-                    color: #1f2937;
-                }
-    
-                .actions {
-                    display: flex;
-                    gap: 10px;
-    
-                    button {
-                        border: none;
-                        padding: 8px 12px;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        font-size: 0.9rem;
-                        font-weight: bold;
-                        transition: all 0.3s ease-in-out;
-    
-                        &.approve {
-                            background: #10b981;
-                            color: white;
-    
-                            &:hover {
-                                background: #059669;
-                            }
-                        }
-    
-                        &.reject {
-                            background: #ef4444;
-                            color: white;
-    
-                            &:hover {
-                                background: #dc2626;
-                            }
-                        }
-                    }
-                }
-            }
+
+        svg {
+          font-size: 1.2rem;
         }
-    
-        .empty-message {
-            text-align: center;
-            font-size: 1rem;
+      }
+    }
+  }
+
+  .main-content {
+    flex: 1;
+    padding: 2rem;
+
+    .dashboard-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+
+      .top-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+
+        .card {
+          background-color: white;
+          padding: 1.5rem;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+          position: relative;
+          transition: transform 0.2s ease;
+
+          &:hover {
+            transform: translateY(-5px);
+          }
+
+          h3 {
+            font-size: 0.95rem;
             color: #6b7280;
-            padding: 20px;
-            background: #f3f4f6;
-            border-radius: 8px;
-        }
-    }
-    
-    .main-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
+            margin-bottom: 0.5rem;
+          }
 
-        // ✅ Barre supérieure de même couleur que la sidebar
-        .top-bar {
-            background: #1f2937;  // Même couleur que la sidebar
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 1.2rem;
+          p {
+            font-size: 1.6rem;
             font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: #111827;
+            margin: 0;
+          }
+
+          .positive {
+            color: $secondary;
+            font-size: 0.875rem;
+            margin-top: 0.3rem;
+            display: block;
+          }
+
+          .negative {
+            color: $danger;
+            font-size: 0.875rem;
+            margin-top: 0.3rem;
+            display: block;
+          }
+
+          .icon {
+            position: absolute;
+            right: 1rem;
+            bottom: 1rem;
+            font-size: 1.5rem;
+            color: $warning;
+          }
+        }
+      }
+
+      .pending-requests {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+
+        h2 {
+          text-align: center;
+          font-size: 1.3rem;
+          color: $dark;
+          margin-bottom: 1.2rem;
         }
 
-        .dashboard-content {
-            padding: 20px;
-
-            .top-cards {
-                display: flex;
-                justify-content: space-between;
-                gap: 15px;
-
-                .card {
-                    background: white;
-                    padding: 20px;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                    flex: 1;
-                    position: relative;
-
-                    h3 {
-                        font-size: 1rem;
-                        color: #6b7280;
-                    }
-
-                    p {
-                        font-size: 1.5rem;
-                        font-weight: bold;
-                        margin: 5px 0;
-                    }
-
-                    .positive {
-                        color: #10b981;
-                    }
-
-                    .negative {
-                        color: #ef4444;
-                    }
-
-                    .icon {
-                        position: absolute;
-                        right: 15px;
-                        bottom: 15px;
-                        font-size: 24px;
-                    }
-
-                    &.red .icon {
-                        color: #ef4444;
-                    }
-
-                    &.green .icon {
-                        color: #10b981;
-                    }
-
-                    &.orange .icon {
-                        color: #f59e0b;
-                    }
-
-                    &.purple .icon {
-                        color: #6366f1;
-                    }
-                }
-            }
-
-            .charts-container {
-                display: flex;
-                margin-top: 20px;
-                gap: 15px;
-
-                .chart {
-                    flex: 1;
-                    background: white;
-                    padding: 20px;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                }
-            }
+        .empty-message {
+          text-align: center;
+          color: #9ca3af;
+          font-size: 1rem;
+          background: #f3f4f6;
+          padding: 1rem;
+          border-radius: 10px;
         }
+
+        .request-list {
+          list-style: none;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+
+          li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+
+            .user-info {
+              font-weight: 500;
+              color: #374151;
+            }
+
+            .actions {
+              display: flex;
+              gap: 0.5rem;
+
+              button {
+                padding: 0.5rem 1rem;
+                border: none;
+                border-radius: 8px;
+                font-weight: bold;
+                cursor: pointer;
+                font-size: 0.9rem;
+                transition: 0.3s;
+
+                &.approve {
+                  background-color: $secondary;
+                  color: white;
+
+                  &:hover {
+                    background-color: darken($secondary, 10%);
+                  }
+                }
+
+                &.reject {
+                  background-color: $danger;
+                  color: white;
+
+                  &:hover {
+                    background-color: darken($danger, 10%);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
+  }
 }
