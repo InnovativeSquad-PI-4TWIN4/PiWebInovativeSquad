@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
 :root {
-  --bg-dark: linear-gradient(90deg , #002f3e, #002d18dd);
+  --bg-dark: linear-gradient(90deg, #002f3e, #002d18dd);
   --bg-light: linear-gradient(90deg, #ffffff, #f0f0f0);
   --text-dark: white;
   --text-light: black;
@@ -51,7 +51,7 @@
   .navbar-links {
     list-style: none;
     display: flex;
-    align-items: center; // ✅ Correction ici
+    align-items: center;
     gap: 20px;
 
     li {
@@ -60,11 +60,130 @@
         text-decoration: none;
         font-size: 18px;
         letter-spacing: 1px;
-        padding: 5px 0; // ✅ Ajout pour équilibrer verticalement
+        padding: 5px 0;
         line-height: 1.4;
 
         &:hover {
           color: var(--hover-dark);
+        }
+      }
+
+      .notification-icon {
+        position: relative;
+        cursor: pointer;
+
+        .notification-bell {
+          font-size: 24px; // Augmentation de la taille de l'icône
+          color: var(--text-dark);
+          transition: transform 0.2s ease, color 0.3s ease;
+
+          &:hover {
+            color: var(--hover-dark);
+            transform: scale(1.1); // Effet de zoom au survol
+          }
+
+          &:active {
+            transform: scale(0.95); // Effet de clic
+          }
+        }
+
+        .notification-badge {
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          background-color: #e74c3c; // Rouge vif pour le badge
+          color: white;
+          font-size: 12px;
+          font-weight: bold;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid var(--bg-dark); // Bordure pour mieux intégrer avec le fond
+        }
+
+        // Animation de pulsation pour le badge
+        .pulse {
+          animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 8px rgba(231, 76, 60, 0);
+          }
+          100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+          }
+        }
+
+        .notification-dropdown {
+          position: absolute;
+          right: 0;
+          top: 40px; // Position sous l'icône
+          width: 300px;
+          background-color: var(--dropdown-bg-dark);
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 100;
+          opacity: 0;
+          transform: translateY(-10px);
+          animation: slideDown 0.3s ease forwards; // Animation d'ouverture
+
+          @keyframes slideDown {
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .notification-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            &.unread {
+              background-color: #f1f8ff; // Fond légèrement bleu pour les notifications non lues
+            }
+
+            &:hover {
+              background-color: #f5f5f5;
+            }
+
+            p {
+              margin: 0;
+              font-size: 14px;
+              color: var(--dropdown-text-dark);
+              line-height: 1.4;
+            }
+
+            span {
+              display: block;
+              font-size: 12px;
+              color: #888;
+              margin-top: 5px;
+            }
+          }
+
+          p {
+            padding: 12px 15px;
+            margin: 0;
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+          }
         }
       }
 
