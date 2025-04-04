@@ -7,6 +7,14 @@ const session = require("express-session");
 const passport = require("./config/passport");
 const cors = require("cors");
 
+// Charger les modèles avant de définir les routes
+require("./models/User");
+require("./models/publication");
+require("./models/Notification");
+require("./models/Chat");
+require("./models/Packs");
+require("./models/Courses"); // Changé de 'courses' à 'Courses'
+
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
@@ -17,7 +25,7 @@ const packRoutes = require("./routes/pack");
 const publicationRouter = require("./routes/publication");
 const messageRouter = require("./routes/message");
 const stripeRouter = require("./routes/stripe");
-const chatRoutes = require("./routes/chatRoutes"); // Nouvel import pour les routes de chat
+const chatRoutes = require("./routes/chatRoutes");
 const favoritesRoutes = require("./routes/favorites");
 
 require("dotenv").config();
@@ -35,8 +43,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // Servir les fichiers statiques
-app.use('/public', express.static(path.join(__dirname, 'public'))); // Ajout pour /public/images
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Garder pour /uploads
+app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(
   session({
@@ -77,7 +85,7 @@ app.use("/packs", packRoutes);
 app.use("/publication", publicationRouter);
 app.use("/messages", messageRouter);
 app.use("/api/stripe", stripeRouter);
-app.use("/chat", chatRoutes); // Nouvelle route pour les fonctionnalités de chat
+app.use("/chat", chatRoutes);
 app.use("/favorites", favoritesRoutes);
 app.use((req, res, next) => {
   res.status(404).json({ error: "❌ La page demandée n'a pas été trouvée !" });
