@@ -249,22 +249,24 @@ const Messenger = () => {
                             {messages.map((msg) => (
                                 
                                 <div key={msg._id} className={msg.sender._id === userId ? "message sent" : "message received"}>
-                                    
-                                    <p>{msg.sender._id === userId ? "You" : msg.sender.name}</p>
-                                    <h4>{msg.content}</h4>
-                                    
-                                    {msg.sender._id === userId && (
-                                        <div className="message-status">
-                                            <span className={msg.read ? "read" : "unread"}>
-                                                {msg.read ? "seen ✔✔" : "✔"}
-                                               
-                                            </span>
-                                            <button className="delete-float-btn" onClick={() => handleDeleteMessage(msg._id)}>
-                                                 <MdDeleteForever size={22} />
-                                            </button>
-                                              </div>
-                                    )}
-                                </div>
+    <div className="message-row">
+        {msg.sender._id === userId && (
+            <button className="delete-float-btn" onClick={() => handleDeleteMessage(msg._id)}>
+                <MdDeleteForever size={22} />
+            </button>
+        )}
+       <div className={`message-content ${msg.sender._id === userId ? "sent" : "received"}`}>
+            <p>{msg.sender._id === userId ? "You" : msg.sender.name}</p>
+            <h4>{msg.content}</h4>
+            {msg.sender._id === userId && (
+                <span className={msg.read ? "read" : "unread"}>
+                    {msg.read ? "seen ✔✔" : "✔"}
+                </span>
+            )}
+        </div>
+    </div>
+</div>
+
                                 
                             ))}
                         </div>
