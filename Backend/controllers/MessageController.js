@@ -116,3 +116,56 @@ exports.markMessageAsRead = async (req, res) => {
         res.status(500).json({ error: 'Error updating message' });
     }
 };
+// controllers/messageController.js
+exports.getUnreadCounts = async (req, res) => {
+    const userId = req.params.userId;
+
+    try {
+        // Récupérer tous les messages non lus où l'utilisateur est le RECEVEUR
+        const unreadMessages = await Message.find({
+            receiver: userId,
+            read: false
+        });
+
+        // Groupe par conversation (ou par expéditeur si tu préfères)
+        const unreadCounts = {};
+
+        unreadMessages.forEach(msg => {
+            const conversationId = msg.conversationId;
+
+            if (!unreadCounts[conversationId]) {
+                unreadCounts[conversationId] = 1;
+            } else {
+                unreadCounts[conversationId]++;
+            }
+        });
+
+        res.status(200).json({ unreadCounts });
+    } catch (error) {
+        console.error("Erreur lors du comptage des messages non lus:", error);
+        res.status(500).json({ message: "Erreur serveur" });
+    }
+};
+exports.deleteMessageBySender = async (req, res) => {
+    const { messageId, userId } = req.params;
+
+    try {
+        const message = await Message.findById(messageId);
+
+        if (!message) {
+            return res.status(404).json({ message: "Message non trouvé." });
+        }
+
+        // Vérifie que l'utilisateur est bien l'expéditeur
+        if (message.sender.toString() !== userId) {
+            return res.status(403).json({ message: "Vous n'êtes pas l'expéditeur de ce message." });
+        }
+
+        await Message.findByIdAndDelete(messageId);
+
+        res.status(200).json({ message: "Message supprimé avec succès." });
+    } catch (error) {
+        console.error("Erreur lors de la suppression du message :", error);
+        res.status(500).json({ message: "Erreur serveur." });
+    }
+};
