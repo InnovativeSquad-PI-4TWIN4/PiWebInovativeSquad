@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Publication.scss';
 import { FaPaperPlane } from 'react-icons/fa';
+import ChatComponent from '../chatcomponent/ChatComponent'; // Import corrigé
 
 const Publication = () => {
   const [publications, setPublications] = useState([]);
@@ -16,9 +17,12 @@ const Publication = () => {
   const [newReplies, setNewReplies] = useState({});
   const [replyingTo, setReplyingTo] = useState({});
   const [activeReplyComment, setActiveReplyComment] = useState(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [selectedPublication, setSelectedPublication] = useState(null);
 
   const API_URL = 'http://localhost:3000/publication';
   const USER_API_URL = 'http://localhost:3000/users/profile';
+  const CHAT_API_URL = 'http://localhost:3000/chat';
   const BASE_URL = 'http://localhost:3000';
 
   const commentSuggestions = [
@@ -250,6 +254,15 @@ const Publication = () => {
     setActiveReplyComment(comment._id);
   };
 
+  const handleNegotiate = (publication) => {
+    if (!currentUser) {
+      alert('Utilisateur non connecté');
+      return;
+    }
+    setSelectedPublication(publication);
+    setChatOpen(true);
+  };
+
   const getImageUrl = (image) => {
     if (!image) {
       return 'https://via.placeholder.com/40';
@@ -274,7 +287,6 @@ const Publication = () => {
 
   return (
     <div className="publications-container">
-      {/* Zone de création de publication */}
       <div className="create-publication">
         <form onSubmit={handleSubmit}>
           <div className="create-publication-header">
@@ -287,15 +299,21 @@ const Publication = () => {
                 e.target.src = 'https://via.placeholder.com/40';
               }}
             />
-            <select
-              name="type"
-              value={newPublication.type}
-              onChange={handleInputChange}
-              className="publication-type-select"
-            >
-              <option value="offer">Offre</option>
-              <option value="request">Demande</option>
-            </select>
+            <div className="publication-type-switch">
+              <div
+                className={`switch-option ${newPublication.type === 'offer' ? 'active' : ''}`}
+                onClick={() => setNewPublication((prev) => ({ ...prev, type: 'offer' }))}
+              >
+                Offre
+              </div>
+              <div
+                className={`switch-option ${newPublication.type === 'request' ? 'active' : ''}`}
+                onClick={() => setNewPublication((prev) => ({ ...prev, type: 'request' }))}
+              >
+                Demande
+              </div>
+              <div className={`switch-indicator ${newPublication.type}`}></div>
+            </div>
           </div>
           <textarea
             name="description"
@@ -312,7 +330,6 @@ const Publication = () => {
         </form>
       </div>
 
-      {/* Liste des publications */}
       {publications.map((pub) => (
         <div key={pub._id} className="publication-card">
           <div className="publication-header">
@@ -359,12 +376,14 @@ const Publication = () => {
             <button className="action-btn comment-btn">
               <span className="icon">💬</span> Commenter
             </button>
-            <button className="action-btn negotiate-btn">
+            <button
+              className="action-btn negotiate-btn"
+              onClick={() => handleNegotiate(pub)}
+            >
               <span className="icon">🤝</span> Negotiate
             </button>
           </div>
 
-          {/* Section des commentaires */}
           <div className="comments-section">
             {pub.comments && pub.comments.length > 0 && (
               <div className="comments-header">
@@ -433,7 +452,6 @@ const Publication = () => {
                       </div>
                     )}
 
-                    {/* Afficher le champ de réponse uniquement si ce commentaire est actif */}
                     {activeReplyComment === comment._id && (
                       <div className="add-reply">
                         <img
@@ -524,6 +542,14 @@ const Publication = () => {
           </div>
         </div>
       ))}
+
+      {chatOpen && selectedPublication && (
+        <ChatComponent
+          publication={selectedPublication}
+          currentUser={currentUser}
+          onClose={() => setChatOpen(false)}
+        />
+      )}
     </div>
   );
 };
