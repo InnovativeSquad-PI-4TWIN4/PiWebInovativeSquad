@@ -14,6 +14,7 @@ const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
 const coursesRouter = require("./routes/courses");
+const notesRouter = require("./routes/notes");
 
 // Configuration des variables d'environnement
 require("dotenv").config();
@@ -66,6 +67,7 @@ app.use("/", authRouter);
 app.use("/index", indexRouter);
 app.use("/users", usersRouter);
 app.use("/courses", coursesRouter);
+app.use("/api/notes", notesRouter);  
 
 // ✅ Gestion des erreurs 404 (À PLACER APRÈS LES ROUTES)
 app.use((req, res, next) => {
