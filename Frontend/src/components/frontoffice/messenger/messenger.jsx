@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Messenger.scss";
 import { FaTrashAlt } from "react-icons/fa";
 import {  MdDeleteForever } from "react-icons/md";
-
+import { formatDistanceToNow } from 'date-fns';
 const Messenger = () => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -249,7 +249,11 @@ const Messenger = () => {
                             {messages.map((msg) => (
                                 
                                 <div key={msg._id} className={msg.sender._id === userId ? "message sent" : "message received"}>
+   <small className="timestamp">
+        {formatDistanceToNow(new Date(msg.timestamp), { addSuffix: true })}
+      </small>
     <div className="message-row">
+    
         {msg.sender._id === userId && (
             <button className="delete-float-btn" onClick={() => handleDeleteMessage(msg._id)}>
                 <MdDeleteForever size={22} />
