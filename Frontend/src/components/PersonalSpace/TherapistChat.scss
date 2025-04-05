@@ -1,0 +1,484 @@
+@use "sass:color";
+
+// Variables
+$primary-color: #6e56cf;
+$secondary-color: #4cc9f0;
+$background-dark: #111827;
+$background-light: #1e293b;
+$glass-bg: rgba(30, 41, 59, 0.4);
+$highlight-color: #fb7185;
+$success-color: #10b981;
+$text-color: #f9fafb;
+$text-secondary: #94a3b8;
+$transition-speed: 0.3s;
+
+// Mood colors
+$mood-stressed: #f87171;
+$mood-happy: #34d399;
+$mood-sad: #60a5fa;
+$mood-calm: #a78bfa;
+$mood-neutral: #9ca3af;
+
+.therapist-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  border: 2px solid rgba($mood-neutral, 0.3);
+  transition: border-color 0.5s ease;
+
+  &.mood-stressed {
+    border-color: rgba($mood-stressed, 0.3);
+  }
+
+  &.mood-happy {
+    border-color: rgba($mood-happy, 0.3);
+  }
+
+  &.mood-sad {
+    border-color: rgba($mood-sad, 0.3);
+  }
+
+  &.mood-calm {
+    border-color: rgba($mood-calm, 0.3);
+  }
+}
+
+.therapist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: $glass-bg;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  
+  .therapist-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      color: $text-color;
+    }
+  }
+  
+  .therapist-controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+}
+
+.therapist-mood {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba($mood-neutral, 0.2);
+  
+  .mood-icon {
+    font-size: 1.2rem;
+    
+    &.stressed {
+      color: $mood-stressed;
+    }
+    
+    &.happy {
+      color: $mood-happy;
+    }
+    
+    &.sad {
+      color: $mood-sad;
+    }
+    
+    &.calm {
+      color: $mood-calm;
+    }
+    
+    &.neutral {
+      color: $mood-neutral;
+    }
+  }
+}
+
+.feature-btn {
+  background: transparent;
+  border: none;
+  color: $text-color;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all $transition-speed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  &.active {
+    color: $secondary-color;
+    background: rgba($secondary-color, 0.1);
+  }
+}
+
+.insights-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba($background-dark, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 1.5rem;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  
+  h3 {
+    color: $text-color;
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+  }
+  
+  .mood-chart {
+    display: flex;
+    height: 200px;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    
+    .chart-bar {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      border-radius: 8px 8px 0 0;
+      transition: height 0.5s ease;
+      
+      span {
+        margin-top: 0.5rem;
+        color: $text-color;
+        font-size: 0.8rem;
+      }
+      
+      &.stressed {
+        background: rgba($mood-stressed, 0.7);
+      }
+      
+      &.happy {
+        background: rgba($mood-happy, 0.7);
+      }
+      
+      &.sad {
+        background: rgba($mood-sad, 0.7);
+      }
+      
+      &.calm {
+        background: rgba($mood-calm, 0.7);
+      }
+    }
+  }
+  
+  p {
+    color: $text-secondary;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+  
+  .close-insights {
+    background: rgba($primary-color, 0.2);
+    color: $primary-color;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all $transition-speed;
+    margin-top: auto;
+    
+    &:hover {
+      background: rgba($primary-color, 0.3);
+    }
+  }
+}
+
+.therapist-chat-body {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  scroll-behavior: smooth;
+  
+  // Improved scrolling behavior
+  overscroll-behavior-y: contain;
+  scroll-snap-type: y proximity;
+  
+  & > *:last-child {
+    scroll-snap-align: end;
+  }
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba($primary-color, 0.5);
+    border-radius: 3px;
+  }
+}
+
+.message {
+  max-width: 80%;
+  padding: 1rem 1.25rem;
+  border-radius: 18px;
+  font-size: 1rem;
+  line-height: 1.5;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+  
+  .message-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    
+    .message-mood {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .message-time {
+      font-size: 0.75rem;
+      color: $text-secondary;
+    }
+  }
+  
+  &.user {
+    align-self: flex-end;
+    background: rgba($primary-color, 0.2);
+    color: $text-color;
+    border-top-right-radius: 4px;
+  }
+  
+  &.assistant {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.1);
+    color: $text-color;
+    border-top-left-radius: 4px;
+  }
+  
+  &.loading {
+    background: rgba(255, 255, 255, 0.05);
+    color: $text-secondary;
+    padding: 1rem;
+    
+    .typing-indicator {
+      display: flex;
+      gap: 0.5rem;
+      
+      span {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: $text-secondary;
+        border-radius: 50%;
+        animation: bounce 1.4s infinite ease-in-out;
+        
+        &:nth-child(1) {
+          animation-delay: 0s;
+        }
+        
+        &:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+        
+        &:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+      }
+    }
+  }
+}
+
+.quick-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 1.5rem 1rem;
+  flex-wrap: wrap;
+  
+  .quick-action {
+    flex: 1;
+    min-width: calc(50% - 0.5rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: none;
+    background: rgba(255, 255, 255, 0.05);
+    color: $text-color;
+    cursor: pointer;
+    transition: all $transition-speed;
+    font-size: 0.9rem;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    &.stressed {
+      color: $mood-stressed;
+      background: rgba($mood-stressed, 0.1);
+      
+      &:hover {
+        background: rgba($mood-stressed, 0.2);
+      }
+    }
+    
+    &.happy {
+      color: $mood-happy;
+      background: rgba($mood-happy, 0.1);
+      
+      &:hover {
+        background: rgba($mood-happy, 0.2);
+      }
+    }
+    
+    &.sad {
+      color: $mood-sad;
+      background: rgba($mood-sad, 0.1);
+      
+      &:hover {
+        background: rgba($mood-sad, 0.2);
+      }
+    }
+    
+    &.calm {
+      color: $mood-calm;
+      background: rgba($mood-calm, 0.1);
+      
+      &:hover {
+        background: rgba($mood-calm, 0.2);
+      }
+    }
+  }
+}
+
+.therapist-input {
+  padding: 1rem 1.5rem;
+  background: $glass-bg;
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  
+  .input-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    
+    input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: $text-color;
+      font-size: 1rem;
+      
+      &::placeholder {
+        color: rgba($text-secondary, 0.7);
+      }
+      
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+        box-shadow: 0 0 0 2px rgba($primary-color, 0.25);
+      }
+    }
+    
+    button {
+      background: transparent;
+      border: none;
+      color: $text-color;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all $transition-speed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      &.send-btn {
+        color: $primary-color;
+        
+        &:hover {
+          color: $text-color;
+          background: $primary-color;
+        }
+      }
+    }
+  }
+}
+
+.therapist-footer {
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: $text-secondary;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  
+  p {
+    margin: 0.25rem 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+}
