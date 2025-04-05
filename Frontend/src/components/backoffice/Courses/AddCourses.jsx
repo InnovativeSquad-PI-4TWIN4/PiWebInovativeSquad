@@ -73,7 +73,7 @@ const AddCourses = ({ onClose }) => {
       const result = await response.json();
 
       if (response.ok) {
-        alert("✅ Cours ajouté avec succès !");
+        alert("✅ Cour ajouté avec succès !");
         onClose();
       } else {
         alert("❌ Erreur : " + (result.message || "Erreur inconnue"));
