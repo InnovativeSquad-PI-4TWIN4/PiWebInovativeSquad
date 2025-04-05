@@ -104,5 +104,7 @@ app.use((err, req, res, next) => {
     ...(req.app.get("env") === "development" && { stack: err.stack }),
   });
 });
+app.set("io", null); // 👈 ajoute ça en bas de app.js
+
 
 module.exports = app;
