@@ -22,7 +22,8 @@ $mood-neutral: #9ca3af;
 .therapist-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100vh; // Changed to viewport height to prevent growing
+  max-height: 100vh; // Ensure it doesn't exceed viewport
   background: rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   overflow: hidden;
@@ -56,6 +57,7 @@ $mood-neutral: #9ca3af;
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 10;
+  flex-shrink: 0; // Prevent header from shrinking
   
   .therapist-title {
     display: flex;
@@ -222,16 +224,11 @@ $mood-neutral: #9ca3af;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  scroll-behavior: smooth;
+  min-height: 0; // Fix for flexbox scrolling issue
   
   // Improved scrolling behavior
   overscroll-behavior-y: contain;
-  scroll-snap-type: y proximity;
   
-  & > *:last-child {
-    scroll-snap-align: end;
-  }
-
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -254,6 +251,7 @@ $mood-neutral: #9ca3af;
   line-height: 1.5;
   position: relative;
   animation: fadeIn 0.3s ease;
+  flex-shrink: 0; // Prevent messages from shrinking
   
   .message-header {
     display: flex;
@@ -280,7 +278,7 @@ $mood-neutral: #9ca3af;
     border-top-right-radius: 4px;
   }
   
-  &.assistant {
+  &.model {
     align-self: flex-start;
     background: rgba(255, 255, 255, 0.1);
     color: $text-color;
@@ -325,6 +323,7 @@ $mood-neutral: #9ca3af;
   gap: 0.5rem;
   padding: 0 1.5rem 1rem;
   flex-wrap: wrap;
+  flex-shrink: 0; // Prevent quick actions from shrinking
   
   .quick-action {
     flex: 1;
@@ -389,6 +388,7 @@ $mood-neutral: #9ca3af;
   background: $glass-bg;
   backdrop-filter: blur(10px);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0; // Prevent input from shrinking
   
   .input-container {
     display: flex;
@@ -457,6 +457,7 @@ $mood-neutral: #9ca3af;
   color: $text-secondary;
   background: rgba(0, 0, 0, 0.2);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0; // Prevent footer from shrinking
   
   p {
     margin: 0.25rem 0;
