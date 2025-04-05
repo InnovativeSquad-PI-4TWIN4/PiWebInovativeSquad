@@ -1,0 +1,531 @@
+@use "sass:color";
+
+// Variables
+$primary-color: #6e56cf;
+$secondary-color: #4cc9f0;
+$background-dark: #111827;
+$background-light: #1e293b;
+$glass-bg: rgba(30, 41, 59, 0.4);
+$highlight-color: #fb7185;
+$success-color: #10b981;
+$text-color: #f9fafb;
+$text-secondary: #94a3b8;
+$transition-speed: 0.5s;
+
+.notes-container {
+  display: flex;
+  height: 600px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.notes-sidebar {
+  width: 300px;
+  background: rgba(17, 24, 39, 0.6);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  
+  @media (max-width: 992px) {
+    width: 250px;
+  }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    display: none;
+  }
+}
+
+.notes-actions {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.new-note-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: $primary-color;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition-speed;
+  margin-bottom: 1rem;
+  
+  &:hover {
+    background: color.scale($primary-color, $lightness: -10%);
+    transform: translateY(-2px);
+  }
+}
+
+.search-container {
+  position: relative;
+  
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-secondary;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 0.75rem 0.75rem 0.75rem 2rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: $text-color;
+    font-size: 0.9rem;
+    
+    &::placeholder {
+      color: rgba($text-secondary, 0.7);
+    }
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.25);
+    }
+  }
+}
+
+.category-filter {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    color: $text-secondary;
+    font-weight: 500;
+    font-size: 0.9rem;
+    
+    .category-icon {
+      font-size: 0.8rem;
+    }
+  }
+  
+  .category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .category-item {
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all $transition-speed;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    &.active {
+      background: rgba($primary-color, 0.2);
+      color: $primary-color;
+      font-weight: 500;
+    }
+  }
+}
+
+.notes-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba($primary-color, 0.5);
+    border-radius: 3px;
+  }
+}
+
+.note-item {
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all $transition-speed;
+  border: 1px solid transparent;
+  
+  &:hover {
+    transform: translateY(-2px);
+    background: rgba(0, 0, 0, 0.3);
+  }
+  
+  &.active {
+    border-color: $primary-color;
+    background: rgba($primary-color, 0.1);
+  }
+  
+  .note-item-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: $text-color;
+  }
+  
+  .note-item-preview {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: $text-secondary;
+    opacity: 0.8;
+  }
+  
+  .note-item-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: $text-secondary;
+    opacity: 0.7;
+  }
+  
+  .note-item-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+  }
+}
+
+.no-notes {
+  padding: 2rem;
+  text-align: center;
+  color: $text-secondary;
+  font-style: italic;
+}
+
+.note-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+.no-note-selected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: $text-secondary;
+  text-align: center;
+  
+  .no-note-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.6;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.local-notes-warning {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(251, 113, 133, 0.1);
+  border-radius: 6px;
+  color: #fb7185;
+  font-size: 0.9rem;
+}
+
+.note-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  
+  .note-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    
+    .note-title-input {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      color: $text-color;
+      font-size: 1.2rem;
+      font-weight: 500;
+      
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+        box-shadow: 0 0 0 2px rgba($primary-color, 0.25);
+      }
+    }
+    
+    .note-title {
+      margin: 0;
+      font-size: 1.5rem;
+      color: $text-color;
+      word-break: break-word;
+    }
+    
+    .note-metadata {
+      font-size: 0.8rem;
+      color: $text-secondary;
+    }
+  }
+  
+  .note-actions {
+    display: flex;
+    gap: 0.75rem;
+    
+    .category-select {
+      flex: 1;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      color: $text-color;
+      
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+      }
+    }
+    
+    .save-note-btn,
+    .delete-note-btn,
+    .edit-note-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all $transition-speed;
+    }
+    
+    .save-note-btn {
+      background: $primary-color;
+      color: white;
+      
+      &:hover:not(:disabled) {
+        background: color.scale($primary-color, $lightness: -10%);
+      }
+    }
+    
+    .delete-note-btn {
+      background: rgba($highlight-color, 0.2);
+      color: $highlight-color;
+      
+      &:hover {
+        background: rgba($highlight-color, 0.3);
+      }
+    }
+    
+    .edit-note-btn {
+      background: rgba($secondary-color, 0.2);
+      color: $secondary-color;
+      
+      &:hover {
+        background: rgba($secondary-color, 0.3);
+      }
+    }
+  }
+}
+
+.tags-container {
+  margin-bottom: 1.5rem;
+  
+  .tags-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    color: $text-secondary;
+    font-size: 0.9rem;
+    
+    .tags-icon {
+      font-size: 0.8rem;
+    }
+  }
+  
+  .tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    
+    .note-tag {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      background: rgba($primary-color, 0.2);
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: $primary-color;
+      
+      .remove-tag {
+        cursor: pointer;
+        &:hover {
+          color: $highlight-color;
+        }
+      }
+    }
+    
+    .tag-input-container {
+      input {
+        padding: 0.25rem 0.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        color: $text-color;
+        
+        &:focus {
+          outline: none;
+          border-color: $primary-color;
+        }
+      }
+    }
+    
+    .add-tag-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      background: transparent;
+      border: 1px dashed rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      color: $text-secondary;
+      font-size: 0.8rem;
+      cursor: pointer;
+      
+      &:hover {
+        border-color: $primary-color;
+        color: $primary-color;
+      }
+    }
+  }
+}
+
+.note-content-container {
+  flex: 1;
+  overflow-y: auto;
+  
+  .note-content {
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: $text-color;
+    line-height: 1.6;
+    resize: none;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+    }
+  }
+  
+  .note-content-view {
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: $text-color;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-y: auto;
+    
+    p {
+      margin: 0 0 1rem 0;
+    }
+  }
+}
+
+.notes-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: $text-secondary;
+  
+  .spinning-icon {
+    animation: spin 1s linear infinite;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.notes-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+  text-align: center;
+  color: $highlight-color;
+  
+  .error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    margin-bottom: 0.5rem;
+    color: $text-color;
+  }
+  
+  .error-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    
+    button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba($highlight-color, 0.1);
+      border: none;
+      border-radius: 4px;
+      color: $highlight-color;
+      cursor: pointer;
+      
+      &:hover {
+        background: rgba($highlight-color, 0.2);
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
