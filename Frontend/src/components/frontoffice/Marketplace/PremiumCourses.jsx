@@ -3,8 +3,12 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { FaHeart } from 'react-icons/fa';
+import { io } from 'socket.io-client';
+import { toast } from 'react-toastify';
 import './PremiumCourses.scss';
 import RechargeModal from '../RechargeModal/RechargeModal';
+
+const socket = io("http://localhost:3000");
 
 const PremiumCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -12,47 +16,75 @@ const PremiumCourses = () => {
   const [favorites, setFavorites] = useState([]);
   const [showRechargeModal, setShowRechargeModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
-  const navigate = useNavigate();
+  const [highlightedCourseId, setHighlightedCourseId] = useState(null);
 
+  const navigate = useNavigate();
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
   const userId = user?._id || user?.id;
   const paidKey = `paidCourses_${userId}`;
 
   useEffect(() => {
-    // Charger les cours premium
+    const lastHighlightedId = localStorage.getItem("highlightedCourseId");
+    if (lastHighlightedId) {
+      setHighlightedCourseId(lastHighlightedId);
+      setTimeout(() => localStorage.removeItem("highlightedCourseId"), 8000);
+    }
+
+    loadCourses();
+    const paid = JSON.parse(localStorage.getItem(paidKey)) || [];
+    setPaidCourses(paid);
+
+    if (userId) {
+      axios.get(`http://localhost:3000/favorites/${userId}`)
+        .then(res => setFavorites(res.data.map(c => c._id)))
+        .catch(err => console.error("Erreur chargement des favoris :", err));
+    }
+
+    socket.on("newPremiumCourse", (newCourse) => {
+      const audio = new Audio("/notif.mp3");
+      audio.play();
+
+      toast.info(
+        <div
+          onClick={() => {
+            localStorage.setItem("highlightedCourseId", newCourse._id || newCourse.id);
+            navigate("/marketplace/premium");
+          }}
+          style={{ cursor: 'pointer' }}
+        >
+          🆕 Nouveau cours premium : <strong>{newCourse.title}</strong><br />
+          👉 Cliquez ici pour le voir
+        </div>,
+        { autoClose: 7000 }
+      );
+
+      const newId = newCourse._id || newCourse.id;
+      setHighlightedCourseId(newId);
+      setTimeout(() => loadCourses(), 700);
+    });
+
+    return () => {
+      socket.off("newPremiumCourse");
+    };
+  }, [userId]);
+
+  const loadCourses = () => {
     axios.get("http://localhost:3000/courses/getallcourses")
       .then(res => {
         const premium = res.data.filter(c => c.isPremium);
         setCourses(premium);
       })
       .catch(err => console.error("Erreur chargement des cours premium :", err));
-
-    // Récupérer les cours déjà payés pour cet utilisateur
-    const paid = JSON.parse(localStorage.getItem(paidKey)) || [];
-    setPaidCourses(paid);
-
-    // Charger les favoris
-    if (userId) {
-      axios.get(`http://localhost:3000/favorites/${userId}`)
-        .then(res => setFavorites(res.data.map(c => c._id)))
-        .catch(err => console.error("Erreur chargement des favoris :", err));
-    }
-  }, [userId]);
+  };
 
   const toggleFavorite = async (courseId) => {
     const isFavorite = favorites.includes(courseId);
     const url = isFavorite ? "remove" : "add";
 
     try {
-      await axios.post(`http://localhost:3000/favorites/${url}`, {
-        userId,
-        courseId
-      });
-
-      setFavorites(prev =>
-        isFavorite ? prev.filter(id => id !== courseId) : [...prev, courseId]
-      );
+      await axios.post(`http://localhost:3000/favorites/${url}`, { userId, courseId });
+      setFavorites(prev => isFavorite ? prev.filter(id => id !== courseId) : [...prev, courseId]);
     } catch (error) {
       console.error("Erreur favoris :", error);
     }
@@ -105,11 +137,10 @@ const PremiumCourses = () => {
         {courses.map(course => (
           <motion.div
             key={course._id}
-            className="course-card premium"
+            className={`course-card premium ${highlightedCourseId === course._id ? "highlighted" : ""}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            {/* ❤️ Bouton favoris */}
             <FaHeart
               className={`heart-icon ${favorites.includes(course._id) ? "active" : ""}`}
               onClick={() => toggleFavorite(course._id)}
@@ -124,12 +155,7 @@ const PremiumCourses = () => {
             {paidCourses.includes(course._id) ? (
               course.isMeetEnded ? (
                 course.videoReplayUrl ? (
-                  <a
-                    href={course.videoReplayUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="replay-btn"
-                  >
+                  <a href={course.videoReplayUrl} target="_blank" rel="noopener noreferrer" className="replay-btn">
                     ▶️ Voir l'enregistrement
                   </a>
                 ) : (

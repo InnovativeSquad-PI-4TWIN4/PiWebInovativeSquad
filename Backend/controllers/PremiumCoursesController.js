@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 
 // ✅ Ajouter un cours premium
+// ✅ Ajouter un cours premium avec notification en temps réel
 exports.addPremiumCourse = async (req, res) => {
   try {
     console.log("📦 Données reçues :", req.body);
@@ -19,7 +20,7 @@ exports.addPremiumCourse = async (req, res) => {
     const newCourse = new Course({
       title,
       category,
-      instructor: new ObjectId(instructor), // ✅ conversion ici
+      instructor: new ObjectId(instructor),
       meetLink,
       price,
       isPremium: true,
@@ -29,12 +30,26 @@ exports.addPremiumCourse = async (req, res) => {
 
     await newCourse.save();
 
+    // ✅ Notification socket.io (temps réel)
+    const io = req.app.get("io"); // récupéré depuis app.js
+    if (io) {
+      io.emit("newPremiumCourse", {
+        id: newCourse._id,
+        title: newCourse.title,
+        category: newCourse.category,
+        price: newCourse.price,
+        instructor: newCourse.instructor,
+        createdAt: newCourse.createdAt, // si tu veux l’utiliser côté client
+      });
+    }
+
     res.status(201).json({ message: "✅ Cours premium ajouté avec succès", course: newCourse });
   } catch (error) {
     console.error("❌ Erreur dans addPremiumCourse:", error);
     res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 };
+
 exports.updatePremiumCourse = async (req, res) => {
   try {
     const { title, category, instructor, videoReplayUrl } = req.body;
