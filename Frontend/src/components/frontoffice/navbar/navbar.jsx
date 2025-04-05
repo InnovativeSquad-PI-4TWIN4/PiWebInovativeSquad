@@ -161,6 +161,11 @@ const Navbar = ({ user, onLogout }) => {
               </Link>
             </li>
             <li>
+                <Link to="/Personal" className="overview">
+                 Personal Space
+                </Link>    
+            </li>
+            <li>
               <Link to="/contact">Contact</Link>
             </li>
 
