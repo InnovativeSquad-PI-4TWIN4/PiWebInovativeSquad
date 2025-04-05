@@ -154,6 +154,7 @@
 </h2>
                     <p>Email : {user.email}</p>
                     <p>Skill : {user.Skill}</p>
+                    <p>name : {user.name}</p>
                     
                     <p className="wallet-section" onClick={() => setIsWalletOpen(true)}>
                     Click to see your points 
@@ -209,6 +210,8 @@
                             <p>Aucun cours souhaité ajouté.</p>
                         )}
                     </ul>
+                    
+                    
 
                     <div className="additional-list">
                         <h4>Liste de projets ou activités :</h4>
