@@ -20,6 +20,7 @@ const usersRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
 const premiumRouter = require("./routes/premiumCourses");
 const coursesRouter = require("./routes/courses");
+const notesRouter = require("./routes/notes");
 const avisRouter = require("./routes/Avis");
 const packRoutes = require("./routes/pack");
 const publicationRouter = require("./routes/publication");
@@ -79,6 +80,7 @@ app.use("/auth", authRouter);
 app.use("/index", indexRouter);
 app.use("/users", usersRouter);
 app.use("/courses", coursesRouter);
+app.use("/api/notes", notesRouter);
 app.use("/premium", premiumRouter);
 app.use("/avis", avisRouter);
 app.use("/packs", packRoutes);
@@ -87,6 +89,8 @@ app.use("/messages", messageRouter);
 app.use("/api/stripe", stripeRouter);
 app.use("/chat", chatRoutes);
 app.use("/favorites", favoritesRoutes);
+
+// ✅ Gestion des erreurs 404 (À PLACER APRÈS LES ROUTES)
 app.use((req, res, next) => {
   res.status(404).json({ error: "❌ La page demandée n'a pas été trouvée !" });
 });
