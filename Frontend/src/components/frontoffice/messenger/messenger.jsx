@@ -4,7 +4,6 @@ import "./Messenger.scss";
 import { FaTrashAlt } from "react-icons/fa";
 import {  MdDeleteForever } from "react-icons/md";
 import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale'; // Pour affichage en français
 const Messenger = () => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -251,7 +250,7 @@ const Messenger = () => {
                                 
                                 <div key={msg._id} className={msg.sender._id === userId ? "message sent" : "message received"}>
    <small className="timestamp">
-        {formatDistanceToNow(new Date(msg.timestamp), { addSuffix: true, locale: fr })}
+        {formatDistanceToNow(new Date(msg.timestamp), { addSuffix: true })}
       </small>
     <div className="message-row">
     
