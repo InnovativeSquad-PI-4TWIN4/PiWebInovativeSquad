@@ -34,6 +34,7 @@ import Success from './components/frontoffice/RechargeModal/Success';
 import { ThemeProvider } from "./context/ThemeContext";  // ✅ Import correct
 
 import Full from './components/PersonalSpace/Full';
+import Personall from './components/PersonalSpace/Personal';
 import Publication from './components/frontoffice/publication/Publication';
 
 
@@ -106,6 +107,7 @@ const App = () => {
                             <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
                             <Route path="/overview" element={<Overview />} />
                             <Route path="/Full" element={<Full />} />
+                            <Route path="/Personal" element={<Personall />} />
                             <Route path="/forgot-password" element={<ForgotPassword />} />
                             <Route path="/reset-password/:token" element={<ResetPassword />} />
                             <Route path="/marketplace" element={<Marketplace />} />
