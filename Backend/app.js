@@ -1,87 +1,108 @@
-// Importations des modules nécessaires
-const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-const mongo = require("mongoose");
+const mongoose = require("mongoose");
 const session = require("express-session");
-const passport = require("passport");
+const passport = require("./config/passport");
 const cors = require("cors");
 
-// Importation des routes
+// Charger les modèles avant de définir les routes
+require("./models/User");
+require("./models/publication");
+require("./models/Notification");
+require("./models/Chat");
+require("./models/Packs");
+require("./models/Courses"); // Changé de 'courses' à 'Courses'
+
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
+const premiumRouter = require("./routes/premiumCourses");
 const coursesRouter = require("./routes/courses");
 const notesRouter = require("./routes/notes");
+const avisRouter = require("./routes/Avis");
+const packRoutes = require("./routes/pack");
+const publicationRouter = require("./routes/publication");
+const messageRouter = require("./routes/message");
+const stripeRouter = require("./routes/stripe");
+const chatRoutes = require("./routes/chatRoutes");
+const favoritesRoutes = require("./routes/favorites");
 
-// Configuration des variables d'environnement
 require("dotenv").config();
-require("./config/passport")(passport);
+require("./config/passport");
 const mongoConn = require("./config/DataBase.json");
 
-// Initialisation de l'application Express
 const app = express();
 
-// Configuration du moteur de vue
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "twig");
 
-// Middlewares
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
-app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// Configuration de la session pour Passport
+// Servir les fichiers statiques
+app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "votre_clé_secrète",
+    secret: process.env.SESSION_SECRET || "default_secret",
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false },
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === "production" },
   })
 );
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ✅ Connexion à MongoDB
-mongo
-  .connect(mongoConn.url)
+mongoose
+  .connect(mongoConn.url, {
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
+  })
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ Could not connect to MongoDB:", err));
 
-// Active CORS pour le frontend React (http://localhost:5173)
-app.use(cors({
-  origin: 'http://localhost:5173', // Permet l'accès depuis ce domaine
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // Ajout de la méthode PATCH
-  allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'], // Autoriser ces en-têtes spécifiques
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
-// ✅ Déclaration des routes (ORDRE IMPORTANT)
-app.use("/", authRouter);
+app.use("/auth", authRouter);
 app.use("/index", indexRouter);
 app.use("/users", usersRouter);
 app.use("/courses", coursesRouter);
-app.use("/api/notes", notesRouter);  
+app.use("/api/notes", notesRouter);
+app.use("/premium", premiumRouter);
+app.use("/avis", avisRouter);
+app.use("/packs", packRoutes);
+app.use("/publication", publicationRouter);
+app.use("/messages", messageRouter);
+app.use("/api/stripe", stripeRouter);
+app.use("/chat", chatRoutes);
+app.use("/favorites", favoritesRoutes);
 
 // ✅ Gestion des erreurs 404 (À PLACER APRÈS LES ROUTES)
 app.use((req, res, next) => {
-  res.status(404).send("❌ La page que vous avez demandée n'a pas été trouvée !");
+  res.status(404).json({ error: "❌ La page demandée n'a pas été trouvée !" });
 });
 
-// ✅ Gestion des autres erreurs
 app.use((err, req, res, next) => {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
-
-  res.status(err.status || 500);
-  res.render("error");
+  console.error(err.stack);
+  const status = err.status || 500;
+  const message = err.message || "Erreur interne du serveur";
+  res.status(status).json({
+    error: req.app.get("env") === "development" ? message : "Une erreur est survenue",
+    ...(req.app.get("env") === "development" && { stack: err.stack }),
+  });
 });
 
-// Exportation de l'application
 module.exports = app;

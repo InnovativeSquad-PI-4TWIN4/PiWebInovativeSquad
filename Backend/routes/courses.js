@@ -1,13 +1,24 @@
 const express = require("express");
 const router = express.Router();
-const coursesController = require("../controllers/coursesController");
-const authenticateUser = require('../middleware/authMiddleware'); // Middleware d'authentification
+const upload = require("../middleware/upload");
 
-// Routes CRUD
-router.post("/addcourses", coursesController.createCourse);  // Créer un cours
-router.get("/getallcourses", coursesController.getAllCourses);  // Obtenir tous les cours
-router.get("/getcourses/:id",coursesController.getCourseById);  // Obtenir un cours par ID
-router.put("/updatecourses/:id", coursesController.updateCourse);  // Mettre à jour un cours
-router.delete("/deletecourses/:id",coursesController.deleteCourse);  // Supprimer un cours
+const {
+  addCourse,
+  getAllCourses,
+  getCourseById,
+  updateCourse,
+  deleteCourse      
+} = require("../controllers/coursesController");
+
+// 📌 Route pour ajouter un cours avec un fichier PDF
+router.post("/addcourses", upload.single("file"), addCourse);
+
+router.get("/getallcourses", getAllCourses);
+router.get("/getcourses/:id", getCourseById);
+router.put("/updatecourses/:id", updateCourse);
+router.delete("/deletecourses/:id", deleteCourse);
+
+
+
 
 module.exports = router;

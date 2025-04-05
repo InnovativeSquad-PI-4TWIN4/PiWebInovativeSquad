@@ -1,0 +1,247 @@
+.user-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.message-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+// .message-content {
+//     background: #f1f1f1;
+//     padding: 10px 14px;
+//     border-radius: 10px;
+//     max-width: 100%;
+// }
+.message-content {
+    padding: 10px 15px;
+    border-radius: 12px;
+    max-width: 100%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    word-break: break-word;
+    transition: background 0.2s ease;
+}
+
+.message-content.sent {
+    background-color: #0078ff; // 💙 Bleu pour messages envoyés
+    color: #fff;
+    align-self: flex-end;
+}
+
+.message-content.received {
+    background-color: #322e2ec4; // 🤍 Gris clair pour messages reçus
+    color: #ffffff;
+    align-self: flex-start;
+}
+
+.delete-float-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: #cc0000;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+
+    &:hover {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+
+
+.unread-badge {
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 0.25em 0.6em;
+    font-size: 0.75rem;
+    margin-left: 0.5em;
+}
+.message-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+}
+
+.delete-btn {
+    background: transparent;
+    border: none;
+    color: red;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.user-list li {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+    background-color: #e0e0e0;
+    color: #333333;
+}
+
+.user-list li.active {
+    background-color: #57d1aa76;
+    color: #ffffff;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacement entre l'image et le texte */
+}
+
+.profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 70%;
+    object-fit: cover;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.messenger-container {
+    width: 100vw; /* Full width */
+    height: 100vh; /* Full screen height */
+    display: flex;
+    flex-direction: row;
+    color: white;
+    background-color: #121212;
+
+
+}
+
+.sidebar {
+    width: 20%;
+    background-color: #1a1a1a;
+    padding: 10px;
+    border-right: 1px solid #ffffff;
+}
+
+.search-bar {
+    width: 100%;
+    padding: 8px;
+    background: #2a2a2a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.user-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.user-list li {
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.user-list li:hover {
+    background-color: #a3e6a358;
+}
+
+.chat-box {
+    flex: 3; // Increase the chat area relative to the sidebar
+    display: flex;
+    flex-direction: column;
+    background-color: #121212;
+    height: 100vh; // Ensure it fills the full height of the screen
+}
+.message-status {
+    font-size: 14px;
+    color: gray;
+    margin-left: 10px;
+}
+
+.sent .message-status {
+    color: #fefefe; // Blue tick if read
+}
+
+.chat-area {
+    flex: 1; // Allows it to take all available space
+    display: flex;
+    flex-direction: column;
+    height: 100vh; // Full height
+    background-color: #121212;
+}
+
+.chat-header {
+    padding: 15px;
+    border-bottom: 1px solid #333;
+    background: #57d1aa76;
+}
+
+.messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.message {
+    max-width: 90%; // Allow messages to expand more
+    width: fit-content; // Adjust width dynamically based on content
+    padding: 15px; // Increase padding for better spacing
+    border-radius: 15px;
+    margin-bottom: 10px;
+    word-wrap: break-word; // Ensure long words don't overflow
+    font-size: 16px; // Make text slightly larger for readability
+    line-height: 1.5; // Improve text spacing
+}
+
+
+.sent {
+    background: #0077ff00;
+    align-self: flex-end;
+    text-align: right;
+}
+
+.received {
+    background: #e1e1e100;
+    align-self: flex-start;
+    text-align: left;
+}
+
+
+.message-input {
+    display: flex;
+    padding: 10px;
+    background: #1a1a1a;
+}
+
+textarea {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    background: #2a2a2a;
+    color: white;
+    resize: none;
+}
+
+button {
+    margin-left: 10px;
+    padding: 10px 15px;
+    background: #57d1aa76;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

@@ -1,105 +1,258 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import AddCourse from "./AddCourses"; // Import the AddCourse component
-import "./CoursesAdmin.scss";
+import React, { useEffect, useState } from 'react';
+import { FaSearch, FaPlus, FaEdit, FaTrash, FaFire, FaCheck, FaCheckCircle } from 'react-icons/fa';
+import AddCourses from "./AddCourses";
+import './CoursesAdmin.scss';
 
-const Coursesadmin = () => {
+const CoursesAdmin = () => {
   const [courses, setCourses] = useState([]);
-  const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState(null); // État pour stocker le cours sélectionné
+  const [admins, setAdmins] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [sortOption, setSortOption] = useState('dateDesc');
+  const [showForm, setShowForm] = useState(false);
+  const [editingCourse, setEditingCourse] = useState(null);
 
   useEffect(() => {
-    fetchCourses();
+    fetch("http://localhost:3000/courses/getallcourses")
+      .then((res) => res.json())
+      .then((data) => setCourses(data))
+      .catch((err) => console.error("Erreur lors du chargement des cours :", err));
   }, []);
 
-  const fetchCourses = async () => {
-    try {
-      const response = await axios.get("http://localhost:3000/courses/getallcourses");
-      setCourses(response.data);
-    } catch (error) {
-      console.error("Erreur lors du chargement des cours :", error);
-    }
-  };
+  useEffect(() => {
+    fetch("http://localhost:3000/users/getAllAdmins")
+      .then(response => response.json())
+      .then(data => setAdmins(data))
+      .catch(error => console.error("Erreur lors du chargement des admins :", error));
+  }, []);
 
-  const handleDelete = async (courseId) => {
+  const categories = ['Programmation', 'Design', 'Marketing', 'Réseau', 'Développement Web', 'Développement Mobile', 'Mathématique'];
+
+  const filteredAndSortedCourses = courses
+    .filter(course =>
+      course.title.toLowerCase().includes(searchTerm.toLowerCase().trim()) &&
+      (categoryFilter === '' || course.category === categoryFilter)
+    )
+    .sort((a, b) => {
+      switch (sortOption) {
+        case 'dateAsc': return new Date(a.createdAt) - new Date(b.createdAt);
+        case 'dateDesc': return new Date(b.createdAt) - new Date(a.createdAt);
+        case 'popularity': return (b.popularity || 0) - (a.popularity || 0);
+        case 'title': return a.title.localeCompare(b.title);
+        default: return 0;
+      }
+    });
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce cours ?")) return;
+
     try {
-      const response = await axios.delete(`http://localhost:3000/courses/deletecourses/${courseId}`);
-      if (response.status === 200) {
-        // Si la suppression réussie, actualise la liste des cours
-        fetchCourses();
-        alert("Cours supprimé avec succès");
+      const response = await fetch(`http://localhost:3000/courses/deletecourses/${id}`, { method: 'DELETE' });
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(data.message);
+        setCourses(courses.filter(course => course._id !== id));
+      } else {
+        alert("Erreur : " + data.message);
       }
     } catch (error) {
-      console.error("Erreur lors de la suppression du cours :", error);
-      alert("Erreur lors de la suppression du cours");
+      console.error("Erreur lors de la suppression :", error);
     }
   };
 
-  const handleAddCourse = () => {
-    fetchCourses(); // Fetch courses again to refresh the list
+  const handleEdit = (course) => {
+    setEditingCourse(course);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleViewDetails = (course) => {
-    setSelectedCourse(course); // Mettre à jour l'état avec les détails du cours
+  const markMeetAsEnded = async (course) => {
+    try {
+      const response = await fetch(`http://localhost:3000/premium/mark-meet-ended/${course._id}`, {
+        method: 'PUT'
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert("✅ Le meet a été marqué comme terminé.");
+        setCourses(prev => prev.map(c => c._id === course._id ? { ...c, isMeetEnded: true, meetLink: null } : c));
+      } else {
+        alert("❌ " + data.message);
+      }
+    } catch (err) {
+      console.error("❌ Erreur lors de la mise à jour :", err);
+    }
   };
 
-  const handleCloseDetails = () => {
-    setSelectedCourse(null); // Fermer les détails
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    if (!editingCourse) return;
+
+    let endpoint = editingCourse.isPremium
+      ? `http://localhost:3000/premium/replay/${editingCourse._id}`
+      : `http://localhost:3000/courses/updatecourses/${editingCourse._id}`;
+
+    let body;
+    let headers = {};
+
+    if (editingCourse.isPremium) {
+      body = JSON.stringify({ videoReplayUrl: editingCourse.videoReplayUrl });
+      headers["Content-Type"] = "application/json";
+    } else {
+      body = new FormData();
+      body.append("title", editingCourse.title);
+      body.append("category", editingCourse.category);
+      body.append("instructor", typeof editingCourse.instructor === "object" ? editingCourse.instructor._id : editingCourse.instructor);
+      if (editingCourse.pdfFile) body.append("file", editingCourse.pdfFile);
+    }
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "PUT",
+        body: body,
+        headers: headers,
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert("✅ Cours mis à jour avec succès !");
+        setEditingCourse(null);
+        setCourses(prevCourses =>
+          prevCourses.map(course =>
+            course._id === editingCourse._id
+              ? { ...course, ...editingCourse }
+              : course
+          )
+        );
+      } else {
+        alert("❌ " + data.message);
+      }
+    } catch (error) {
+      console.error("❌ Erreur lors de la mise à jour :", error);
+    }
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">Liste des Cours</h2>
-
-      {/* Button to open AddCourse component */}
-      <button
-        onClick={() => setIsAddCourseOpen(true)}
-        className="bg-green-500 text-white font-bold py-2 px-4 rounded mb-4"
-      >
-        Ajouter un cours
-      </button>
-
-      {/* Conditionally render AddCourse component */}
-      {isAddCourseOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <AddCourse onClose={() => setIsAddCourseOpen(false)} onAddCourse={handleAddCourse} />
+    <div className="courses-admin">
+      <div className="controls">
+        <div className="search-bar">
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder="Rechercher par titre..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-      )}
 
-      {/* Display courses */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map((course) => (
-          <div key={course._id} className="course-card">
-            <h3 className="text-lg font-bold mb-2 text-gray-800">{course.title}</h3>
-            <p className="text-gray-600 mb-2">{course.description}</p>
-            <p className="text-sm text-blue-500 mb-1">Catégorie : {course.category}</p>
-            <p className="text-sm text-green-600 mb-2">Durée: {course.duration} min</p>
-            <div className="mt-4 flex justify-between">
-              <button onClick={() => handleViewDetails(course)} className="button details">Détails</button>
-              <button onClick={() => alert(`Modifier le cours ID : ${course._id}`)} className="button edit">Modifier</button>
-              <button 
-                onClick={() => handleDelete(course._id)} 
-                className="button delete"
-              >
-                Supprimer
-              </button>
-            </div>
-          </div>
-        ))}
+        <select className="category-filter" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+          <option value="">Toutes catégories</option>
+          {categories.map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+
+        <select className="sort-select" value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+          <option value="dateDesc">Trier par : Plus récent</option>
+          <option value="dateAsc">Trier par : Plus ancien</option>
+          <option value="popularity">Trier par : Popularité</option>
+          <option value="title">Trier par : Titre</option>
+        </select>
+
+        <button className="add-course-button" onClick={() => setShowForm(true)}>
+          <FaPlus /> Ajouter un cours
+        </button>
       </div>
 
-      {/* Modal to display course details */}
-      {selectedCourse && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="modal-content bg-white p-6 rounded-lg">
-            <h3 className="text-xl font-bold mb-4">Détails du Cours</h3>
-            <p><strong>Titre :</strong> {selectedCourse.title}</p>
-            <p><strong>Description :</strong> {selectedCourse.description}</p>
-            <p><strong>Catégorie :</strong> {selectedCourse.category}</p>
-            <p><strong>Instructeur :</strong> {selectedCourse.instructor}</p>
-            <p><strong>Compétences enseignées :</strong> {selectedCourse.skillsTaught}</p>
-            <p><strong>Durée :</strong> {selectedCourse.duration} min</p>
-            <button onClick={handleCloseDetails} className="bg-red-500 text-white py-2 px-4 rounded mt-4">Fermer</button>
+      <div className="courses-grid">
+        {filteredAndSortedCourses.length === 0 ? (
+          <p>Aucun cours disponible.</p>
+        ) : (
+          filteredAndSortedCourses.map((course, index) => (
+            <div key={course._id} className={`course-card ${course.isPremium ? 'premium-border' : ''}`} style={{ animationDelay: `${index * 0.1}s` }}>
+              <span className="category">{course.category}</span>
+              <h3 className="title">
+                {course.title}
+                {course.isPremium && <FaFire className="premium-icon" />}
+                {course.isPremium && course.isMeetEnded && (
+                  <FaCheckCircle className="ended-icon" title="Meet terminé" />
+                )}
+  {course.isPremium && !course.isMeetEnded && (
+  <button className="end-meet-btn" onClick={() => markMeetAsEnded(course)}>
+    <FaCheck /> Fin Meet
+  </button>
+)}
+
+              </h3>
+              <p className="teacher">Ajouté par : <strong>{course.instructor?.name || "Inconnu"}</strong></p>
+              <div className="actions">
+                <button className="edit-btn" onClick={() => handleEdit(course)}><FaEdit /> Modifier</button>
+                <button className="delete-btn" onClick={() => handleDelete(course._id)}><FaTrash /> Supprimer</button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {showForm && <AddCourses onClose={() => setShowForm(false)} admins={admins} />}
+
+      {editingCourse && (
+        <div className="overlay">
+          <div className="edit-form-modal">
+            <h2>Modifier le cours</h2>
+            <form onSubmit={handleUpdate}>
+              <label>Titre du cours</label>
+              <input
+                type="text"
+                value={editingCourse.title}
+                onChange={(e) => setEditingCourse({ ...editingCourse, title: e.target.value })}
+                required
+              />
+
+              <label>Catégorie</label>
+              <select
+                value={editingCourse.category}
+                onChange={(e) => setEditingCourse({ ...editingCourse, category: e.target.value })}
+                required
+              >
+                <option value="">Sélectionnez une catégorie</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+
+              {!editingCourse.isPremium && (
+                <>
+                  <label>Fichier PDF (facultatif)</label>
+                  <input type="file" onChange={(e) => setEditingCourse({ ...editingCourse, pdfFile: e.target.files[0] })} />
+                </>
+              )}
+
+              <label>
+                <input
+                  type="checkbox"
+                  checked={editingCourse.isPremium || false}
+                  disabled
+                /> Cours Premium
+              </label>
+
+              {editingCourse.isPremium && editingCourse.isMeetEnded && (
+                <>
+                  <label>Lien de replay (vidéo)</label>
+                  <input
+                    type="url"
+                    placeholder="https://youtube.com/..."
+                    value={editingCourse.videoReplayUrl || ""}
+                    onChange={(e) => setEditingCourse({ ...editingCourse, videoReplayUrl: e.target.value })}
+                  />
+                </>
+              )}
+
+              <div className="form-actions">
+                <button type="submit">✅ Sauvegarder</button>
+                <button type="button" onClick={() => setEditingCourse(null)}>❌ Annuler</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -107,4 +260,4 @@ const Coursesadmin = () => {
   );
 };
 
-export default Coursesadmin;
+export default CoursesAdmin;

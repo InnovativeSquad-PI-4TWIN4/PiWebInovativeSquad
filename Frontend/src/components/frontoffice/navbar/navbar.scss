@@ -1,5 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
+:root {
+  --bg-dark: linear-gradient(90deg, #002f3e, #002d18dd);
+  --bg-light: linear-gradient(90deg, #ffffff, #f0f0f0);
+  --text-dark: white;
+  --text-light: black;
+  --hover-dark: #00b894;
+  --hover-light: #00796b;
+  --dropdown-bg-dark: white;
+  --dropdown-bg-light: #f9f9f9;
+  --dropdown-text-dark: #333;
+  --dropdown-text-light: #111;
+}
+
+[data-theme="light"] {
+  --bg-dark: var(--bg-light);
+  --text-dark: var(--text-light);
+  --hover-dark: var(--hover-light);
+  --dropdown-bg-dark: var(--dropdown-bg-light);
+  --dropdown-text-dark: var(--dropdown-text-light);
+}
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -8,134 +29,269 @@
   font-weight: 200;
   font-style: normal;
   padding: 15px 30px;
-  background: linear-gradient(90deg , #002f3e, #002d18dd);
-  color: white;
+  background: var(--bg-dark);
+  color: var(--text-dark);
 
   .navbar-logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      letter-spacing: 1.5px;
-      font-size: 22px;
-      font-weight: bold;
-      color: white;
-      text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 1.5px;
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--text-dark);
+    text-decoration: none;
 
-      .logo-icon {
-          font-size: 24px;
-          color: #00b894;
-      }
+    .logo-icon {
+      font-size: 24px;
+      color: var(--hover-dark);
+    }
   }
 
   .navbar-links {
-      list-style: none;
-      display: flex;
-      gap: 20px;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 20px;
 
-      li {
-          a {
-              color: white;
-              text-decoration: none;
-              font-size: 18px;
-              letter-spacing: 1px;
+    li {
+      a {
+        color: var(--text-dark);
+        text-decoration: none;
+        font-size: 18px;
+        letter-spacing: 1px;
+        padding: 5px 0;
+        line-height: 1.4;
 
-              &:hover {
-                  color: #00b894;
-              }
+        &:hover {
+          color: var(--hover-dark);
+        }
+      }
+
+      .notification-icon {
+        position: relative;
+        cursor: pointer;
+
+        .notification-bell {
+          font-size: 24px; // Augmentation de la taille de l'icône
+          color: var(--text-dark);
+          transition: transform 0.2s ease, color 0.3s ease;
+
+          &:hover {
+            color: var(--hover-dark);
+            transform: scale(1.1); // Effet de zoom au survol
           }
 
-          .user-menu {
-              position: relative;
+          &:active {
+            transform: scale(0.95); // Effet de clic
+          }
+        }
+
+        .notification-badge {
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          background-color: #e74c3c; // Rouge vif pour le badge
+          color: white;
+          font-size: 12px;
+          font-weight: bold;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid var(--bg-dark); // Bordure pour mieux intégrer avec le fond
+        }
+
+        // Animation de pulsation pour le badge
+        .pulse {
+          animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 8px rgba(231, 76, 60, 0);
+          }
+          100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+          }
+        }
+
+        .notification-dropdown {
+          position: absolute;
+          right: 0;
+          top: 40px; // Position sous l'icône
+          width: 300px;
+          background-color: var(--dropdown-bg-dark);
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 100;
+          opacity: 0;
+          transform: translateY(-10px);
+          animation: slideDown 0.3s ease forwards; // Animation d'ouverture
+
+          @keyframes slideDown {
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .notification-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            &.unread {
+              background-color: #f1f8ff; // Fond légèrement bleu pour les notifications non lues
+            }
+
+            &:hover {
+              background-color: #f5f5f5;
+            }
+
+            p {
+              margin: 0;
+              font-size: 14px;
+              color: var(--dropdown-text-dark);
+              line-height: 1.4;
+            }
+
+            span {
+              display: block;
+              font-size: 12px;
+              color: #888;
+              margin-top: 5px;
+            }
+          }
+
+          p {
+            padding: 12px 15px;
+            margin: 0;
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+          }
+        }
+      }
+
+      .user-menu {
+        position: relative;
+        cursor: pointer;
+
+        .user-initials {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background-color: var(--hover-dark);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: bold;
+          font-size: 16px;
+          text-transform: uppercase;
+        }
+
+        .dropdown-menu {
+          position: absolute;
+          right: 0;
+          margin-top: 10px;
+          width: 250px;
+          background-color: var(--dropdown-bg-dark);
+          border-radius: 10px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+          z-index: 100;
+
+          .user-info {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+
+            .user-initials-lg {
+              width: 50px;
+              height: 50px;
+              border-radius: 50%;
+              background-color: var(--hover-dark);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-weight: bold;
+              font-size: 20px;
+              margin-right: 10px;
+            }
+
+            .user-details {
+              .user-name {
+                font-size: 16px;
+                font-weight: bold;
+                color: var(--dropdown-text-dark);
+                margin-bottom: 5px;
+              }
+
+              .user-email {
+                font-size: 14px;
+                color: var(--dropdown-text-dark);
+              }
+            }
+          }
+
+          .menu-links {
+            padding: 10px 0;
+
+            .menu-item {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              padding: 10px 15px;
+              color: var(--dropdown-text-dark);
+              font-size: 15px;
               cursor: pointer;
 
-              .user-initials {
-                  width: 40px;
-                  height: 40px;
-                  border-radius: 50%;
-                  background-color: #00b894;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  color: white;
-                  font-weight: bold;
-                  font-size: 16px;
-                  text-transform: uppercase;
+              &:hover {
+                background-color: var(--dropdown-bg-light);
               }
 
-              .dropdown-menu {
-                  position: absolute;
-                  right: 0;
-                  margin-top: 10px;
-                  width: 250px;
-                  background-color: white;
-                  border-radius: 10px;
-                  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                  overflow: hidden;
-                  z-index: 100;
-
-                  .user-info {
-                      display: flex;
-                      align-items: center;
-                      padding: 15px;
-                      border-bottom: 1px solid #ddd;
-
-                      .user-initials-lg {
-                          width: 50px;
-                          height: 50px;
-                          border-radius: 50%;
-                          background-color: #00b894;
-                          display: flex;
-                          align-items: center;
-                          justify-content: center;
-                          color: white;
-                          font-weight: bold;
-                          font-size: 20px;
-                          margin-right: 10px;
-                      }
-
-                      .user-details {
-                          .user-name {
-                              font-size: 16px;
-                              font-weight: bold;
-                              color: #333;
-                              margin-bottom: 5px;
-                          }
-
-                          .user-email {
-                              font-size: 14px;
-                              color: #555;
-                          }
-                      }
-                  }
-
-                  .menu-links {
-                      padding: 10px 0;
-
-                      .menu-item {
-                          display: flex;
-                          align-items: center;
-                          gap: 10px;
-                          padding: 10px 15px;
-                          color: #333;
-                          font-size: 15px;
-                          cursor: pointer;
-
-                          &:hover {
-                              background-color: #f1f1f1;
-                          }
-
-                          .menu-icon {
-                              font-size: 18px;
-                              color: #555;
-                          }
-
-                          .logout-icon {
-                              color: #d63031;
-                          }
-                      }
-                  }
+              .menu-icon {
+                font-size: 18px;
+                color: var(--dropdown-text-dark);
               }
+
+              .logout-icon {
+                color: #d63031;
+              }
+            }
           }
+        }
       }
+    }
+  }
+
+  .theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-dark);
+    transition: color 0.3s;
+
+    &:hover {
+      color: var(--hover-dark);
+    }
   }
 }

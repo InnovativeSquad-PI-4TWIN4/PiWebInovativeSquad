@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaTrash, FaEye, FaToggleOn, FaToggleOff, FaSearch, FaPlus } from "react-icons/fa";
-import UserDetails from './UserDetails';
-import AddAdmin from "./AddAdmin";
+import { FaTrash, FaEye, FaToggleOn, FaToggleOff, FaSearch, FaPlus, FaMoneyBillWave } from "react-icons/fa";
+import UserDetails from './Userdetails';
 import "./ManageUsers.scss";
 
 const ManageUsers = () => {
@@ -10,8 +9,10 @@ const ManageUsers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showAddAdminModal, setShowAddAdminModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [showRechargeModal, setShowRechargeModal] = useState(false);
+  const [rechargeAmount, setRechargeAmount] = useState("");
+  const [userToRecharge, setUserToRecharge] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -97,25 +98,49 @@ const ManageUsers = () => {
     setSelectedUser(user);
   };
 
-  const handleAddAdmin = async (newAdmin) => {
+  const handleRechargeClick = (user) => {
+    setUserToRecharge(user);
+    setRechargeAmount("");
+    setShowRechargeModal(true);
+  };
+
+  const handleRecharge = async () => {
+    if (!rechargeAmount || isNaN(rechargeAmount) || rechargeAmount <= 0) {
+      alert("Veuillez entrer un montant valide.");
+      return;
+    }
+
     try {
-      const response = await fetch("http://localhost:3000/users/add-admin", {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:3000/users/rechargeAdmin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(newAdmin),
+        body: JSON.stringify({
+          userId: userToRecharge._id,
+          amount: parseFloat(rechargeAmount),
+        }),
       });
 
+      const result = await response.json();
       if (!response.ok) {
-        throw new Error("Erreur lors de l'ajout de l'admin");
+        throw new Error(result.message || "Erreur lors de la recharge du solde");
       }
 
-      const addedAdmin = await response.json();
-      setUsers([...users, addedAdmin]);
-      setShowAddAdminModal(false);
-    } catch (error) {
-      alert("Erreur lors de l'ajout de l'admin");
+      alert("Recharge effectuée avec succès !");
+      setUsers(prevUsers =>
+        prevUsers.map(user =>
+          user._id === userToRecharge._id
+            ? { ...user, solde: (user.solde || 0) + parseFloat(rechargeAmount) }
+            : user
+        )
+      );
+
+      setShowRechargeModal(false);
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -128,17 +153,9 @@ const ManageUsers = () => {
       <div className="user-management__container">
         <h1>Manage Users</h1>
 
-        {/* Barre de recherche pleine largeur */}
         <div className="user-management__search">
           <input type="text" placeholder="Rechercher un utilisateur..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           <FaSearch className="search-icon" />
-        </div>
-
-        {/* Bouton Add Admin à gauche sous la barre de recherche */}
-        <div className="user-management__button-container">
-          <button className="add-admin-btn" onClick={() => setShowAddAdminModal(true)}>
-            <FaPlus /> Add Admin
-          </button>
         </div>
 
         <div className="user-management__content">
@@ -155,6 +172,7 @@ const ManageUsers = () => {
                       <div className="details">
                         <div className="name">{user.name} {user.surname}</div>
                         <div className="email">{user.email || "Email non disponible"}</div>
+                        <div className="solde" style={{ color: "black" }}> Solde: {user.solde || 0}DT</div>
                       </div>
                     </div>
                     <div className="actions">
@@ -167,6 +185,9 @@ const ManageUsers = () => {
                       <button onClick={() => handleDelete(user._id)}>
                         <FaTrash size={20} />
                       </button>
+                      <button onClick={() => handleRechargeClick(user)}>
+                        <FaMoneyBillWave size={20} />
+                      </button>
                     </div>
                   </motion.div>
                 ))}
@@ -175,8 +196,24 @@ const ManageUsers = () => {
           }
         </div>
       </div>
-      {selectedUser && <UserDetails user={selectedUser} onClose={() => setSelectedUser(null)} />}
-      {showAddAdminModal && <AddAdmin onClose={() => setShowAddAdminModal(false)} onAddAdmin={handleAddAdmin} />}
+
+      {showRechargeModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2 style={{ color: "black" }}>Recharger le solde</h2>
+            <p style={{ color: "black" }}>Utilisateur : {userToRecharge.name} {userToRecharge.surname}</p>
+            <input
+              type="number"
+              placeholder="Montant"
+              value={rechargeAmount}
+              onChange={(e) => setRechargeAmount(e.target.value)}
+            />
+            <button onClick={handleRecharge}>Confirmer</button>
+            <button onClick={() => setShowRechargeModal(false)}>Annuler</button>
+          </div>
+        </div>
+      )}
+        {selectedUser && <UserDetails user={selectedUser} onClose={() => setSelectedUser(null)} />}
     </div>
   );
 };
