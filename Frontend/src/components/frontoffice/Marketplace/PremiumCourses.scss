@@ -1,0 +1,101 @@
+.courses {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  text-align: center;
+  color: #fff;
+
+  h2 {
+    font-size: 2rem;
+    color: #00ffe7;
+    margin-bottom: 2rem;
+  }
+
+  .back-btn {
+    align-self: flex-start;
+    background: transparent;
+    border: 2px solid #00ffe7;
+    color: #00ffe7;
+    font-size: 1.5rem;
+    border-radius: 10px;
+    padding: 0.2rem 0.7rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+    margin-bottom: 1rem;
+
+    &:hover {
+      background-color: #00ffe7;
+      color: #000;
+      transform: scale(1.1);
+    }
+  }
+
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .course-card {
+    background: #1a1a2e;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 255, 231, 0.2);
+    transition: 0.3s ease;
+    position: relative;
+
+    h2 {
+      color: #00ffe7;
+    }
+
+    p {
+      margin: 0.3rem 0;
+    }
+
+    .meet-btn,
+    .replay-btn {
+      margin-top: 1rem;
+      background: #00ffe7;
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+
+      &:hover {
+        background: #0ef;
+        transform: scale(1.05);
+      }
+    }
+
+    &.premium {
+      border: 2px solid #ff6f61;
+    }
+
+    // ❤️ Icône favoris
+    .heart-icon {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 1.4rem;
+      color: #bbb;
+      cursor: pointer;
+      transition: transform 0.2s ease, color 0.3s ease;
+      z-index: 2;
+
+      &:hover {
+        transform: scale(1.2);
+        color: #ff6f61;
+      }
+
+      &.active {
+        color: #ff6f61;
+      }
+    }
+  }
+}

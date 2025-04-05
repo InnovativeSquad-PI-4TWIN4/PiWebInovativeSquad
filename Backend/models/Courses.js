@@ -1,36 +1,33 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const User = require("./User"); // Pour s'assurer que le modèle User est bien enregistré
 
-const Course = new Schema({
-    title: { type: String },  // Titre du cours
-    description: { type: String },  // Brève description
-    category: { type: String },  // Catégorie du cours (ex: Développement, Design, Marketing)
-    instructor: { type: Schema.Types.ObjectId, ref: 'users' },  // Créateur du cours
-    price: { type: Number, default: 0 },  // Prix du cours (0 si échange de compétences)
-    skillsTaught: [{ type: String }],  // Liste des compétences enseignées
-    skillsRequired: [{ type: String }],  // Compétences pré-requises pour suivre le cours
-    level: { type: String, enum: ['beginner', 'intermediate', 'advanced'], default: 'beginner' },  // Niveau requis
-    duration: { type: Number},  // Durée en minutes
-    image: { type: String },  // URL de l'image du cours
-    content: [{ 
-        type: { type: String, enum: ['video', 'article', 'quiz', 'assignment'] }, 
-        url: String,  // Lien vers la ressource (vidéo, article, etc.)
-        text: String  // Texte pour les articles ou quiz
-    }], 
-    createdAt: { type: Date, default: Date.now },  // Date de création
-    updatedAt: { type: Date, default: Date.now },  // Dernière mise à jour
-    status: { type: String, enum: ['draft', 'published', 'archived'], default: 'draft' },  // État du cours
-    rating: { type: Number, default: 0 },  // Note moyenne des utilisateurs
-    enrolledUsers: [{ type: Schema.Types.ObjectId, ref: 'users' }],  // Liste des étudiants inscrits
-    reviews: [{ 
-        user: { type: Schema.Types.ObjectId, ref: 'users' }, 
-        rating: { type: Number, min: 1, max: 5 }, 
-        comment: String, 
-        date: { type: Date, default: Date.now }
-    }],  
-    isActive: { type: Boolean, default: true } // Statut actif/inactif
-    //aiRecommendations: [{ type: Schema.Types.ObjectId, ref: 'courses' }],  // Suggestions d'autres cours par l'IA
-    //aiMentorInsights: { type: String }  // Conseils personnalisés de l’IA pour ce cours
+const CourseSchema = new Schema({
+    title: { type: String, required: true },
+    category: { type: String, required: true },
+    instructor: { 
+        type: Schema.Types.ObjectId, 
+        ref: "users", // Vérifie que le nom correspond à celui défini dans mongoose.model
+        required: true 
+    },
+    pdfUrl: {
+        type: String,
+        required: function () {
+          return !this.isPremium; // requis seulement si le cours est gratuit
+        }
+      },
+      
+
+    // ✅ Champs pour cours premium
+    isPremium: { type: Boolean, default: false },
+    meetLink: { type: String, default: "" },
+    isMeetEnded: { type: Boolean, default: false },
+    videoReplayUrl: { type: String, default: "" },
+
+    price: { type: Number, default: 0 } // 💰 Prix du cours premium
+}, {
+    timestamps: true // ✅ Pour garder createdAt / updatedAt
 });
 
-module.exports = mongoose.model('courses', Course);
+const Course = mongoose.model("courses", CourseSchema);
+module.exports = Course;

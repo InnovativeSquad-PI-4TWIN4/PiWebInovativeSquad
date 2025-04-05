@@ -47,3 +47,53 @@
       }
     }
   }
+  .download-btn {
+    color: white !important; /* Définit la couleur du texte en blanc */
+    text-decoration: none; /* Supprime le soulignement */
+    font-weight: bold; /* Rend le texte plus visible */
+    display: inline-block;
+    margin-top: 1rem; /* Ajoute un petit espace au-dessus */
+  }
+  
+  .download-btn:hover {
+    color: #f0f0f0; /* Légèrement plus clair au survol */
+    text-decoration: underline; /* Ajoute un soulignement au survol */
+  }
+  .premium-title {
+    font-size: 2rem;
+    margin: 3rem 0 1rem;
+    color: #00ffe0;
+    font-weight: bold;
+    text-shadow: 1px 1px 4px rgba(0, 255, 224, 0.2);
+  }
+  
+  .course-card.premium {
+    border: 1px solid #00ffe0;
+    background: rgba(0, 255, 224, 0.06);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(3px);
+  
+    h2 {
+      background: linear-gradient(90deg, #00ffe0, #00bfff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  
+    .meet-btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(90deg, #00ffe0, #00bfff);
+      color: #000;
+      font-weight: 600;
+      border-radius: 5px;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+  
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 10px rgba(0, 255, 224, 0.4);
+      }
+    }
+  }
+  

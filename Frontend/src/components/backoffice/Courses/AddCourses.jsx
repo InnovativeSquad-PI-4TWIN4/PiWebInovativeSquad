@@ -1,143 +1,154 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import "./AddCourses.scss";
 
-const AddCourses = ({ onClose, onAddCourse }) => {
-  const [course, setCourse] = useState({
-    title: '',
-    description: '',
-    category: '',
-    instructor: '',
-    skillsTaught: '',
-    duration: ''
-  });
+const AddCourses = ({ onClose }) => {
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("");
+  const [instructor, setInstructor] = useState("");
+  const [pdfFile, setPdfFile] = useState(null);
+  const [admins, setAdmins] = useState([]);
+  const [courseType, setCourseType] = useState(""); // "premium" or "free"
+  const [meetLink, setMeetLink] = useState("");
+  const [price, setPrice] = useState(80);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCourse((prev) => ({ ...prev, [name]: value }));
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return console.error("⚠️ Aucun token trouvé !");
+
+    fetch("http://localhost:3000/users/getAllAdmins", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => Array.isArray(data) ? setAdmins(data) : console.error("❌ Données inattendues", data))
+      .catch((err) => console.error("❌ Erreur chargement admins :", err));
+  }, []);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === "application/pdf") {
+      setPdfFile(file);
+    } else {
+      alert("⚠️ Seuls les fichiers PDF sont autorisés !");
+      setPdfFile(null);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Assure-toi que la durée est un nombre (si ce n'est pas déjà un nombre)
-    const courseData = {
-      ...course,
-      duration: Number(course.duration),  // Assurez-vous que la durée est un nombre
-    };
+    // Validation
+    if (!title || !category || !instructor ||
+      (courseType === "free" && !pdfFile) ||
+      (courseType === "premium" && (!meetLink || price === ""))) {
+      alert("⚠️ Veuillez remplir tous les champs requis !");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("category", category);
+    formData.append("instructor", instructor);
+    formData.append("isPremium", courseType === "premium");
+
+    let endpoint = "http://localhost:3000";
+
+    if (courseType === "premium") {
+      endpoint += "/premium/addpremium";
+      formData.append("meetLink", meetLink);
+      formData.append("price", price);
+    } else {
+      endpoint += "/courses/addcourses";
+      formData.append("file", pdfFile);
+    }
 
     try {
-      const token = localStorage.getItem('token');  // Récupère le token depuis localStorage
-      const response = await fetch("http://localhost:3000/courses/addcourses", {
+      const response = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": token ? `Bearer ${token}` : "",  // Ajoute le token si disponible
-        },
-        body: JSON.stringify(courseData),  // Envoi des données du cours
+        body: formData,
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (response.ok) {
-        // Si la création est réussie, appeler onAddCourse pour actualiser l'état
-        onAddCourse(courseData);
-        alert(data.message); // Affiche un message de succès
+        alert("✅ Cours ajouté avec succès !");
+        onClose();
       } else {
-        alert(data.message); // Affiche un message d'erreur
+        alert("❌ Erreur : " + (result.message || "Erreur inconnue"));
       }
-
-      onClose(); // Ferme le modal après la soumission
-    } catch (error) {
-      console.error("Error creating course:", error);
-      alert("Erreur lors de la création du cours");
+    } catch (err) {
+      console.error("❌ Erreur ajout cours :", err);
+      alert("❌ Erreur lors de l'ajout du cours.");
     }
   };
 
   return (
-    <div className="add-course-modal">
-      <div className="modal-content">
-        <h2>Ajouter un cours</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="title">Titre du cours</label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={course.title}
-              onChange={handleChange}
-              placeholder="Titre du cours"
-              required
-            />
-          </div>
+    <div className="add-course-container">
+      <button className="close-button" onClick={onClose}>✖</button>
+      <h2>Add Courses</h2>
+      <form className="add-course-form" onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Type de cours :</label>
+          <select value={courseType} onChange={(e) => setCourseType(e.target.value)} required>
+            <option value="">-- Sélectionner un type --</option>
+            <option value="free">Gratuit</option>
+            <option value="premium">Premium</option>
+          </select>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
-            <textarea
-              id="description"
-              name="description"
-              value={course.description}
-              onChange={handleChange}
-              placeholder="Description du cours"
-              required
-            />
-          </div>
+        <div className="form-group">
+          <label>Titre du cours :</label>
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="category">Catégorie</label>
-            <input
-              type="text"
-              id="category"
-              name="category"
-              value={course.category}
-              onChange={handleChange}
-              placeholder="Catégorie du cours"
-              required
-            />
-          </div>
+        <div className="form-group">
+          <label>Catégorie :</label>
+          <select value={category} onChange={(e) => setCategory(e.target.value)} required>
+            <option value="">-- Choisir une catégorie --</option>
+            <option value="Programmation">Programmation</option>
+            <option value="Design">Design</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Réseau">Réseau</option>
+            <option value="Développement Web">Développement Web</option>
+            <option value="Développement Mobile">Développement Mobile</option>
+            <option value="Mathématique">Mathématique</option>
+          </select>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="instructor">Instructeur</label>
-            <input
-              type="text"
-              id="instructor"
-              name="instructor"
-              value={course.instructor}
-              onChange={handleChange}
-              placeholder="Nom de l'instructeur"
-              required
-            />
-          </div>
+        <div className="form-group">
+          <label>Nom de l’enseignant :</label>
+          <select value={instructor} onChange={(e) => setInstructor(e.target.value)} required>
+            <option value="">-- Choisir un enseignant --</option>
+            {admins.map((admin) => (
+              <option key={admin._id} value={admin._id}>{admin.name}</option>
+            ))}
+          </select>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="skillsTaught">Compétences enseignées</label>
-            <input
-              type="text"
-              id="skillsTaught"
-              name="skillsTaught"
-              value={course.skillsTaught}
-              onChange={handleChange}
-              placeholder="Compétences enseignées"
-              required
-            />
+        {courseType === "free" && (
+          <div className="form-group file-upload">
+            <label>Document PDF :</label>
+            <input type="file" accept="application/pdf" onChange={handleFileChange} required />
           </div>
+        )}
 
-          <div className="form-group">
-            <label htmlFor="duration">Durée en minutes</label>
-            <input
-              type="number"
-              id="duration"
-              name="duration"
-              value={course.duration}
-              onChange={handleChange}
-              placeholder="Durée du cours"
-              required
-            />
-          </div>
+        {courseType === "premium" && (
+          <>
+            <div className="form-group">
+              <label>Lien Google Meet :</label>
+              <input type="url" placeholder="Lien Meet" value={meetLink} onChange={(e) => setMeetLink(e.target.value)} required />
+            </div>
+            <div className="form-group">
+              <label>Prix du cours (DT) :</label>
+              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} min={0} required />
+            </div>
+          </>
+        )}
 
-          <button type="submit">Ajouter le cours</button>
-          <button type="button" onClick={onClose}>Annuler</button>
-        </form>
-      </div>
+        <button type="submit" className="submit-button">Créer le cours</button>
+      </form>
     </div>
   );
 };
