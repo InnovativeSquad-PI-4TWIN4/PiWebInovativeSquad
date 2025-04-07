@@ -73,6 +73,58 @@
       }
     }
 
+    // ✅ Bouton "Générer le quiz IA"
+    .quiz-btn {
+      margin-top: 1rem;
+      background-color: #ffc107;
+      color: #000;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+
+      &:hover {
+        background-color: #ffcd39;
+      }
+    }
+
+    // ✅ Bloc du quiz IA généré
+    .quiz-container {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 8px;
+      background-color: #12122a;
+      border: 1px solid #ffc107;
+      text-align: left;
+
+      h4 {
+        color: #ffc107;
+        margin-bottom: 0.8rem;
+      }
+
+      .quiz-item {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px dashed #444;
+
+        strong {
+          color: #ffffff;
+        }
+
+        p {
+          margin: 0.2rem 0;
+        }
+
+        small {
+          display: block;
+          margin-top: 0.5rem;
+          color: #a1a1a1;
+        }
+      }
+    }
+
     &.premium {
       border: 2px solid #ff6f61;
     }
@@ -97,7 +149,6 @@
       }
     }
 
-    // ✅ Effet visuel temporaire de mise en évidence
     &.highlighted {
       border: 3px solid #00ffcc;
       animation: flash 1s ease-in-out 5;
@@ -106,7 +157,6 @@
   }
 }
 
-// ✅ Animation de glow pour cours ajouté
 @keyframes flash {
   0% {
     box-shadow: 0 0 15px #00ffcc;
