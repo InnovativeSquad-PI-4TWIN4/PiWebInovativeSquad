@@ -7,14 +7,14 @@ const AddCourses = ({ onClose }) => {
   const [instructor, setInstructor] = useState("");
   const [pdfFile, setPdfFile] = useState(null);
   const [admins, setAdmins] = useState([]);
-  const [courseType, setCourseType] = useState(""); // "premium" or "free"
+  const [courseType, setCourseType] = useState("");
   const [meetLink, setMeetLink] = useState("");
   const [price, setPrice] = useState(80);
+  const [courseSummary, setCourseSummary] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return console.error("⚠️ Aucun token trouvé !");
-
     fetch("http://localhost:3000/users/getAllAdmins", {
       headers: {
         "Content-Type": "application/json",
@@ -22,7 +22,11 @@ const AddCourses = ({ onClose }) => {
       },
     })
       .then((res) => res.json())
-      .then((data) => Array.isArray(data) ? setAdmins(data) : console.error("❌ Données inattendues", data))
+      .then((data) =>
+        Array.isArray(data)
+          ? setAdmins(data)
+          : console.error("❌ Données inattendues", data)
+      )
       .catch((err) => console.error("❌ Erreur chargement admins :", err));
   }, []);
 
@@ -38,11 +42,14 @@ const AddCourses = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validation
-    if (!title || !category || !instructor ||
+    if (
+      !title ||
+      !category ||
+      !instructor ||
       (courseType === "free" && !pdfFile) ||
-      (courseType === "premium" && (!meetLink || price === ""))) {
+      (courseType === "premium" &&
+        (!meetLink || price === "" || !courseSummary))
+    ) {
       alert("⚠️ Veuillez remplir tous les champs requis !");
       return;
     }
@@ -59,6 +66,7 @@ const AddCourses = ({ onClose }) => {
       endpoint += "/premium/addpremium";
       formData.append("meetLink", meetLink);
       formData.append("price", price);
+      formData.append("courseSummary", courseSummary);
     } else {
       endpoint += "/courses/addcourses";
       formData.append("file", pdfFile);
@@ -71,9 +79,8 @@ const AddCourses = ({ onClose }) => {
       });
 
       const result = await response.json();
-
       if (response.ok) {
-        alert("✅ Cour ajouté avec succès !");
+        alert("✅ Cours ajouté avec succès !");
         onClose();
       } else {
         alert("❌ Erreur : " + (result.message || "Erreur inconnue"));
@@ -86,12 +93,24 @@ const AddCourses = ({ onClose }) => {
 
   return (
     <div className="add-course-container">
-      <button className="close-button" onClick={onClose}>✖</button>
+      <button className="close-button" onClick={onClose}>
+        ✖
+      </button>
       <h2>Add Courses</h2>
-      <form className="add-course-form" onSubmit={handleSubmit}>
+
+      <form
+        className={`add-course-form ${
+          courseType === "premium" ? "premium-form" : ""
+        }`}
+        onSubmit={handleSubmit}
+      >
         <div className="form-group">
           <label>Type de cours :</label>
-          <select value={courseType} onChange={(e) => setCourseType(e.target.value)} required>
+          <select
+            value={courseType}
+            onChange={(e) => setCourseType(e.target.value)}
+            required
+          >
             <option value="">-- Sélectionner un type --</option>
             <option value="free">Gratuit</option>
             <option value="premium">Premium</option>
@@ -100,12 +119,21 @@ const AddCourses = ({ onClose }) => {
 
         <div className="form-group">
           <label>Titre du cours :</label>
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
         </div>
 
         <div className="form-group">
           <label>Catégorie :</label>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} required>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          >
             <option value="">-- Choisir une catégorie --</option>
             <option value="Programmation">Programmation</option>
             <option value="Design">Design</option>
@@ -119,10 +147,16 @@ const AddCourses = ({ onClose }) => {
 
         <div className="form-group">
           <label>Nom de l’enseignant :</label>
-          <select value={instructor} onChange={(e) => setInstructor(e.target.value)} required>
+          <select
+            value={instructor}
+            onChange={(e) => setInstructor(e.target.value)}
+            required
+          >
             <option value="">-- Choisir un enseignant --</option>
             {admins.map((admin) => (
-              <option key={admin._id} value={admin._id}>{admin.name}</option>
+              <option key={admin._id} value={admin._id}>
+                {admin.name}
+              </option>
             ))}
           </select>
         </div>
@@ -130,7 +164,12 @@ const AddCourses = ({ onClose }) => {
         {courseType === "free" && (
           <div className="form-group file-upload">
             <label>Document PDF :</label>
-            <input type="file" accept="application/pdf" onChange={handleFileChange} required />
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handleFileChange}
+              required
+            />
           </div>
         )}
 
@@ -138,16 +177,41 @@ const AddCourses = ({ onClose }) => {
           <>
             <div className="form-group">
               <label>Lien Google Meet :</label>
-              <input type="url" placeholder="Lien Meet" value={meetLink} onChange={(e) => setMeetLink(e.target.value)} required />
+              <input
+                type="url"
+                placeholder="Lien Meet"
+                value={meetLink}
+                onChange={(e) => setMeetLink(e.target.value)}
+                required
+              />
             </div>
+
             <div className="form-group">
               <label>Prix du cours (DT) :</label>
-              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} min={0} required />
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                min={0}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Résumé du cours (pour générer un quiz)</label>
+              <textarea
+                placeholder="Ce cours introduit les bases de React, useState, etc..."
+                value={courseSummary}
+                onChange={(e) => setCourseSummary(e.target.value)}
+                required
+              />
             </div>
           </>
         )}
 
-        <button type="submit" className="submit-button">Créer le cours</button>
+        <button type="submit" className="submit-button">
+          Créer le cours
+        </button>
       </form>
     </div>
   );

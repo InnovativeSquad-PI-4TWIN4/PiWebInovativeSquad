@@ -15,16 +15,20 @@ const CourseSchema = new Schema({
         required: function () {
           return !this.isPremium; // requis seulement si le cours est gratuit
         }
-      },
-      
+    },
 
     // ✅ Champs pour cours premium
     isPremium: { type: Boolean, default: false },
     meetLink: { type: String, default: "" },
     isMeetEnded: { type: Boolean, default: false },
     videoReplayUrl: { type: String, default: "" },
+    price: { type: Number, default: 0 }, // 💰 Prix du cours premium
 
-    price: { type: Number, default: 0 } // 💰 Prix du cours premium
+    // 🧠 Nouveau champ pour IA : résumé textuel
+    
+  // ✅ Champ manquant à ajouter
+  courseSummary: { type: String, default: "" }  // <<< Ajoute ceci
+
 }, {
     timestamps: true // ✅ Pour garder createdAt / updatedAt
 });
