@@ -7,6 +7,8 @@ import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
 import './PremiumCourses.scss';
 import RechargeModal from '../RechargeModal/RechargeModal';
+import SmartQuizModal from "./SmartQuizModal";
+
 
 const socket = io("http://localhost:3000");
 
@@ -17,6 +19,9 @@ const PremiumCourses = () => {
   const [showRechargeModal, setShowRechargeModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [highlightedCourseId, setHighlightedCourseId] = useState(null);
+  const [generatedQuiz, setGeneratedQuiz] = useState({});
+  const [showQuizModal, setShowQuizModal] = useState(false); // ✅ pour gérer le popup
+  const [activeQuiz, setActiveQuiz] = useState(null); // ✅ pour savoir quel quiz on affiche
 
   const navigate = useNavigate();
   const storedUser = localStorage.getItem("user");
@@ -129,6 +134,19 @@ const PremiumCourses = () => {
     }
   };
 
+  const handleGenerateQuiz = async (courseId) => {
+    try {
+      const res = await axios.post(`http://localhost:3000/premium/generate-quiz/${courseId}`);
+      if (res.data.quiz) {
+        setGeneratedQuiz(prev => ({ ...prev, [courseId]: res.data.quiz }));
+        setActiveQuiz({ courseId, quiz: res.data.quiz }); // ✅ ouvrir avec le quiz
+        setShowQuizModal(true);
+      }
+    } catch (err) {
+      alert("❌ Erreur lors de la génération du quiz.");
+    }
+  };
+
   return (
     <section className="courses">
       <button className="back-btn" onClick={() => navigate('/marketplace')}>⬅</button>
@@ -151,6 +169,7 @@ const PremiumCourses = () => {
             <p>{course.category}</p>
             <p><strong>Instructeur :</strong> {course.instructor?.name || "Inconnu"}</p>
             <p>💰 Prix : {course.price} DT</p>
+            {course.courseSummary && <p><strong>Résumé :</strong> {course.courseSummary}</p>}
 
             {paidCourses.includes(course._id) ? (
               course.isMeetEnded ? (
@@ -171,9 +190,26 @@ const PremiumCourses = () => {
                 Rejoindre le cours en direct
               </button>
             )}
+
+            {course.courseSummary && (
+              <button className="quiz-btn" onClick={() => handleGenerateQuiz(course._id)}>
+                🧠 Générer le quiz IA
+              </button>
+            )}
           </motion.div>
         ))}
       </div>
+
+      {/* ✅ MODAL QUIZ */}
+      {showQuizModal && activeQuiz && (
+        <SmartQuizModal
+          quiz={activeQuiz.quiz}
+          onClose={() => {
+            setShowQuizModal(false);
+            setActiveQuiz(null);
+          }}
+        />
+      )}
 
       {showRechargeModal && (
         <RechargeModal
