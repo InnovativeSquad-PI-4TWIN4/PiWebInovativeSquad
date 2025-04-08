@@ -15,6 +15,22 @@
 //     border-radius: 10px;
 //     max-width: 100%;
 // }
+.status-dot {
+    display: inline-block;
+    margin-left: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    vertical-align: middle;
+  }
+  
+  .status-dot.online {
+    background-color: #4caf50; // vert
+  }
+  
+  .status-dot.offline {
+    background-color: #ccc; // gris
+  }
 .message-content {
     padding: 10px 15px;
     border-radius: 12px;
@@ -23,6 +39,10 @@
     color: #fff;
     word-break: break-word;
     transition: background 0.2s ease;
+    .read, .unread {
+        font-size: 10px;
+        color: #e1dada;
+      }
 }
 
 .message-content.sent {
