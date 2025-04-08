@@ -164,15 +164,16 @@ exports.generateSmartQuiz = async (req, res) => {
   try {
     const { id: courseId } = req.params;
     const course = await Course.findById(courseId);
-    if (!course || !course.courseSummary) {
-      return res.status(404).json({ message: "Résumé introuvable pour ce cours." });
+
+    if (!course || !course.courseSummary || course.courseSummary.trim() === "") {
+      return res.status(404).json({ message: "❌ Résumé introuvable ou vide pour ce cours." });
     }
 
     const prompt = `
 Génère un quiz à partir de ce résumé de cours :
 "${course.courseSummary}"
 
-Format de réponse JSON (obligatoire) :
+Réponds uniquement en format JSON valide :
 [
   {
     "question": "string",
@@ -181,7 +182,10 @@ Format de réponse JSON (obligatoire) :
     "correctAnswer": "string | boolean",
     "explanation": "string"
   }
-]`;
+]
+`;
+
+    console.log("🧠 Prompt IA :", prompt);
 
     const response = await openai.chat.completions.create({
       model: "openai/gpt-3.5-turbo",
@@ -189,17 +193,42 @@ Format de réponse JSON (obligatoire) :
       temperature: 0.7
     });
 
-    const aiResponse = response.choices[0].message.content;
+    const aiResponse = response.choices[0]?.message?.content;
+
+    if (!aiResponse) {
+      console.error("❌ Réponse IA vide");
+      return res.status(500).json({ message: "Réponse vide de l'IA" });
+    }
+
+    console.log("📨 Réponse brute IA :", aiResponse);
+
+    // ✅ Extraction du JSON propre
+    const jsonStart = aiResponse.indexOf("[");
+    const jsonEnd = aiResponse.lastIndexOf("]") + 1;
+    const cleanJson = aiResponse.substring(jsonStart, jsonEnd);
+
     let quiz;
     try {
-      quiz = JSON.parse(aiResponse);
+      quiz = JSON.parse(cleanJson);
     } catch (err) {
-      return res.status(500).json({ message: "Erreur de format JSON du résultat IA", raw: aiResponse });
+      console.error("❌ Échec parsing JSON nettoyé :", cleanJson);
+      return res.status(500).json({
+        message: "Erreur de parsing JSON après nettoyage",
+        raw: aiResponse
+      });
+    }
+
+    if (!Array.isArray(quiz)) {
+      console.warn("⚠️ Réponse IA n'est pas un tableau");
+      return res.status(500).json({
+        message: "❌ La réponse IA n'est pas un tableau",
+        raw: quiz
+      });
     }
 
     res.status(200).json({ quiz, total: quiz.length });
   } catch (error) {
-    console.error("Erreur IA quiz :", error);
+    console.error("❌ Erreur globale IA :", error);
     res.status(500).json({ message: "Erreur serveur IA", error: error.message });
   }
 };
