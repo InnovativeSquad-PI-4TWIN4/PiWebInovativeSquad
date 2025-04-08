@@ -34,17 +34,27 @@ User.virtual('wallet').get(function () {
 });
 
 User.methods.buyPack = async function (pack) {
-  const packPrice = pack.priceAfterDiscount;
+  const packId = pack._id.toString();
+  const priceAfterDiscount = pack.price - (pack.price * pack.discount) / 100;
 
-  if (this.wallet < packPrice) {
+  // 🚫 Vérifier si l'utilisateur possède déjà le pack
+  const alreadyHasPack = this.abonnement.some(p => p.toString() === packId);
+  if (alreadyHasPack) {
+    throw new Error("Vous avez déjà acheté ce pack.");
+  }
+
+  // 💸 Vérifier le solde
+  if (this.wallet < priceAfterDiscount) {
     throw new Error("Points insuffisants pour acheter ce pack.");
   }
 
-  this.wallet -= packPrice;
+  // ✅ Ajouter le pack
+  this.wallet -= priceAfterDiscount;
   this.abonnement.push(pack._id);
 
   await this.save();
   return this;
 };
+
 
 module.exports = mongo.model('users', User);
