@@ -132,9 +132,15 @@ const ManageProfile = () => {
           {user.skills?.length ? user.skills.map((s, i) => <li key={i}>{s}</li>) : <p>Aucune compétence</p>}
         </ul>
 
-        <h3>subscription (Packs) :</h3>
+        <h3>Abonnements (Packs) :</h3>
         <ul>
-          {user.courses?.length ? user.courses.map((c, i) => <li key={i}>{c}</li>) : <p>Aucun cours</p>}
+          {user.abonnement?.length ? (
+            user.abonnement.map((pack, i) => (
+              <li key={i}>{pack.title}</li>
+            ))
+          ) : (
+            <p>Aucun pack acheté</p>
+          )}
         </ul>
 
         <h3>Projects :</h3>

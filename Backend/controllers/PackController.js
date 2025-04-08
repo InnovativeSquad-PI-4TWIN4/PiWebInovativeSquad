@@ -60,40 +60,51 @@ exports.deletePack = async (req, res) => {
 // ✅ Acheter un pack
 exports.buyPack = async (req, res) => {
   try {
-      // Récupérer l'ID utilisateur à partir de req.user (qui est rempli par le middleware)
-      const userId = req.user.userId;  // Assure-toi que l'ID utilisateur est correct dans req.user
-      console.log("ID utilisateur extrait du token : ", userId);  // Affiche l'ID pour le débogage
+    const userId = req.user.userId;
+    const { packId } = req.body;
 
-      const { packId } = req.body;  // Récupère l'ID du pack acheté
+    // Vérification des IDs
+    if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(packId)) {
+      return res.status(400).json({ message: "ID utilisateur ou pack invalide." });
+    }
 
-      // Assure-toi que l'ID est un ObjectId valide
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-          return res.status(400).json({ message: "ID utilisateur invalide." });
-      }
+    const user = await User.findById(userId);
+    const pack = await Pack.findById(packId);
 
-      const user = await User.findById(userId);
-      if (!user) {
-          console.log("Utilisateur non trouvé dans la DB");
-          return res.status(404).json({ message: "Utilisateur introuvable." });
-      }
+    if (!user || !pack) {
+      return res.status(404).json({ message: "Utilisateur ou pack introuvable." });
+    }
 
-      // Vérifie si l'ID du pack est valide également
-      if (!mongoose.Types.ObjectId.isValid(packId)) {
-          return res.status(400).json({ message: "ID de pack invalide." });
-      }
+    // ❌ Vérifier si l'utilisateur a déjà acheté ce pack
+    const alreadyBought = user.abonnement.some((ab) => ab.toString() === packId);
+    if (alreadyBought) {
+      return res.status(400).json({ message: "Vous avez déjà acheté ce pack." });
+    }
 
-      const pack = await Pack.findById(packId);
-      if (!pack) {
-          console.log("Pack non trouvé dans la DB");
-          return res.status(404).json({ message: "Pack introuvable." });
-      }
+    // 💸 Calcul du prix après réduction
+    const priceAfterDiscount = pack.price - (pack.price * pack.discount) / 100;
 
-      // Simuler l'achat du pack (par exemple, en ajoutant le pack à l'utilisateur)
-      await user.buyPack(pack);  // La méthode buyPack doit être définie dans ton modèle User
+    // ❌ Vérifier que l'utilisateur a assez de points (solde)
+    if (user.solde < priceAfterDiscount) {
+      return res.status(400).json({ message: "Solde insuffisant pour acheter ce pack." });
+    }
 
-      res.json({ message: "Achat réussi !", user });
+    // ✅ Ajouter le pack aux abonnements
+    user.abonnement.push(packId);
+
+    // 💰 Déduire le montant du solde
+    user.solde -= priceAfterDiscount;
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Achat réussi !",
+      soldeRestant: user.solde,
+      pack: pack.title,
+    });
+
   } catch (error) {
-      console.error("Erreur lors de l'achat : ", error);
-      res.status(400).json({ message: error.message });
+    console.error("Erreur lors de l'achat : ", error);
+    res.status(500).json({ message: "Erreur interne du serveur", error: error.message });
   }
 };
