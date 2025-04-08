@@ -1,24 +1,56 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useRef} from "react";
 import { useNavigate } from "react-router-dom";
 import "./Messenger.scss";
 import { FaTrashAlt } from "react-icons/fa";
 import {  MdDeleteForever } from "react-icons/md";
 import { formatDistanceToNow } from 'date-fns';
+import { io } from "socket.io-client";
+
 const Messenger = () => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState("");
     const [unreadCounts, setUnreadCounts] = useState({}); // ✅ NEW: Unread messages count
+    const [isTyping, setIsTyping] = useState(false);
+    const [typingUser, setTypingUser] = useState(null); // ✅ Ajout de typingUser
+    const [onlineUsers, setOnlineUsers] = useState([]);
 
     const token = localStorage.getItem("token");
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const userId = storedUser?.id || localStorage.getItem("userId");
 
     const navigate = useNavigate();
+    const socket = useRef(null); // ✅ Ref pour socket
 
-    // ✅ Fetch all users
+    let typingTimeout = null;
+    const typingTimeoutRef = useRef(null);
+
+    
     useEffect(() => {
+        socket.current = io("http://localhost:3000");
+
+        if (!socket.current) return;
+
+        if (userId) {
+            socket.current.emit("join", userId);
+        }
+
+        socket.current.on("userTyping", (fromUser) => {
+            setIsTyping(true);
+            setTypingUser(fromUser.name);
+        });
+
+        socket.current.on("userStopTyping", () => {
+            setIsTyping(false);
+            setTypingUser(null);
+        });
+
+        socket.current.on("onlineUsers", (onlineUserIds) => {
+            console.log("Utilisateurs en ligne :", onlineUserIds);
+            setOnlineUsers(onlineUserIds.map(id => id.toString()));
+        });
+
         const fetchUsers = async () => {
             try {
                 const response = await fetch("http://localhost:3000/users/getAllUsers", {
@@ -39,11 +71,21 @@ const Messenger = () => {
 
         if (token) {
             fetchUsers();
-            fetchUnreadCounts(); // ✅ Fetch unread counts on load
+            fetchUnreadCounts();
         } else {
             navigate("/signin");
         }
-    }, [navigate, token]);
+
+        return () => {
+            if (socket.current) {
+                socket.current.disconnect();
+            }
+        };
+    }, [navigate, token, userId]);
+
+    const isUserOnline = (userIdToCheck) => {
+        return onlineUsers.includes(userIdToCheck.toString());
+    };
 
     // ✅ Fetch unread message counts
     const fetchUnreadCounts = async () => {
@@ -66,8 +108,7 @@ const Messenger = () => {
             console.error("Erreur réseau (unreadCounts):", err);
         }
     };
-    //fetchUnreadCounts();
-    
+
     // ✅ Fetch messages when a user is selected
     useEffect(() => {
         if (selectedUser) {
@@ -78,7 +119,6 @@ const Messenger = () => {
     // ✅ Start chat
     const startChat = (user) => {
         setSelectedUser(user);
-        // Optionally reset unread count immediately
         setUnreadCounts((prev) => ({ ...prev, [user._id]: 0 }));
     };
 
@@ -88,8 +128,6 @@ const Messenger = () => {
             console.error("Missing senderId or receiverId");
             return;
         }
-
-        console.log(`Fetching messages for sender: ${userId}, receiver: ${receiverId}`);
 
         try {
             const response = await fetch(`http://localhost:3000/messages/conversation/${userId}/${receiverId}`, {
@@ -102,11 +140,9 @@ const Messenger = () => {
             }
 
             const data = await response.json();
-            console.log("Messages received:", data.messages);
             setMessages(data.messages);
-            fetchUnreadCounts(); // ✅ Refresh counts
+            fetchUnreadCounts();
 
-            // ✅ Mark messages as read
             data.messages.forEach(async (msg) => {
                 if (!msg.read) {
                     await markMessageAsRead(msg._id);
@@ -117,34 +153,31 @@ const Messenger = () => {
         }
     };
 
-        //delete message
     const handleDeleteMessage = async (messageId) => {
-    if (!messageId || !userId) return;
+        if (!messageId || !userId) return;
 
-    const confirm = window.confirm("Voulez-vous vraiment supprimer ce message ?");
-    if (!confirm) return;
+        const confirm = window.confirm("Voulez-vous vraiment supprimer ce message ?");
+        if (!confirm) return;
 
-    try {
-        const response = await fetch(`http://localhost:3000/messages/delete-message/${messageId}/${userId}`, {
-            method: "DELETE",
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        try {
+            const response = await fetch(`http://localhost:3000/messages/delete-message/${messageId}/${userId}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
-        if (response.ok) {
-            // Retire le message supprimé du state
-            setMessages((prevMessages) => prevMessages.filter((msg) => msg._id !== messageId));
-        } else {
-            const data = await response.json();
-            alert(data.message || "Erreur lors de la suppression.");
+            if (response.ok) {
+                setMessages((prevMessages) => prevMessages.filter((msg) => msg._id !== messageId));
+            } else {
+                const data = await response.json();
+                alert(data.message || "Erreur lors de la suppression.");
+            }
+        } catch (error) {
+            console.error("Erreur lors de la suppression du message :", error);
         }
-    } catch (error) {
-        console.error("Erreur lors de la suppression du message :", error);
-    }
-};
+    };
 
-    // ✅ Mark message as read
     const markMessageAsRead = async (messageId) => {
         try {
             const response = await fetch(`http://localhost:3000/messages/mark-as-read/${messageId}`, {
@@ -186,13 +219,11 @@ const Messenger = () => {
 
             const data = await response.json();
             if (response.ok) {
-                console.log("Message sent:", data);
-
-                // Add new message to the state
                 setMessages((prevMessages) => [...prevMessages, data.savedMessage]);
-                fetchMessages(receiverId); // Refetch messages
-                fetchUnreadCounts(); // ✅ Refresh counts after sending
+                fetchMessages(receiverId);
+                fetchUnreadCounts();
                 setMessageText("");
+                setIsTyping(false);
             } else {
                 console.error("Backend error:", data.error);
             }
@@ -221,9 +252,11 @@ const Messenger = () => {
                         alt="Profile"
                         className="profile-image"
                     />
-                    <span className="user-name">
-                        {user.name} {user.surname}
-                    </span>
+                   <span className="user-name">
+  {user.name} {user.surname}
+  <span className={`status-dot ${isUserOnline(user._id) ? 'online' : 'offline'}`}></span>
+</span>
+
 
                     {/* Badge des messages non lus */}
                     {count > 0 && <span className="unread-badge">{count}</span>}
@@ -274,10 +307,32 @@ const Messenger = () => {
                                 
                             ))}
                         </div>
+                        {isTyping && typingUser && (
+  <div className="typing-indicator">
+    {typingUser} est en train d’écrire...
+  </div>
+)}
+
+
                         <div className="message-input">
                             <textarea
                                 value={messageText}
-                                onChange={(e) => setMessageText(e.target.value)}
+                                onChange={(e) => {
+                                    setMessageText(e.target.value);
+                                    if (!selectedUser) return;
+                                  
+                                    socket.current.emit("typing", {
+                                      toUserId: selectedUser._id,
+                                      fromUser: { id: userId, name: storedUser?.name },
+                                    });
+                                  
+                                    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+                                    typingTimeoutRef.current = setTimeout(() => {
+                                      socket.current.emit("stopTyping", { toUserId: selectedUser._id });
+                                    }, 2000);
+                                  }}
+                                  
+                                                                  
                                 placeholder="Write a message..."
                             />
                             <button onClick={sendMessage}>Send</button>
