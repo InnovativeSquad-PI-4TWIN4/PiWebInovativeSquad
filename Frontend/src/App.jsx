@@ -37,7 +37,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import Full from './components/PersonalSpace/Full';
 import Personall from './components/PersonalSpace/Personal';
 import Publication from './components/frontoffice/publication/Publication';
-
+import ExchangeRoom from './components/frontoffice/Packs/ExchangeRoom';
 const App = () => {
     const [user, setUser] = useState(null);
 
@@ -129,8 +129,11 @@ const App = () => {
                             <Route path="/admin/add-admin" element={<AddAdmin />} />
                             <Route path="/coursesadmin" element={<CoursesAdmin />} />
                             <Route path="/add-course" element={<AddCourses />} />
+                            <Route path="/room/:packId" element={<ExchangeRoom />} />
+
                             <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
                             <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
+                            
                         </>
                     ) : (
                         <>

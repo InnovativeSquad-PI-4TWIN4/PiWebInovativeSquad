@@ -24,12 +24,41 @@ exports.getPackById = async (req, res) => {
 };
 
 // ✅ Ajouter un nouveau pack
+// ✅ Ajouter un nouveau pack enrichi
 exports.createPack = async (req, res) => {
   try {
-    const { title, description, price, discount, category } = req.body;
-    const newPack = new Pack({ title, description, price, discount, category });
+    const {
+      title,
+      description,
+      price,
+      discount,
+      category,
+      level,
+      duration,
+      skills,
+      bonuses,
+      prerequisites,
+      content,
+      icon
+    } = req.body;
+
+    const newPack = new Pack({
+      title,
+      description,
+      price,
+      discount,
+      category,
+      level,
+      duration,
+      skills,
+      bonuses,
+      prerequisites,
+      content,
+      icon
+    });
+
     await newPack.save();
-    res.status(201).json(newPack.toJSON()); // Inclut `priceAfterDiscount`
+    res.status(201).json(newPack.toJSON());
   } catch (error) {
     res.status(400).json({ message: "Erreur lors de l'ajout du pack", error });
   }
@@ -97,3 +126,4 @@ exports.buyPack = async (req, res) => {
       res.status(400).json({ message: error.message });
   }
 };
+
