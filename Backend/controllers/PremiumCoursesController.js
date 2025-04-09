@@ -219,14 +219,16 @@ Réponds uniquement en format JSON valide :
     }
 
     if (!Array.isArray(quiz)) {
-      console.warn("⚠️ Réponse IA n'est pas un tableau");
       return res.status(500).json({
         message: "❌ La réponse IA n'est pas un tableau",
         raw: quiz
       });
     }
 
-    res.status(200).json({ quiz, total: quiz.length });
+    // ✅ Limiter à 5 questions maximum
+    const limitedQuiz = quiz.slice(0, 5);
+
+    res.status(200).json({ quiz: limitedQuiz, total: limitedQuiz.length });
   } catch (error) {
     console.error("❌ Erreur globale IA :", error);
     res.status(500).json({ message: "Erreur serveur IA", error: error.message });
