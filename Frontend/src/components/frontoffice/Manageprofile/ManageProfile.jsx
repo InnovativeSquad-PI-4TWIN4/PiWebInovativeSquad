@@ -82,75 +82,74 @@ const ManageProfile = () => {
       }
     }
   };
-  const handleViewProfiles = () => {
-    navigate('/profiles'); 
-  };
-  
+
   const openImageModal = () => setIsImageModalOpen(true);
   const closeImageModal = () => setIsImageModalOpen(false);
 
   if (loading) return <p>Chargement...</p>;
 
   return (
-    <div className="facebook-profile">
-      <div className="cover-photo">
-        <div className="profile-image">
+    <div className="profile-container">
+      <div className="cover-banner" />
+      <div className="profile-header">
+        <div className="avatar">
           {user.image ? (
             <img src={`http://localhost:3000${user.image}`} alt="Profile" onClick={openImageModal} />
           ) : (
             <div className="avatar-placeholder">E</div>
           )}
         </div>
-      </div>
-  
-      <div className="user-info">
-        <h1>{user.name} {user.surname}</h1>
-        <p>@{user.username || user.email?.split("@")[0]}</p>
-        <p className="wallet-btn" onClick={() => setIsWalletOpen(true)}>
-          <FaWallet /> {user.wallet} points
-        </p>
-  
-        <div className="btn-row">
-          <button onClick={() => navigate("/update-profile")} className="btn">Update profil</button>
-          <button onClick={handleDelete} className="btn danger">Delete</button>
-          <button onClick={handleViewProfiles} className="btn primary">View Other Profiles</button>
-          {user.role !== "client_approuve" && (
-            <button onClick={handleRequestApproval} className="btn approve">
-              <FaCheckCircle /> Demander l'approbation
+
+        <div className="profile-info">
+          <h2>
+            {user.name} {user.surname}
+            {user.role === "client_approuve" && <FaCheckCircle className="verified" />}
+          </h2>
+          <p>@{user.username || user.email?.split("@")[0]}</p>
+          <p className="wallet-btn" onClick={() => setIsWalletOpen(true)}>
+            <FaWallet /> {user.wallet} points
+          </p>
+
+          <div className="btn-row">
+            <button onClick={() => navigate("/update-profile")} className="btn">
+              Update profil
             </button>
-          )}
-        </div>
-      </div>
-  
-      <div className="main-section">
-      <div className="messenger-link" onClick={handleMessengerClick}>
-            <FaFacebookMessenger size={28} color="#1DA1F2" />
-            <span>Go to Messen-SkillBridge</span>
-          </div>
-  
-        <div className="right-section">
-        <div className="left-section">
-          <div className="intro">
-            <h3>Skills</h3>
-            <ul>
-              {user.skills?.length ? user.skills.map((s, i) => <li key={i}>{s}</li>) : <p>Aucune compétence</p>}
-            </ul>
-  
-            <h3>Abonnements</h3>
-            <ul>
-              {user.abonnement?.length ? user.abonnement.map((pack, i) => <li key={i}>{pack.title}</li>) : <p>Aucun pack</p>}
-            </ul>
-  
-            <h3>Projects</h3>
-            <ul>
-              {user.projects?.length ? user.projects.map((p, i) => <li key={i}>{p}</li>) : <p>Aucun projet</p>}
-            </ul>
+            <button onClick={handleDelete} className="btn danger">
+              Delete 
+            </button>
+            {user.role !== "client_approuve" && (
+              <button onClick={handleRequestApproval} className="btn approve">
+                <FaCheckCircle /> Demander l'approbation
+              </button>
+            )}
           </div>
         </div>
-          
+      </div>
+
+      <div className="profile-details">
+        <h3>Skills :</h3>
+        <ul>
+          {user.skills?.length ? user.skills.map((s, i) => <li key={i}>{s}</li>) : <p>Aucune compétence</p>}
+        </ul>
+
+        <h3>subscription (Packs) :</h3>
+        <ul>
+          {user.courses?.length ? user.courses.map((c, i) => <li key={i}>{c}</li>) : <p>Aucun cours</p>}
+        </ul>
+
+        <h3>Projects :</h3>
+        <ul>
+          {user.projects?.length ? user.projects.map((p, i) => <li key={i}>{p}</li>) : <p>Aucun projet</p>}
+        </ul>
+
+        <div className="messenger-link" onClick={handleMessengerClick}>
+          <FaFacebookMessenger size={28} color="#1DA1F2" />
+          <span>Go to Messen-SkillBridge</span>
         </div>
       </div>
-   
+
+      
+
       <AnimatePresence>
         {isWalletOpen && (
           <motion.div
