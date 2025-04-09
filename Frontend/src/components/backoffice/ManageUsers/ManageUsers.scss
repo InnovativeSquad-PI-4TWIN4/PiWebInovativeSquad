@@ -168,7 +168,7 @@
   }
 }
 
-// ✅ Modal pour afficher les quiz validés et envoyer un email
+// ✅ Modal et boutons
 .modal {
   position: fixed;
   top: 0;
@@ -217,27 +217,46 @@
       resize: vertical;
     }
 
-    button {
-      margin: 5px;
-      padding: 10px 15px;
-      border: none;
-      background: #007bff;
+    p.italic {
+      font-style: italic;
+      color: #999;
+      margin-top: 10px;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .green-btn {
+      background-color: #28a745;
       color: white;
+    }
+
+    .red-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .blue-btn {
+      background-color: #007bff;
+      color: white;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
       border-radius: 5px;
+      font-weight: 500;
+      font-size: 14px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background-color 0.3s ease;
 
       &:hover {
-        background: #0056b3;
-      }
-
-      &:last-child {
-        background-color: #ccc;
-        color: #000;
-
-        &:hover {
-          background-color: #999;
-        }
+        filter: brightness(90%);
       }
     }
   }
