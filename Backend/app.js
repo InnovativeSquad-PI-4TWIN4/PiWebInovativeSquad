@@ -41,6 +41,9 @@ const app = express();
 // ✅ Création du serveur HTTP pour intégrer Socket.io
 const server = http.createServer(app);
 
+ mouadh
+const app = express();
+=======
 // ✅ Intégration de Socket.io
 const io = new Server(server, {
   cors: {
@@ -86,6 +89,7 @@ io.on("connection", (socket) => {
 });
 
 // ✅ Middleware et configuration Express
+ main
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "twig");
 
