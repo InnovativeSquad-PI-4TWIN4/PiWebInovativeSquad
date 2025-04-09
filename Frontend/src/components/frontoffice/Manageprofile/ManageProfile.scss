@@ -1,3 +1,145 @@
+.facebook-profile {
+  background-color: #18191a;
+  color: #e4e6eb;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+
+  .cover-photo {
+    position: relative;
+    height: 200px;
+    background-color: #3a3b3c;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-image {
+      position: absolute;
+      bottom: -50px;
+      left: 40px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 4px solid #18191a;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        font-size: 2rem;
+        color: white;
+        background-color: #4b4c4f;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+      }
+    }
+  }
+
+  .user-info {
+    padding: 80px 40px 20px;
+    h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    p {
+      font-size: 14px;
+      color: #b0b3b8;
+    }
+
+    .btn-row {
+      margin-top: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+
+      .btn {
+        background-color: #3a3b3c;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+
+        &.danger {
+          background-color: #d93025;
+        }
+
+        &.approve {
+          background-color: #22c55e;
+        }
+
+        &.primary {
+          background-color: #1d4ed8;
+        }
+
+        &:hover {
+          opacity: 0.9;
+        }
+      }
+    }
+  }
+
+  .main-section {
+    display: flex;
+    padding: 20px 40px;
+
+    .left-section {
+      flex: 1;
+      padding-right: 2rem;
+
+      h3 {
+        margin-top: 20px;
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      ul {
+        list-style: none;
+        padding-left: 0;
+
+        li {
+          margin-bottom: 6px;
+        }
+
+        p {
+          color: #888;
+        }
+      }
+    }
+
+    .right-section {
+      flex: 1;
+      padding-left: 2rem;
+
+      .messenger-link {
+        background-color: #242526;
+        padding: 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        &:hover {
+          background-color: #3a3b3c;
+        }
+      }
+    }
+  }
+}
 
 .profile-container {
   font-family: 'Segoe UI', sans-serif;
