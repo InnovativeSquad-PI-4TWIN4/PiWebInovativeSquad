@@ -455,8 +455,7 @@ exports.resetPassword = async (req, res) => {
 exports.getProfile = async (req, res) => {
   try {
       const userId = req.user.userId;
-      const user = await User.findById(userId).select("-password");
-
+      const user = await User.findById(userId).select("-password").populate("abonnement", "title");
       if (!user) {
           return res.status(404).json({ status: "FAILED", message: "User not found" });
       }
@@ -476,6 +475,7 @@ exports.getProfile = async (req, res) => {
               role: user.role,
               image: user.image,
               isActive: user.isActive,
+              abonnement: user.abonnement, 
               wallet  // ✅ Ajout du wallet dans la réponse
           }
       });
@@ -538,6 +538,24 @@ exports.getAllUsers = async (req, res) => {
       return res.status(500).json({ message: 'Erreur du serveur' });
   }
 };
+
+exports.getUserById = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId).select('-password'); // exclure le mot de passe
+
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error('Erreur lors de la récupération du profil :', error);
+    return res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+
 // ✅ Fonction pour récupérer uniquement les administrateurs
 exports.getAllAdmins = async (req, res) => {
   try {
