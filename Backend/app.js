@@ -34,7 +34,7 @@ const stripeRouter = require("./routes/stripe");
 const chatRoutes = require("./routes/chatRoutes");
 const favoritesRoutes = require("./routes/favorites");
 const quizResultRoutes = require("./routes/quizResult.routes");
-
+const emailRoutes = require("./routes/email.routes");
 // ✅ Initialise app Express
 const app = express();
 
@@ -137,6 +137,7 @@ app.use("/api/stripe", stripeRouter);
 app.use("/chat", chatRoutes);
 app.use("/favorites", favoritesRoutes);
 app.use("/api/quiz-result", quizResultRoutes);
+app.use("/api/email", emailRoutes);
 
 // ✅ Gestion 404
 app.use((req, res, next) => {
