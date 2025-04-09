@@ -17,6 +17,7 @@ router.patch("/activate/:id", authenticateUser, isAdmin, activateUser);
 router.patch("/deactivate/:id", authenticateUser, isAdmin, deactivateUser);
 router.get("/profile", authenticateUser, userController.getProfile);
 router.get("/getAllUsers", authenticateUser,userController.getAllUsers);
+router.get('/users/:id', authenticateUser, userController.getUserById);
 
 // ✅ Gestion des approbations des utilisateurs
 router.post("/request-approval", authenticateUser, userController.requestApproval);
