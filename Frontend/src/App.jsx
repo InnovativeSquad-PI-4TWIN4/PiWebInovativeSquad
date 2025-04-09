@@ -37,6 +37,8 @@ import { ThemeProvider } from "./context/ThemeContext";
 import Full from './components/PersonalSpace/Full';
 import Personall from './components/PersonalSpace/Personal';
 import Publication from './components/frontoffice/publication/Publication';
+import Profiles from './components/frontoffice/Manageprofile/AllProfiles'
+import ProfileDetail from './components/frontoffice/Manageprofile/ProfileDetails'
 import ExchangeRoom from './components/frontoffice/Packs/ExchangeRoom';
 const App = () => {
     const [user, setUser] = useState(null);
@@ -150,6 +152,8 @@ const App = () => {
                             <Route path="/marketplace/free" element={<FreeCourses />} />
                             <Route path="/success" element={<Success />} />
                             <Route path="/AvisWebsite" element={<Avis />} />
+                            <Route path="/profiles" element={<Profiles currentUserId={user?._id} />} />
+                            <Route path="/profile/:id" element={<ProfileDetail />} />
                             <Route path="/Ourpacks" element={<Packs />} />
                             <Route path="/contact" element={<Contact />} />
                             <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
