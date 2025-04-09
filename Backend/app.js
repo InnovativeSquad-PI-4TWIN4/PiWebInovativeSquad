@@ -33,7 +33,6 @@ require("./config/passport");
 const mongoConn = require("./config/DataBase.json");
 
 const app = express();
-
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "twig");
 
