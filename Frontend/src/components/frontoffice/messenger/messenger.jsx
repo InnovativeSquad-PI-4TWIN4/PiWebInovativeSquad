@@ -156,7 +156,7 @@ const Messenger = () => {
     const handleDeleteMessage = async (messageId) => {
         if (!messageId || !userId) return;
 
-        const confirm = window.confirm("Voulez-vous vraiment supprimer ce message ?");
+        const confirm = window.confirm("Are you sure  you want delete this message ?");
         if (!confirm) return;
 
         try {
