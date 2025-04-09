@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { Bell, MessageCircle } from "lucide-react"
+import { ThemeContext } from "../../../context/ThemeContext"
 import "./NotificationComponent.scss"
 
 const NotificationComponent = () => {
@@ -12,10 +13,10 @@ const NotificationComponent = () => {
   const [unreadCount, setUnreadCount] = useState(0)
   const navigate = useNavigate()
   const token = localStorage.getItem("token")
+  const { theme } = useContext(ThemeContext)
 
   useEffect(() => {
     fetchNotifications()
-    // Poll for new notifications every 30 seconds
     const interval = setInterval(fetchNotifications, 30000)
     return () => clearInterval(interval)
   }, [])
@@ -38,23 +39,13 @@ const NotificationComponent = () => {
 
   const handleNotificationClick = async (notification) => {
     try {
-      console.log("Notification cliquée:", notification)
-
-      // Mark notification as read
       await axios.post(
         `http://localhost:3000/chat/notifications/${notification._id}/read`,
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       )
 
-      // Log les IDs pour débogage
-      console.log("Publication ID:", notification.publicationId._id)
-      console.log("Sender ID:", notification.senderId._id)
-
-      // Open the chat with the publication and sender
       openChat(notification.publicationId._id, notification.senderId._id)
-
-      // Update notifications list
       fetchNotifications()
     } catch (error) {
       console.error("Error handling notification:", error)
@@ -62,21 +53,11 @@ const NotificationComponent = () => {
   }
 
   const openChat = (publicationId, senderId) => {
-    console.log("Ouverture du chat avec:", { publicationId, senderId })
-
-    // Store the chat context in localStorage to retrieve it in the chat component
     localStorage.setItem(
       "currentChatContext",
-      JSON.stringify({
-        publicationId,
-        senderId,
-      }),
+      JSON.stringify({ publicationId, senderId })
     )
-
-    // Navigate to the publication page with the chat open
     navigate(`/publication?id=${publicationId}&chat=true&sender=${senderId}`)
-
-    // Fermer le dropdown après avoir cliqué
     setShowDropdown(false)
   }
 
@@ -90,10 +71,12 @@ const NotificationComponent = () => {
     })
   }
 
+  const bellColor = theme === "dark" ? "#ffffff" : "#000000"
+
   return (
     <div className="notification-component">
       <div className="notification-icon" onClick={() => setShowDropdown(!showDropdown)}>
-        <Bell size={24} />
+        <Bell size={24} color={bellColor} />
         {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
       </div>
 
