@@ -12,4 +12,6 @@ router.get('/messages/:userId', messageController.getMessages);
 router.get('/conversation/:senderId/:receiverId', messageController.getConversationMessages);
 router.put('/mark-as-read/:messageId', messageController.markMessageAsRead);
 
+router.get("/unread-counts/:userId", messageController.getUnreadCounts);
+router.delete('/delete-message/:messageId/:userId', messageController.deleteMessageBySender);
 module.exports = router;

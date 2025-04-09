@@ -1,0 +1,33 @@
+.exchange-room {
+    max-width: 600px;
+    margin: auto;
+    padding: 1rem;
+  
+    .proposal-form {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+  
+      input {
+        flex: 1;
+        padding: 0.5rem;
+      }
+  
+      button {
+        padding: 0.5rem 1rem;
+      }
+    }
+  
+    .proposal-list {
+      list-style: none;
+      padding: 0;
+  
+      li {
+        background: #f2f2f2;
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+        border-radius: 4px;
+      }
+    }
+  }
+  

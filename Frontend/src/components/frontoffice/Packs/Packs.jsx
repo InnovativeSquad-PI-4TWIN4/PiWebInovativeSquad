@@ -101,6 +101,13 @@ const Packs = () => {
               <p className="discounted-price">
                 <strong>Prix après réduction :</strong> {getDiscountedPrice(pack.price, pack.discount).toFixed(2)}DT
               </p>
+              <button
+  className="exchange-room-button"
+  onClick={() => window.location.href = `/room/${pack._id}`}
+>
+  📢 Room d'échange
+</button>
+
             </div>
           </div>
         ))}

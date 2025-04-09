@@ -1,0 +1,226 @@
+.facebook-profile {
+  background-color: #18191a;
+  color: #e4e6eb;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+
+  .cover-photo {
+    position: relative;
+    height: 250px;
+    background-color: #3a3b3c;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-image {
+      position: absolute;
+      bottom: -60px;
+      left: 40px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid #18191a;
+      background-color: #3a3b3c;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        font-size: 3rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #4b4c4f;
+        border-radius: 50%;
+      }
+    }
+  }
+
+  .user-info {
+    margin-top: 70px;
+    padding: 0 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    p {
+      font-size: 14px;
+      color: #b0b3b8;
+      margin-bottom: 10px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+
+      button {
+        padding: 8px 16px;
+        background-color: #3a3b3c;
+        color: #e4e6eb;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+
+        &.message {
+          background-color: #2374e1;
+
+          &:hover {
+            background-color: #1a61c2;
+          }
+        }
+
+        &:hover {
+          background-color: #4e4f50;
+        }
+      }
+    }
+  }
+
+  .tabs {
+    display: flex;
+    gap: 20px;
+    padding: 16px 40px;
+    border-bottom: 1px solid #3e4042;
+
+    button {
+      background: none;
+      border: none;
+      font-weight: bold;
+      color: #b0b3b8;
+      padding-bottom: 8px;
+      cursor: pointer;
+
+      &.active {
+        color: #2374e1;
+        border-bottom: 2px solid #2374e1;
+      }
+
+      &:hover {
+        color: #e4e6eb;
+      }
+    }
+  }
+
+  .main-section {
+    display: flex;
+    gap: 2rem;
+    padding: 20px 40px;
+
+    .left {
+      flex: 1;
+      max-width: 300px;
+
+      .intro,
+      .skills,
+      .photos {
+        background-color: #242526;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 20px;
+
+        h3, h4 {
+          margin-bottom: 10px;
+        }
+
+        p, li {
+          font-size: 14px;
+          color: #e4e6eb;
+        }
+
+        ul {
+          padding-left: 20px;
+        }
+
+        .photo-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 5px;
+
+          img {
+            width: 100%;
+            border-radius: 4px;
+          }
+        }
+      }
+    }
+
+    .right {
+      flex: 2;
+
+      .post-box {
+        background-color: #242526;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+
+        input {
+          width: 100%;
+          padding: 10px;
+          border-radius: 20px;
+          border: none;
+          background-color: #3a3b3c;
+          color: #e4e6eb;
+          margin-bottom: 10px;
+        }
+
+        .actions {
+          display: flex;
+          justify-content: space-around;
+
+          button {
+            background: none;
+            border: none;
+            color: #b0b3b8;
+            font-weight: bold;
+            cursor: pointer;
+
+            &:hover {
+              color: #e4e6eb;
+            }
+          }
+        }
+      }
+
+      .posts {
+        .post {
+          background-color: #242526;
+          padding: 16px;
+          border-radius: 8px;
+          margin-bottom: 15px;
+
+          p {
+            margin-bottom: 6px;
+          }
+
+          span {
+            font-size: 12px;
+            color: #b0b3b8;
+          }
+        }
+      }
+    }
+  }
+
+  .loading {
+    color: white;
+    padding: 50px;
+    text-align: center;
+  }
+}
