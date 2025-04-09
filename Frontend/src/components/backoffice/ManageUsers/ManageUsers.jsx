@@ -141,7 +141,7 @@ const ManageUsers = () => {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Erreur envoi email");
+      if (!res.ok) throw new Error(data.error || "Erreur lord de l' envoi email");
 
       alert("📧 Email envoyé avec succès !");
       setEmailMessage("");
