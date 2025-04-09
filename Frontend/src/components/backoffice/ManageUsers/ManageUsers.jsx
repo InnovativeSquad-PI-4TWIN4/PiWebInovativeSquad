@@ -230,36 +230,104 @@ const ManageUsers = () => {
       )}
 
 
-      {showHistoryModal && (
-        <div className="modal">
-          <div className="modal-content" style={{ textAlign: 'center' }}>
-            <h3>Historique des quiz validés</h3>
-            {quizHistory.length === 0 ? (
-              <p>Aucun quiz validé.</p>
+{showHistoryModal && (
+  <div className="modal">
+    <div className="modal-content" style={{ textAlign: 'center' }}>
+      <h3>Historique des quiz validés</h3>
+
+      {quizHistory.length === 0 ? (
+        <>
+          <p>Aucun quiz validé.</p>
+          <p style={{ fontStyle: "italic", color: "#999" }}>
+          Ce client n’a pas validé assez de quiz pour obtenir un certificat
+          </p>
+          <button
+            onClick={() => setShowHistoryModal(false)}
+            style={{
+              backgroundColor: "#dc3545",
+              color: "white",
+              padding: "8px 16px",
+              border: "none",
+              borderRadius: 5,
+              marginTop: 15
+            }}
+          >
+            Fermer
+          </button>
+        </>
+      ) : (
+        <>
+          <ul style={{ textAlign: "left" }}>
+            {quizHistory.map(([cat, count], i) => (
+              <li key={i}>{cat} : {count} quiz</li>
+            ))}
+          </ul>
+
+          {/* Email personnalisé */}
+          
+
+          
+            <button
+              onClick={() => setShowHistoryModal(false)}
+              style={{
+                backgroundColor: "#dc3545",
+                color: "white",
+                padding: "8px 16px",
+                border: "none",
+                borderRadius: 5
+              }}
+            >
+              Fermer
+            </button>
+         
+
+          {/* 🎓 Certification */}
+          <div style={{ marginTop: 20 }}>
+            {quizHistory.some(([_, count]) => count >= 2) ? (
+              <button
+                onClick={async () => {
+                  try {
+                    const examLink = "https://skillbridge.tn/examen/flutter"; // lien certif
+                    const res = await fetch("http://localhost:3000/api/email/send-certification", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        to: emailUser.email,
+                        name: emailUser.name,
+                        examLink,
+                      }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.message);
+                    alert("🎓 Email de certification envoyé !");
+                    setShowHistoryModal(false);
+                  } catch (err) {
+                    console.error(err);
+                    alert("❌ Échec de l'envoi du certificat.");
+                  }
+                }}
+                style={{
+                  backgroundColor: "#007bff",
+                  color: "#fff",
+                  padding: "10px 20px",
+                  border: "none",
+                  borderRadius: "5px"
+                }}
+              >
+                🎓 GetCertificat
+              </button>
             ) : (
-              <ul style={{ textAlign: "left" }}>
-                {quizHistory.map(([cat, count], i) => (
-                  <li key={i}>{cat} : {count} quiz</li>
-                ))}
-              </ul>
+              <p style={{ marginTop: 10, fontStyle: "italic", color: "#999" }}>
+                Ce client n’a pas validé assez de quiz pour obtenir un certificat
+              </p>
             )}
-            <textarea
-              placeholder="Message à envoyer au client..."
-              value={emailMessage}
-              onChange={(e) => setEmailMessage(e.target.value)}
-              style={{ width: '100%', marginTop: 10, padding: 10, borderRadius: 5 }}
-            />
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: 15 }}>
-              <button onClick={sendEmail} style={{ backgroundColor: "#28a745", color: "white", padding: "8px 16px", border: "none", borderRadius: 5 }}>
-                <FaEnvelope /> Envoyer Email
-              </button>
-              <button onClick={() => setShowHistoryModal(false)} style={{ backgroundColor: "#dc3545", color: "white", padding: "8px 16px", border: "none", borderRadius: 5 }}>
-                Fermer
-              </button>
-            </div>
           </div>
-        </div>
+        </>
       )}
+    </div>
+  </div>
+)}
+
 
       {selectedUser && <UserDetails user={selectedUser} onClose={() => setSelectedUser(null)} />}
     </div>
