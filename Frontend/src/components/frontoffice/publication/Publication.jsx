@@ -1,155 +1,249 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './Publication.scss';
-import { FaPaperPlane } from 'react-icons/fa';
-import ChatComponent from '../chatcomponent/ChatComponent';
-import { useLocation } from 'react-router-dom';
+"use client"
+
+import { useState, useEffect } from "react"
+import axios from "axios"
+import "./Publication.scss"
+import { FaPaperPlane } from "react-icons/fa"
+import ChatComponent from "../chatcomponent/chatcomponent"
+import { useLocation, useNavigate } from "react-router-dom"
 
 const Publication = () => {
-  const [publications, setPublications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [publications, setPublications] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [newPublication, setNewPublication] = useState({
-    type: 'offer',
-    description: '',
-  });
-  const [currentUser, setCurrentUser] = useState(null);
-  const [newComments, setNewComments] = useState({});
-  const [newReplies, setNewReplies] = useState({});
-  const [replyingTo, setReplyingTo] = useState({});
-  const [activeReplyComment, setActiveReplyComment] = useState(null);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [selectedPublication, setSelectedPublication] = useState(null);
-  const [hasConversation, setHasConversation] = useState(false); // Nouvel état pour vérifier l'existence d'une conversation
+    type: "offer",
+    description: "",
+  })
+  const [currentUser, setCurrentUser] = useState(null)
+  const [newComments, setNewComments] = useState({})
+  const [newReplies, setNewReplies] = useState({})
+  const [replyingTo, setReplyingTo] = useState({})
+  const [activeReplyComment, setActiveReplyComment] = useState(null)
+  const [chatOpen, setChatOpen] = useState(false)
+  const [selectedPublication, setSelectedPublication] = useState(null)
+  const [selectedSender, setSelectedSender] = useState(null)
+  const [hasConversation, setHasConversation] = useState(false)
 
-  const API_URL = 'http://localhost:3000/publication';
-  const USER_API_URL = 'http://localhost:3000/users/profile';
-  const BASE_URL = 'http://localhost:3000';
-  const CHAT_API_URL = 'http://localhost:3000/chat';
+  const API_URL = "http://localhost:3000/publication"
+  const USER_API_URL = "http://localhost:3000/users/profile"
+  const BASE_URL = "http://localhost:3000"
+  const CHAT_API_URL = "http://localhost:3000/chat"
 
-  const location = useLocation();
+  const location = useLocation()
+  const navigate = useNavigate()
 
-  const commentSuggestions = [
-    'Parfait',
-    `Excellent travail ${currentUser?.name || ''}`,
-    'Super !',
-    'Bien joué',
-  ];
+  const commentSuggestions = ["Parfait", `Excellent travail ${currentUser?.name || ""}`, "Super !", "Bien joué"]
 
   // Récupérer l'utilisateur connecté
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token")
         if (!token) {
-          setError('Utilisateur non connecté');
-          setLoading(false);
-          return;
+          setError("Utilisateur non connecté")
+          setLoading(false)
+          return
         }
 
         const response = await axios.get(USER_API_URL, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
+        })
 
-        if (response.data.status === 'SUCCESS') {
-          setCurrentUser(response.data.user);
+        if (response.data.status === "SUCCESS") {
+          setCurrentUser(response.data.user)
         } else {
-          setError('Erreur lors de la récupération des informations utilisateur');
+          setError("Erreur lors de la récupération des informations utilisateur")
         }
       } catch (err) {
-        setError('Erreur lors de la récupération des informations utilisateur');
+        setError("Erreur lors de la récupération des informations utilisateur")
       }
-    };
+    }
 
-    fetchCurrentUser();
-  }, []);
+    fetchCurrentUser()
+  }, [])
 
   // Récupérer les publications
   useEffect(() => {
     const fetchPublications = async () => {
       try {
-        const response = await axios.get(`${API_URL}/getAllPub`);
-        setPublications(response.data);
-        setLoading(false);
+        const response = await axios.get(`${API_URL}/getAllPub`)
+        setPublications(response.data)
+        setLoading(false)
       } catch (err) {
-        setError('Erreur lors du chargement des publications');
-        setLoading(false);
+        setError("Erreur lors du chargement des publications")
+        setLoading(false)
       }
-    };
+    }
 
-    fetchPublications();
-  }, []);
+    fetchPublications()
+  }, [])
 
   // Vérifier les paramètres d'URL pour ouvrir le chat
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const publicationId = params.get('publicationId');
-    
+    const params = new URLSearchParams(location.search)
+    const publicationId = params.get("id")
+    const openChat = params.get("chat") === "true"
+    const senderId = params.get("sender")
+
+    console.log("URL params:", { publicationId, openChat, senderId })
+
     if (publicationId && publications.length > 0 && currentUser) {
-      const publication = publications.find((pub) => pub._id === publicationId);
+      const publication = publications.find((pub) => pub._id === publicationId)
       if (publication) {
-        setSelectedPublication(publication);
+        setSelectedPublication(publication)
 
-        // Vérifier si une conversation existe déjà
-        const checkConversation = async () => {
-          try {
-            const token = localStorage.getItem('token');
-            const chatResponse = await axios.post(
-              `${CHAT_API_URL}/create`,
-              {
-                user1: currentUser._id,
-                user2: publication.user._id,
-                publicationId: publication._id,
-              },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
+        // Si chat=true dans l'URL, ouvrir le chat automatiquement
+        if (openChat && senderId) {
+          // Utiliser directement les informations de l'utilisateur si c'est l'auteur de la publication
+          if (publication.user && publication.user._id === senderId) {
+            setSelectedSender(publication.user)
+            setChatOpen(true)
+          } else {
+            // Sinon, chercher l'utilisateur dans les publications existantes
+            findUserInPublications(senderId).then((user) => {
+              if (user) {
+                setSelectedSender(user)
+                setChatOpen(true)
+              } else {
+                console.error("Impossible de trouver l'utilisateur dans les publications existantes")
               }
-            );
-
-            // Si des messages existent, une conversation a déjà été initiée
-            const conversationExists = chatResponse.data.messages && chatResponse.data.messages.length > 0;
-            setHasConversation(conversationExists);
-
-            // Si une conversation existe, ouvrir le chat
-            if (conversationExists) {
-              setChatOpen(true);
-            }
-          } catch (err) {
-            console.error('Erreur lors de la vérification de la conversation:', err);
+            })
           }
-        };
-
-        checkConversation();
+        }
       }
     }
-  }, [location, publications, currentUser]);
+
+    // Vérifier si nous avons un contexte de chat stocké dans localStorage
+    const chatContext = localStorage.getItem("currentChatContext")
+    if (chatContext) {
+      try {
+        const { publicationId: contextPublicationId, senderId: contextSenderId } = JSON.parse(chatContext)
+
+        if (publications.length > 0) {
+          const publication = publications.find((pub) => pub._id === contextPublicationId)
+          if (publication) {
+            setSelectedPublication(publication)
+
+            if (contextSenderId) {
+              // Utiliser directement les informations de l'utilisateur si c'est l'auteur de la publication
+              if (publication.user && publication.user._id === contextSenderId) {
+                setSelectedSender(publication.user)
+                setChatOpen(true)
+              } else {
+                // Sinon, chercher l'utilisateur dans les publications existantes
+                findUserInPublications(contextSenderId).then((user) => {
+                  if (user) {
+                    setSelectedSender(user)
+                    setChatOpen(true)
+                  } else {
+                    console.error("Impossible de trouver l'utilisateur dans les publications existantes")
+                  }
+                })
+              }
+            }
+          }
+        }
+
+        // Effacer le contexte après l'avoir utilisé
+        localStorage.removeItem("currentChatContext")
+      } catch (error) {
+        console.error("Erreur lors du parsing du contexte de chat:", error)
+      }
+    }
+  }, [location.search, publications, currentUser])
+
+  // Nouvelle fonction pour trouver un utilisateur dans les publications existantes
+  const findUserInPublications = async (userId) => {
+    if (!userId) {
+      console.error("findUserInPublications: userId est undefined ou null")
+      return null
+    }
+
+    console.log("Recherche de l'utilisateur dans les publications:", userId)
+
+    // Chercher d'abord dans les auteurs des publications
+    for (const pub of publications) {
+      if (pub.user && pub.user._id === userId) {
+        console.log("Utilisateur trouvé comme auteur de publication:", pub.user)
+        return pub.user
+      }
+
+      // Chercher dans les commentaires
+      if (pub.comments) {
+        for (const comment of pub.comments) {
+          if (comment.user && comment.user._id === userId) {
+            console.log("Utilisateur trouvé comme auteur de commentaire:", comment.user)
+            return comment.user
+          }
+
+          // Chercher dans les réponses aux commentaires
+          if (comment.replies) {
+            for (const reply of comment.replies) {
+              if (reply.user && reply.user._id === userId) {
+                console.log("Utilisateur trouvé comme auteur de réponse:", reply.user)
+                return reply.user
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Si l'utilisateur n'est pas trouvé dans les publications, essayer de récupérer les informations via l'API de chat
+    try {
+      console.log("Tentative de récupération des informations utilisateur via l'API de chat")
+      const token = localStorage.getItem("token")
+      const response = await axios.post(
+        `${CHAT_API_URL}/getUserInfo`,
+        { userId },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
+
+      if (response.data && response.data.user) {
+        console.log("Informations utilisateur récupérées via l'API de chat:", response.data.user)
+        return response.data.user
+      }
+    } catch (error) {
+      console.error("Erreur lors de la récupération des informations utilisateur via l'API de chat:", error)
+    }
+
+    // Si tout échoue, créer un objet utilisateur minimal avec l'ID
+    console.log("Création d'un objet utilisateur minimal")
+    return {
+      _id: userId,
+      name: "Utilisateur",
+      surname: userId.substring(0, 5),
+      image: null,
+    }
+  }
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setNewPublication((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!newPublication.description.trim()) {
-      alert('Veuillez entrer une description.');
-      return;
+      alert("Veuillez entrer une description.")
+      return
     }
 
     if (!currentUser) {
-      alert('Utilisateur non connecté');
-      return;
+      alert("Utilisateur non connecté")
+      return
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token")
       const response = await axios.post(
         `${API_URL}/createPub`,
         {
@@ -161,19 +255,19 @@ const Publication = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
-      );
+        },
+      )
 
-      setPublications((prev) => [response.data.publication, ...prev]);
-      setNewPublication({ type: 'offer', description: '' });
+      setPublications((prev) => [response.data.publication, ...prev])
+      setNewPublication({ type: "offer", description: "" })
     } catch (err) {
-      alert('Erreur lors de la création de la publication.');
+      alert("Erreur lors de la création de la publication.")
     }
-  };
+  }
 
   const handleLike = async (publicationId) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token")
       const response = await axios.post(
         `${API_URL}/like/${publicationId}`,
         {},
@@ -181,42 +275,38 @@ const Publication = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
-      );
+        },
+      )
 
-      setPublications((prev) =>
-        prev.map((pub) =>
-          pub._id === publicationId ? response.data.publication : pub
-        )
-      );
+      setPublications((prev) => prev.map((pub) => (pub._id === publicationId ? response.data.publication : pub)))
     } catch (err) {
-      alert(err.response?.data?.error || "Erreur lors de l'ajout du J'aime.");
+      alert(err.response?.data?.error || "Erreur lors de l'ajout du J'aime.")
     }
-  };
+  }
 
   const handleCommentChange = (publicationId, value) => {
     setNewComments((prev) => ({
       ...prev,
       [publicationId]: value,
-    }));
-  };
+    }))
+  }
 
   const handleReplyChange = (commentId, value) => {
     setNewReplies((prev) => ({
       ...prev,
       [commentId]: value,
-    }));
-  };
+    }))
+  }
 
   const handleAddComment = async (publicationId) => {
-    const content = newComments[publicationId];
+    const content = newComments[publicationId]
     if (!content || content.trim().length === 0) {
-      alert('Veuillez entrer un commentaire.');
-      return;
+      alert("Veuillez entrer un commentaire.")
+      return
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token")
       const response = await axios.post(
         `${API_URL}/comment/${publicationId}`,
         { content },
@@ -224,32 +314,28 @@ const Publication = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
-      );
+        },
+      )
 
-      setPublications((prev) =>
-        prev.map((pub) =>
-          pub._id === publicationId ? response.data.publication : pub
-        )
-      );
+      setPublications((prev) => prev.map((pub) => (pub._id === publicationId ? response.data.publication : pub)))
       setNewComments((prev) => ({
         ...prev,
-        [publicationId]: '',
-      }));
+        [publicationId]: "",
+      }))
     } catch (err) {
-      alert(err.response?.data?.error || "Erreur lors de l'ajout du commentaire.");
+      alert(err.response?.data?.error || "Erreur lors de l'ajout du commentaire.")
     }
-  };
+  }
 
   const handleAddReply = async (publicationId, commentId) => {
-    const content = newReplies[commentId];
+    const content = newReplies[commentId]
     if (!content || content.trim().length === 0) {
-      alert('Veuillez entrer une réponse.');
-      return;
+      alert("Veuillez entrer une réponse.")
+      return
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token")
       const response = await axios.post(
         `${API_URL}/reply/${publicationId}/${commentId}`,
         { content },
@@ -257,85 +343,101 @@ const Publication = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
-      );
+        },
+      )
 
-      setPublications((prev) =>
-        prev.map((pub) =>
-          pub._id === publicationId ? response.data.publication : pub
-        )
-      );
+      setPublications((prev) => prev.map((pub) => (pub._id === publicationId ? response.data.publication : pub)))
       setNewReplies((prev) => ({
         ...prev,
-        [commentId]: '',
-      }));
+        [commentId]: "",
+      }))
       setReplyingTo((prev) => ({
         ...prev,
         [publicationId]: null,
-      }));
-      setActiveReplyComment(null);
+      }))
+      setActiveReplyComment(null)
     } catch (err) {
-      alert(err.response?.data?.error || "Erreur lors de l'ajout de la réponse.");
+      alert(err.response?.data?.error || "Erreur lors de l'ajout de la réponse.")
     }
-  };
+  }
 
   const handleSuggestionClick = (publicationId, suggestion) => {
     setNewComments((prev) => ({
       ...prev,
       [publicationId]: suggestion,
-    }));
-  };
+    }))
+  }
 
   const handleReplySuggestionClick = (commentId, suggestion) => {
     setNewReplies((prev) => ({
       ...prev,
       [commentId]: suggestion,
-    }));
-  };
+    }))
+  }
 
   const handleReplyClick = (publicationId, comment) => {
-    const userName = comment.user ? `${comment.user.name} ${comment.user.surname}` : 'Utilisateur inconnu';
+    const userName = comment.user ? `${comment.user.name} ${comment.user.surname}` : "Utilisateur inconnu"
     setReplyingTo((prev) => ({
       ...prev,
       [publicationId]: userName,
-    }));
+    }))
     setNewReplies((prev) => ({
       ...prev,
-      [comment._id]: '',
-    }));
-    setActiveReplyComment(comment._id);
-  };
+      [comment._id]: "",
+    }))
+    setActiveReplyComment(comment._id)
+  }
 
-  const handleNegotiate = (publication) => {
+  const handleNegotiate = async (publication) => {
     if (!currentUser) {
-      alert('Utilisateur non connecté');
-      return;
+      alert("Utilisateur non connecté")
+      return
     }
-    setSelectedPublication(publication);
-    setChatOpen(true);
-  };
+
+    try {
+      // Utiliser directement les informations de l'utilisateur de la publication
+      if (publication.user) {
+        setSelectedSender(publication.user)
+        setSelectedPublication(publication)
+        setChatOpen(true)
+      } else {
+        alert("Impossible de récupérer les informations de l'auteur de la publication")
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'ouverture du chat:", error)
+      alert("Une erreur s'est produite lors de l'ouverture du chat")
+    }
+  }
+
+  const handleCloseChat = () => {
+    setChatOpen(false)
+    // Mettre à jour l'URL pour supprimer les paramètres de chat
+    if (selectedPublication) {
+      navigate(`/publication?id=${selectedPublication._id}`)
+    }
+  }
 
   const getImageUrl = (image) => {
     if (!image) {
-      return 'https://via.placeholder.com/40';
+      return "https://via.placeholder.com/40"
     }
-    return image.startsWith('http') ? image : `${BASE_URL}${image}`;
-  };
+    return image.startsWith("http") ? image : `${BASE_URL}${image}`
+  }
 
   const formatTimeAgo = (date) => {
-    const now = new Date();
-    const diffInSeconds = Math.floor((now - new Date(date)) / 1000);
-    if (diffInSeconds < 60) return `${diffInSeconds}s`;
-    const diffInMinutes = Math.floor(diffInSeconds / 60);
-    if (diffInMinutes < 60) return `${diffInMinutes}m`;
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}h`;
-    const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays}d`;
-  };
+    const now = new Date()
+    const diffInSeconds = Math.floor((now - new Date(date)) / 1000)
+    if (diffInSeconds < 60) return `${diffInSeconds}s`
+    const diffInMinutes = Math.floor(diffInSeconds / 60)
+    if (diffInMinutes < 60) return `${diffInMinutes}m`
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) return `${diffInHours}h`
+    const diffInDays = Math.floor(diffInHours / 24)
+    return `${diffInDays}d`
+  }
 
-  if (loading) return <div>Chargement des publications...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <div>Chargement des publications...</div>
+  if (error) return <div>{error}</div>
 
   return (
     <div className="publications-container">
@@ -343,24 +445,24 @@ const Publication = () => {
         <form onSubmit={handleSubmit}>
           <div className="create-publication-header">
             <img
-              src={getImageUrl(currentUser?.image)}
-              alt={`${currentUser?.name || 'Utilisateur'} ${currentUser?.surname || ''}`}
+              src={getImageUrl(currentUser?.image) || "/placeholder.svg"}
+              alt={`${currentUser?.name || "Utilisateur"} ${currentUser?.surname || ""}`}
               className="user-avatar"
               onError={(e) => {
-                console.error("Erreur de chargement de l'image pour l'utilisateur connecté");
-                e.target.src = 'https://via.placeholder.com/40';
+                console.error("Erreur de chargement de l'image pour l'utilisateur connecté")
+                e.target.src = "https://via.placeholder.com/40"
               }}
             />
             <div className="publication-type-switch">
               <div
-                className={`switch-option ${newPublication.type === 'offer' ? 'active' : ''}`}
-                onClick={() => setNewPublication((prev) => ({ ...prev, type: 'offer' }))}
+                className={`switch-option ${newPublication.type === "offer" ? "active" : ""}`}
+                onClick={() => setNewPublication((prev) => ({ ...prev, type: "offer" }))}
               >
                 Offre
               </div>
               <div
-                className={`switch-option ${newPublication.type === 'request' ? 'active' : ''}`}
-                onClick={() => setNewPublication((prev) => ({ ...prev, type: 'request' }))}
+                className={`switch-option ${newPublication.type === "request" ? "active" : ""}`}
+                onClick={() => setNewPublication((prev) => ({ ...prev, type: "request" }))}
               >
                 Demande
               </div>
@@ -386,52 +488,45 @@ const Publication = () => {
         <div key={pub._id} className="publication-card">
           <div className="publication-header">
             <img
-              src={getImageUrl(pub.user?.image)}
-              alt={`${pub.user?.name || 'Utilisateur'} ${pub.user?.surname || ''}`}
+              src={getImageUrl(pub.user?.image) || "/placeholder.svg"}
+              alt={`${pub.user?.name || "Utilisateur"} ${pub.user?.surname || ""}`}
               className="user-avatar"
               onError={(e) => {
-                console.error('Erreur de chargement de l\'image pour', pub.user?.name);
-                e.target.src = 'https://via.placeholder.com/40';
+                console.error("Erreur de chargement de l'image pour", pub.user?.name)
+                e.target.src = "https://via.placeholder.com/40"
               }}
             />
             <div className="user-info">
               <span className="user-name">
-                {pub.user ? `${pub.user.name} ${pub.user.surname}` : 'Utilisateur inconnu'}
+                {pub.user ? `${pub.user.name} ${pub.user.surname}` : "Utilisateur inconnu"}
               </span>
               <span className="publication-date">
-                {new Date(pub.createdAt).toLocaleString('fr-FR', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
+                {new Date(pub.createdAt).toLocaleString("fr-FR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
               </span>
             </div>
           </div>
           <div className="publication-content">
-            <span className={`publication-type ${pub.type}`}>
-              {pub.type === 'offer' ? 'Offre' : 'Demande'}
-            </span>
+            <span className={`publication-type ${pub.type}`}>{pub.type === "offer" ? "Offre" : "Demande"}</span>
             <p className="publication-description">{pub.description}</p>
           </div>
           <div className="publication-actions">
             <button
-              className={`action-btn like-btn ${pub.likes.includes(currentUser?._id) ? 'liked' : ''}`}
+              className={`action-btn like-btn ${pub.likes.includes(currentUser?._id) ? "liked" : ""}`}
               onClick={() => handleLike(pub._id)}
             >
-              <span className="icon">
-                {pub.likes.includes(currentUser?._id) ? '👎' : '👍'}
-              </span>
-              {pub.likes.includes(currentUser?._id) ? 'Dislike' : 'Like'} ({pub.likes.length})
+              <span className="icon">{pub.likes.includes(currentUser?._id) ? "👎" : "👍"}</span>
+              {pub.likes.includes(currentUser?._id) ? "Dislike" : "Like"} ({pub.likes.length})
             </button>
             <button className="action-btn comment-btn">
               <span className="icon">💬</span> Commenter
             </button>
-            <button
-              className="action-btn negotiate-btn"
-              onClick={() => handleNegotiate(pub)}
-            >
+            <button className="action-btn negotiate-btn" onClick={() => handleNegotiate(pub)}>
               <span className="icon">🤝</span> Negotiate
             </button>
           </div>
@@ -448,27 +543,24 @@ const Publication = () => {
                   <div key={comment._id} className="comment">
                     <div className="comment-body">
                       <img
-                        src={getImageUrl(comment.user?.image)}
-                        alt={`${comment.user?.name || 'Utilisateur'} ${comment.user?.surname || ''}`}
+                        src={getImageUrl(comment.user?.image) || "/placeholder.svg"}
+                        alt={`${comment.user?.name || "Utilisateur"} ${comment.user?.surname || ""}`}
                         className="comment-avatar"
                         onError={(e) => {
-                          console.error('Erreur de chargement de l\'image pour', comment.user?.name);
-                          e.target.src = 'https://via.placeholder.com/40';
+                          console.error("Erreur de chargement de l'image pour", comment.user?.name)
+                          e.target.src = "https://via.placeholder.com/40"
                         }}
                       />
                       <div className="comment-content-wrapper">
                         <div className="comment-content">
                           <span className="comment-user-name">
-                            {comment.user ? `${comment.user.name} ${comment.user.surname}` : 'Utilisateur inconnu'}
+                            {comment.user ? `${comment.user.name} ${comment.user.surname}` : "Utilisateur inconnu"}
                           </span>
                           <p>{comment.content}</p>
                         </div>
                         <div className="comment-meta">
                           <span className="comment-time">{formatTimeAgo(comment.createdAt)}</span>
-                          <button
-                            className="reply-btn"
-                            onClick={() => handleReplyClick(pub._id, comment)}
-                          >
+                          <button className="reply-btn" onClick={() => handleReplyClick(pub._id, comment)}>
                             Reply
                           </button>
                         </div>
@@ -480,18 +572,18 @@ const Publication = () => {
                         {comment.replies.map((reply) => (
                           <div key={reply._id} className="reply">
                             <img
-                              src={getImageUrl(reply.user?.image)}
-                              alt={`${reply.user?.name || 'Utilisateur'} ${reply.user?.surname || ''}`}
+                              src={getImageUrl(reply.user?.image) || "/placeholder.svg"}
+                              alt={`${reply.user?.name || "Utilisateur"} ${reply.user?.surname || ""}`}
                               className="reply-avatar"
                               onError={(e) => {
-                                console.error('Erreur de chargement de l\'image pour', reply.user?.name);
-                                e.target.src = 'https://via.placeholder.com/40';
+                                console.error("Erreur de chargement de l'image pour", reply.user?.name)
+                                e.target.src = "https://via.placeholder.com/40"
                               }}
                             />
                             <div className="reply-content-wrapper">
                               <div className="reply-content">
                                 <span className="reply-user-name">
-                                  {reply.user ? `${reply.user.name} ${reply.user.surname}` : 'Utilisateur inconnu'}
+                                  {reply.user ? `${reply.user.name} ${reply.user.surname}` : "Utilisateur inconnu"}
                                 </span>
                                 <p>{reply.content}</p>
                               </div>
@@ -507,12 +599,12 @@ const Publication = () => {
                     {activeReplyComment === comment._id && (
                       <div className="add-reply">
                         <img
-                          src={getImageUrl(currentUser?.image)}
-                          alt={`${currentUser?.name || 'Utilisateur'} ${currentUser?.surname || ''}`}
+                          src={getImageUrl(currentUser?.image) || "/placeholder.svg"}
+                          alt={`${currentUser?.name || "Utilisateur"} ${currentUser?.surname || ""}`}
                           className="comment-avatar"
                           onError={(e) => {
-                            console.error("Erreur de chargement de l'image pour l'utilisateur connecté");
-                            e.target.src = 'https://via.placeholder.com/40';
+                            console.error("Erreur de chargement de l'image pour l'utilisateur connecté")
+                            e.target.src = "https://via.placeholder.com/40"
                           }}
                         />
                         <div className="comment-input-wrapper">
@@ -530,14 +622,14 @@ const Publication = () => {
                           </div>
                           <div className="comment-input-container">
                             <textarea
-                              value={newReplies[comment._id] || ''}
+                              value={newReplies[comment._id] || ""}
                               onChange={(e) => handleReplyChange(comment._id, e.target.value)}
                               placeholder="Reply"
                               className="reply-textarea"
                             />
                             <button
                               onClick={() => handleAddReply(pub._id, comment._id)}
-                              className={`submit-reply-icon ${newReplies[comment._id]?.trim() ? 'active' : ''}`}
+                              className={`submit-reply-icon ${newReplies[comment._id]?.trim() ? "active" : ""}`}
                             >
                               <FaPaperPlane />
                             </button>
@@ -554,12 +646,12 @@ const Publication = () => {
 
             <div className="add-comment">
               <img
-                src={getImageUrl(currentUser?.image)}
-                alt={`${currentUser?.name || 'Utilisateur'} ${currentUser?.surname || ''}`}
+                src={getImageUrl(currentUser?.image) || "/placeholder.svg"}
+                alt={`${currentUser?.name || "Utilisateur"} ${currentUser?.surname || ""}`}
                 className="comment-avatar"
                 onError={(e) => {
-                  console.error("Erreur de chargement de l'image pour l'utilisateur connecté");
-                  e.target.src = 'https://via.placeholder.com/40';
+                  console.error("Erreur de chargement de l'image pour l'utilisateur connecté")
+                  e.target.src = "https://via.placeholder.com/40"
                 }}
               />
               <div className="comment-input-wrapper">
@@ -577,14 +669,14 @@ const Publication = () => {
                 </div>
                 <div className="comment-input-container">
                   <textarea
-                    value={newComments[pub._id] || ''}
+                    value={newComments[pub._id] || ""}
                     onChange={(e) => handleCommentChange(pub._id, e.target.value)}
                     placeholder="Ajouter un commentaire..."
                     className="comment-textarea"
                   />
                   <button
                     onClick={() => handleAddComment(pub._id)}
-                    className={`submit-comment-icon ${newComments[pub._id]?.trim() ? 'active' : ''}`}
+                    className={`submit-comment-icon ${newComments[pub._id]?.trim() ? "active" : ""}`}
                   >
                     <FaPaperPlane />
                   </button>
@@ -595,22 +687,16 @@ const Publication = () => {
         </div>
       ))}
 
-      {chatOpen && selectedPublication && (
+      {chatOpen && selectedPublication && selectedSender && (
         <ChatComponent
           publication={selectedPublication}
           currentUser={currentUser}
-          onClose={() => setChatOpen(false)}
+          selectedSender={selectedSender}
+          onClose={handleCloseChat}
         />
       )}
-
-      {/* Message si aucune conversation n'existe */}
-      {selectedPublication && !hasConversation && !chatOpen && (
-        <div className="no-conversation-message">
-          Aucune conversation n'a été initiée pour cette publication. Cliquez sur "Negotiate" pour commencer.
-        </div>
-      )}
     </div>
-  );
-};
+  )
+}
 
-export default Publication;
+export default Publication

@@ -4,6 +4,7 @@ import { FiLogOut, FiSun, FiMoon } from 'react-icons/fi';
 import { MdManageAccounts } from 'react-icons/md';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../../../context/ThemeContext';
+import NotificationComponent from"../NotificationComponent/NotificationComponent"
 import axios from 'axios';
 import './Navbar.scss';
 import AdminNavbar from '../../backoffice/Adminnavbar/adminnavbar';
@@ -167,6 +168,9 @@ const Navbar = ({ user, onLogout }) => {
             </li>
             <li>
               <Link to="/contact">Contact</Link>
+            </li>
+            <li>
+              <NotificationComponent />
             </li>
 
             {/* Icône de notification */}

@@ -1,5 +1,3 @@
-// PremiumCourses.jsx
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
@@ -11,6 +9,7 @@ import './PremiumCourses.scss';
 import RechargeModal from '../RechargeModal/RechargeModal';
 import SmartQuizModal from "./SmartQuizModal";
 
+
 const socket = io("http://localhost:3000");
 
 const PremiumCourses = () => {
@@ -21,9 +20,8 @@ const PremiumCourses = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [highlightedCourseId, setHighlightedCourseId] = useState(null);
   const [generatedQuiz, setGeneratedQuiz] = useState({});
-  const [showQuizModal, setShowQuizModal] = useState(false);
-  const [activeQuiz, setActiveQuiz] = useState(null);
-  const [quizResults, setQuizResults] = useState({});
+  const [showQuizModal, setShowQuizModal] = useState(false); // ✅ pour gérer le popup
+  const [activeQuiz, setActiveQuiz] = useState(null); // ✅ pour savoir quel quiz on affiche
 
   const navigate = useNavigate();
   const storedUser = localStorage.getItem("user");
@@ -45,42 +43,35 @@ const PremiumCourses = () => {
     if (userId) {
       axios.get(`http://localhost:3000/favorites/${userId}`)
         .then(res => setFavorites(res.data.map(c => c._id)))
-        .catch(console.error);
-
-      axios.get(`http://localhost:3000/api/quiz-result/user/${userId}`)
-        .then(res => {
-          const results = {};
-          res.data.forEach(r => {
-            if (r.isValidated) {
-              results[r.courseId] = {
-                score: r.score,
-                total: r.total || 5,
-                validated: r.isValidated
-              };
-            }
-          });
-          setQuizResults(results);
-        })
-        .catch(err => console.warn("Erreur chargement résultats quiz :", err));
+        .catch(err => console.error("Erreur chargement des favoris :", err));
     }
 
     socket.on("newPremiumCourse", (newCourse) => {
       const audio = new Audio("/notif.mp3");
       audio.play();
+
       toast.info(
-        <div onClick={() => {
-          localStorage.setItem("highlightedCourseId", newCourse._id);
-          navigate("/marketplace/premium");
-        }}>
-          🆕 Nouveau cours premium : <strong>{newCourse.title}</strong><br />👉 Cliquez ici pour le voir
+        <div
+          onClick={() => {
+            localStorage.setItem("highlightedCourseId", newCourse._id || newCourse.id);
+            navigate("/marketplace/premium");
+          }}
+          style={{ cursor: 'pointer' }}
+        >
+          🆕 Nouveau cours premium : <strong>{newCourse.title}</strong><br />
+          👉 Cliquez ici pour le voir
         </div>,
         { autoClose: 7000 }
       );
-      setHighlightedCourseId(newCourse._id);
-      setTimeout(loadCourses, 700);
+
+      const newId = newCourse._id || newCourse.id;
+      setHighlightedCourseId(newId);
+      setTimeout(() => loadCourses(), 700);
     });
 
-    return () => socket.off("newPremiumCourse");
+    return () => {
+      socket.off("newPremiumCourse");
+    };
   }, [userId]);
 
   const loadCourses = () => {
@@ -89,12 +80,13 @@ const PremiumCourses = () => {
         const premium = res.data.filter(c => c.isPremium);
         setCourses(premium);
       })
-      .catch(console.error);
+      .catch(err => console.error("Erreur chargement des cours premium :", err));
   };
 
   const toggleFavorite = async (courseId) => {
     const isFavorite = favorites.includes(courseId);
     const url = isFavorite ? "remove" : "add";
+
     try {
       await axios.post(`http://localhost:3000/favorites/${url}`, { userId, courseId });
       setFavorites(prev => isFavorite ? prev.filter(id => id !== courseId) : [...prev, courseId]);
@@ -105,30 +97,35 @@ const PremiumCourses = () => {
 
   const handleAccessPremium = async (courseId) => {
     if (!userId) return alert("Utilisateur non connecté !");
+
     if (paidCourses.includes(courseId)) {
       try {
-        const { data: course } = await axios.get(`http://localhost:3000/courses/getcourses/${courseId}`);
+        const res = await axios.get(`http://localhost:3000/courses/getcourses/${courseId}`);
+        const course = res.data;
         const targetUrl = course.isMeetEnded && course.videoReplayUrl ? course.videoReplayUrl : course.meetLink;
         if (targetUrl) {
           window.open(targetUrl, "_blank");
         } else {
-          alert("Aucun lien disponible.");
+          alert("Aucun lien disponible pour ce cours.");
         }
-      } catch {
-        alert("Erreur d'accès.");
+      } catch (err) {
+        alert("Erreur d'accès au cours déjà payé.");
       }
       return;
     }
 
     try {
-      const { data } = await axios.post(`http://localhost:3000/premium/access/${courseId}`, { userId });
-      window.open(data.meetLink, "_blank");
-      alert(`✅ Accès autorisé. Nouveau solde : ${data.remainingBalance} DT`);
-      const updated = [...new Set([...paidCourses, courseId])];
-      localStorage.setItem(paidKey, JSON.stringify(updated));
-      setPaidCourses(updated);
+      const res = await axios.post(`http://localhost:3000/premium/access/${courseId}`, { userId });
+      if (res.status === 200) {
+        window.open(res.data.meetLink, "_blank");
+        alert(`✅ Accès autorisé. Nouveau solde : ${res.data.remainingBalance} DT`);
+        const updated = [...new Set([...paidCourses, courseId])];
+        localStorage.setItem(paidKey, JSON.stringify(updated));
+        setPaidCourses(updated);
+      }
     } catch (err) {
       if (err.response?.status === 403) {
+        alert("❌ Solde insuffisant.");
         setSelectedUserId(userId);
         setShowRechargeModal(true);
       } else {
@@ -142,23 +139,12 @@ const PremiumCourses = () => {
       const res = await axios.post(`http://localhost:3000/premium/generate-quiz/${courseId}`);
       if (res.data.quiz) {
         setGeneratedQuiz(prev => ({ ...prev, [courseId]: res.data.quiz }));
-        setActiveQuiz({ courseId, quiz: res.data.quiz });
+        setActiveQuiz({ courseId, quiz: res.data.quiz }); // ✅ ouvrir avec le quiz
         setShowQuizModal(true);
       }
-    } catch {
-      alert("❌ Erreur génération quiz.");
+    } catch (err) {
+      alert("❌ Erreur lors de la génération du quiz.");
     }
-  };
-
-  const handleQuizSubmitted = (courseId, score) => {
-    setQuizResults(prev => ({
-      ...prev,
-      [courseId]: {
-        score,
-        total: 5,
-        validated: true
-      }
-    }));
   };
 
   return (
@@ -178,6 +164,7 @@ const PremiumCourses = () => {
               onClick={() => toggleFavorite(course._id)}
               title={favorites.includes(course._id) ? "Retirer des favoris" : "Ajouter aux favoris"}
             />
+
             <h2>{course.title}</h2>
             <p>{course.category}</p>
             <p><strong>Instructeur :</strong> {course.instructor?.name || "Inconnu"}</p>
@@ -204,32 +191,19 @@ const PremiumCourses = () => {
               </button>
             )}
 
-{course.courseSummary && (
-  quizResults[course._id] !== undefined ? (
-    <button
-      className="quiz-btn"
-      onClick={() => handleGenerateQuiz(course._id)}
-      style={{ backgroundColor: "#4caf50", color: "white" }}
-    >
-      ✅ Quiz Validé
-    </button>
-  ) : (
-    <button className="quiz-btn" onClick={() => handleGenerateQuiz(course._id)}>
-      🧠 Générer le quiz IA
-    </button>
-  )
-)}
-
+            {course.courseSummary && (
+              <button className="quiz-btn" onClick={() => handleGenerateQuiz(course._id)}>
+                🧠 Générer le quiz IA
+              </button>
+            )}
           </motion.div>
         ))}
       </div>
 
+      {/* ✅ MODAL QUIZ */}
       {showQuizModal && activeQuiz && (
         <SmartQuizModal
           quiz={activeQuiz.quiz}
-          courseId={activeQuiz.courseId}
-          userId={userId}
-          onQuizSubmitted={handleQuizSubmitted}
           onClose={() => {
             setShowQuizModal(false);
             setActiveQuiz(null);
@@ -241,7 +215,10 @@ const PremiumCourses = () => {
         <RechargeModal
           isOpen={showRechargeModal}
           onClose={() => setShowRechargeModal(false)}
-          onSuccess={() => window.location.reload()}
+          onSuccess={() => {
+            setShowRechargeModal(false);
+            window.location.reload();
+          }}
           userId={selectedUserId}
           rechargeUrl="http://localhost:3000/premium/recharge"
         />
