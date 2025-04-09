@@ -205,7 +205,7 @@ const PremiumCourses = () => {
             )}
 
 {course.courseSummary && (
-  quizResults[course._id]?.validated ? (
+  quizResults[course._id] !== undefined ? (
     <button
       className="quiz-btn"
       onClick={() => handleGenerateQuiz(course._id)}
