@@ -10,6 +10,7 @@ const {
   markMeetEnded,
   updateReplayLink,
   updatePremiumCourse,
+  generateSmartQuiz,
 } = require("../controllers/PremiumCoursesController");
 
 // ✅ Middleware ici 👇
@@ -20,6 +21,12 @@ router.post("/recharge/:id", rechargeBalance);
 router.put("/mark-meet-ended/:id", markMeetEnded);
 router.put("/replay/:id", updateReplayLink);
 router.put("/update/:id", updatePremiumCourse);
+router.post("/generate-quiz/:id", generateSmartQuiz);
+
+
+
+
+
 
 
 module.exports = router;
