@@ -212,7 +212,6 @@ const ManageUsers = () => {
           )}
         </div>
       </div>
-
       {showRechargeModal && (
         <div className="modal">
           <div className="modal-content">
@@ -230,14 +229,15 @@ const ManageUsers = () => {
         </div>
       )}
 
+
       {showHistoryModal && (
         <div className="modal">
-          <div className="modal-content">
+          <div className="modal-content" style={{ textAlign: 'center' }}>
             <h3>Historique des quiz validés</h3>
             {quizHistory.length === 0 ? (
               <p>Aucun quiz validé.</p>
             ) : (
-              <ul>
+              <ul style={{ textAlign: "left" }}>
                 {quizHistory.map(([cat, count], i) => (
                   <li key={i}>{cat} : {count} quiz</li>
                 ))}
@@ -247,9 +247,16 @@ const ManageUsers = () => {
               placeholder="Message à envoyer au client..."
               value={emailMessage}
               onChange={(e) => setEmailMessage(e.target.value)}
+              style={{ width: '100%', marginTop: 10, padding: 10, borderRadius: 5 }}
             />
-            <button onClick={sendEmail}><FaEnvelope /> Envoyer Email</button>
-            <button onClick={() => setShowHistoryModal(false)}>Fermer</button>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: 15 }}>
+              <button onClick={sendEmail} style={{ backgroundColor: "#28a745", color: "white", padding: "8px 16px", border: "none", borderRadius: 5 }}>
+                <FaEnvelope /> Envoyer Email
+              </button>
+              <button onClick={() => setShowHistoryModal(false)} style={{ backgroundColor: "#dc3545", color: "white", padding: "8px 16px", border: "none", borderRadius: 5 }}>
+                Fermer
+              </button>
+            </div>
           </div>
         </div>
       )}
