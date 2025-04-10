@@ -10,14 +10,33 @@ const Packs = () => {
   const [selectedPack, setSelectedPack] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [abonnements, setAbonnements] = useState([]);
+
 
   useEffect(() => {
+    const fetchUserAbonnement = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+  
+      try {
+        const response = await axios.get("http://localhost:3000/users/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        setAbonnements(response.data.user.abonnement || []);
+      } catch (error) {
+        console.error("Erreur lors du chargement du profil :", error);
+      }
+    };
+  
+    fetchUserAbonnement();
     axios
       .get("http://localhost:3000/packs/getAllPacks")
       .then((response) => setPacks(response.data))
       .catch((error) => console.error("Erreur lors du chargement des packs:", error));
   }, []);
 
+  
   const getBackgroundColor = (category) => {
     switch (category) {
       case "premium":
@@ -44,6 +63,9 @@ const Packs = () => {
     setModalIsOpen(false);
     setSelectedPack(null);
   };
+const isPackPurchased = (packId) => {
+  return abonnements.some((id) => id === packId || id._id === packId);
+};
 
   const handleBuyPack = async () => {
     if (!selectedPack) return;
@@ -101,12 +123,7 @@ const Packs = () => {
               <p className="discounted-price">
                 <strong>Prix après réduction :</strong> {getDiscountedPrice(pack.price, pack.discount).toFixed(2)}DT
               </p>
-              <button
-  className="exchange-room-button"
-  onClick={() => window.location.href = `/room/${pack._id}`}
->
-  📢 Room d'échange
-</button>
+   
 
             </div>
           </div>
@@ -122,6 +139,8 @@ const Packs = () => {
       >
         {selectedPack && (
           <>
+                        <button onClick={closeModal} className="close-button">X</button>
+
             <h2 className="modal-title">{selectedPack.title}</h2>
             <div className="modal-content">
               <p><strong>Description :</strong> {selectedPack.description}</p>
@@ -130,19 +149,31 @@ const Packs = () => {
               <p><strong>Réduction :</strong> {selectedPack.discount}%</p>
               <p><strong>Prix après réduction :</strong> {getDiscountedPrice(selectedPack.price, selectedPack.discount).toFixed(2)}DT</p>
 
-              <button 
-                className="buy-button"
-                onClick={handleBuyPack}
-                disabled={loading}
-              >
-                {loading ? "Wait secondes please..." : "Buy Now"}
-              </button>
+              {isPackPurchased(selectedPack._id) ? (
+  <button 
+    className="buy-button"
+    onClick={() => window.location.href = `/pack/${selectedPack._id}`}
+  >
+    Voir le Pack
+  </button>
+) : (
+  <button 
+    className="buy-button"
+    onClick={handleBuyPack}
+    disabled={loading}
+  >
+    {loading ? "Wait secondes please..." : "Buy Now"}
+  </button>
+  
+)}
               
-              <button onClick={closeModal} className="close-button">X</button>
+
             </div>
+            
           </>
         )}
       </Modal>
+
     </div>
   );
 };

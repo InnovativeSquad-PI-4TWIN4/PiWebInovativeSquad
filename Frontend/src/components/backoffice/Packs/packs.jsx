@@ -9,6 +9,8 @@ const AddPacks = ({ onClose }) => {
   const [category, setCategory] = useState("");
   const [icon, setIcon] = useState("");
   const [error, setError] = useState(null);
+  const [pdfFiles, setPdfFiles] = useState([]); // ✅ PDF state
+  const [exam, setExam] = useState([]);
 
   const icons = [
     { name: "🔥 Flamme", value: "flame.png" },
@@ -16,8 +18,7 @@ const AddPacks = ({ onClose }) => {
     { name: "⭐ Étoile", value: "star.png" },
     { name: "🎁 Cadeau", value: "gift.png" }
   ];
-  
-  // 📌 Handle form submission
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -26,28 +27,31 @@ const AddPacks = ({ onClose }) => {
       return;
     }
 
-    const packData = {
-      title,
-      description,
-      price,
-      discount: discount || 0, // Default discount to 0 if not provided
-      category,
-      icon,
-    };
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("discount", discount || 0);
+    formData.append("category", category);
+    formData.append("icon", icon);
+    formData.append("exam", JSON.stringify(exam));
+
+
+    pdfFiles.forEach((file) => {
+      formData.append("pdfs", file);
+      
+    });
 
     try {
       const response = await fetch("http://localhost:3000/packs/createPack", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(packData),
+        body: formData
       });
 
       const result = await response.json();
       if (response.ok) {
         alert("✅ Pack ajouté avec succès !");
-        onClose(); // Close the modal after the pack is added
+        onClose();
       } else {
         setError(result.message || "Erreur lors de l'ajout du pack.");
       }
@@ -56,7 +60,23 @@ const AddPacks = ({ onClose }) => {
       setError("❌ Erreur lors de l'ajout du pack. Vérifiez la console !");
     }
   };
-
+  const handleAddQuestion = () => {
+    setExam([...exam, { question: "", options: ["", "", "", ""], correctAnswer: "" }]);
+  };
+  
+  const handleQuestionChange = (index, field, value) => {
+    const updatedExam = [...exam];
+    if (field === "question") updatedExam[index].question = value;
+    else if (field === "correctAnswer") updatedExam[index].correctAnswer = value;
+    setExam(updatedExam);
+  };
+  
+  const handleOptionChange = (qIndex, optIndex, value) => {
+    const updatedExam = [...exam];
+    updatedExam[qIndex].options[optIndex] = value;
+    setExam(updatedExam);
+  };
+  
   return (
     <div className="add-pack-container">
       <button className="close-button" onClick={onClose}>✖</button>
@@ -64,7 +84,7 @@ const AddPacks = ({ onClose }) => {
 
       {error && <div className="error-message">{error}</div>}
 
-      <form className="add-pack-form" onSubmit={handleSubmit}>
+      <form className="add-pack-form" onSubmit={handleSubmit} encType="multipart/form-data">
         <div className="form-group">
           <label>Titre du pack :</label>
           <input
@@ -119,17 +139,66 @@ const AddPacks = ({ onClose }) => {
             <option value="basic">Basic</option>
           </select>
         </div>
+
         <div className="form-group">
-<label>Icône du pack :</label>
-<select value={icon} onChange={(e) => setIcon(e.target.value)} required>
-  <option value="">-- Choisir une icône --</option>
-  {icons.map((iconItem) => (
-    <option key={iconItem.value} value={iconItem.value}>
-      {iconItem.name}
-    </option>
+          <label>Icône du pack :</label>
+          <select value={icon} onChange={(e) => setIcon(e.target.value)} required>
+            <option value="">-- Choisir une icône --</option>
+            {icons.map((iconItem) => (
+              <option key={iconItem.value} value={iconItem.value}>
+                {iconItem.name}
+              </option>
+            ))}
+          </select>
+          {icon && <img src={`/assets/icons/${icon}`} alt="Icône sélectionnée" className="icon-preview" />}
+        </div>
+
+        <div className="form-group">
+          <label>Ajouter des fichiers PDF (dans l'ordre voulu) :</label>
+          <input
+            type="file"
+            accept="application/pdf"
+            multiple
+            onChange={(e) => setPdfFiles(Array.from(e.target.files))}
+          />
+        </div>
+        <div className="form-group">
+  <label>Ajouter un Examen :</label>
+  {exam.map((q, index) => (
+    <div key={index} className="exam-question-block">
+      <input
+        type="text"
+        placeholder={`Question ${index + 1}`}
+        value={q.question}
+        onChange={(e) => handleQuestionChange(index, "question", e.target.value)}
+        required
+      />
+
+      <div className="options-block">
+        {q.options.map((opt, i) => (
+          <input
+            key={i}
+            type="text"
+            placeholder={`Option ${i + 1}`}
+            value={opt}
+            onChange={(e) => handleOptionChange(index, i, e.target.value)}
+            required
+          />
+        ))}
+      </div>
+
+      <input
+        type="text"
+        placeholder="Réponse correcte"
+        value={q.correctAnswer}
+        onChange={(e) => handleQuestionChange(index, "correctAnswer", e.target.value)}
+        required
+      />
+    </div>
   ))}
-</select>
-{icon && <img src={`/assets/icons/${icon}`} alt="Icône sélectionnée" className="icon-preview" />}
+  <button type="button" onClick={handleAddQuestion} className="add-question-btn">
+    ➕ Ajouter une question
+  </button>
 </div>
 
         <button type="submit" className="submit-button">

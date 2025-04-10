@@ -741,3 +741,42 @@ exports.updateAdminPassword = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 };
+exports.savePdfProgress = async (req, res) => {
+  const userId = req.user.userId;
+  const { pdfId } = req.body;
+  const { packId } = req.params;
+
+  try {
+    const user = await User.findById(userId);
+
+    const alreadyExists = user.pdfProgress.some(
+      (item) => item.pdfId === pdfId && item.packId.toString() === packId
+    );
+
+    if (!alreadyExists) {
+      user.pdfProgress.push({ packId, pdfId });
+      await user.save();
+    }
+
+    res.status(200).json({ message: "Progress saved." });
+  } catch (err) {
+    console.error("Error saving progress", err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+exports.getPdfProgress = async (req, res) => {
+  const userId = req.user.userId;
+  const { packId } = req.params;
+
+  try {
+    const user = await User.findById(userId);
+    const progress = user.pdfProgress
+      .filter((p) => p.packId.toString() === packId)
+      .map((p) => p.pdfId);
+
+    res.json({ completedPdfs: progress });
+  } catch (err) {
+    console.error("Error fetching progress", err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
