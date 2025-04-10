@@ -101,7 +101,7 @@ exports.rejectUser =[ async (req, res) => {
 
 
 
-// ✅ INSCRIPTION D'UN UTILISATEUR
+// ✅ INSCRIPTION AVEC VÉRIFICATION PAR EMAIL
 exports.signup = [
   upload.single("image"),
   async (req, res) => {
@@ -109,15 +109,9 @@ exports.signup = [
       let { name, surname, email, password, dateOfBirth, Skill, recaptchaToken } = req.body;
 
       if (!name || !surname || !email || !password || !dateOfBirth || !Skill) {
-        return res.status(400).json({ status: "FAILED", message: "All fields are required!" });
+        return res.status(400).json({ status: "FAILED", message: "Tous les champs sont requis !" });
       }
 
-      // ✅ Vérification reCAPTCHA avec Google
-      const googleVerifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
-
-      console.log("✅ reCAPTCHA validé !");
-
-      // Vérification et nettoyage des inputs
       name = name.trim();
       surname = surname.trim();
       email = email.trim();
@@ -125,17 +119,14 @@ exports.signup = [
       dateOfBirth = dateOfBirth.trim();
       Skill = Skill.trim();
 
-      if (!/^[a-zA-Z ]+$/.test(name)) {
-        return res.status(400).json({ status: "FAILED", message: "Invalid name format." });
-      }
-
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-        return res.status(400).json({ status: "FAILED", message: "Email is already in use." });
+        return res.status(400).json({ status: "FAILED", message: "Email déjà utilisé." });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const image = req.file ? `/public/images/${req.file.filename}` : null;
+      const emailToken = crypto.randomBytes(32).toString("hex");
 
       const newUser = new User({
         name,
@@ -144,26 +135,57 @@ exports.signup = [
         password: hashedPassword,
         dateOfBirth: new Date(dateOfBirth),
         Skill,
+        image,
         role: "client",
         isActive: true,
-        image,
+        verified: false,
+        emailToken,
       });
 
       await newUser.save();
-      const token = jwt.sign(
-        { userId: newUser._id, email: newUser.email, role: newUser.role }, // Harmoniser le payload
-        JWT_SECRET, // Utiliser la même clé que signin
-        { expiresIn: '1h' }
+
+      const confirmLink = `${process.env.CLIENT_URL}/verify-email/${emailToken}`;
+
+      await sendEmail(
+        email,
+        "Vérifiez votre compte SkillBridge",
+        `<h2>Bienvenue ${name},</h2>
+        <p>Merci de vous être inscrit ! Cliquez sur le bouton ci-dessous pour vérifier votre compte :</p>
+        <a href="${confirmLink}" style="padding: 10px 15px; background: #00b894; color: white; border-radius: 5px; text-decoration: none;">Confirmer mon compte</a>
+        <p>Si vous n'avez pas demandé cela, ignorez ce message.</p>`
       );
 
-      return res.status(201).json({ status: "SUCCESS", message: "Sign-up successful!", token });
-
+      return res.status(201).json({
+        status: "SUCCESS",
+        message: "Inscription réussie. Un email de confirmation a été envoyé.",
+      });
     } catch (err) {
-      console.error("❌ Sign-up error:", err);
-      return res.status(500).json({ status: "FAILED", message: "Internal server error." });
+      console.error("Signup Error:", err);
+      return res.status(500).json({ status: "FAILED", message: "Erreur interne du serveur." });
     }
-  }
+  },
 ];
+
+
+// ✅ VÉRIFICATION EMAIL
+exports.verifyEmail = async (req, res) => {
+  try {
+    const token = req.params.token;
+    const user = await User.findOne({ emailToken: token });
+
+    if (!user) return res.status(400).send("Lien invalide ou expiré.");
+
+    user.emailToken = null;
+    user.verified = true;
+    await user.save();
+
+    return res.redirect(`${process.env.CLIENT_URL}/signin`);
+  } catch (error) {
+    console.error("Verification Error:", error);
+    return res.status(500).send("Erreur lors de la vérification.");
+  }
+};
+
 exports.addClient = async (req, res) => {
   try {
     const { firstName, lastName, email, password, dateOfBirth, skill } = req.body;
