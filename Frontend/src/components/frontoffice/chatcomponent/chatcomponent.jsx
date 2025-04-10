@@ -1,3 +1,5 @@
+
+// ChatComponent.jsx
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -19,6 +21,8 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
   const messageSuggestions = ["Hello!", "I need help with design", "Can you assist me?", "Thanks!"]
 
   // Scroll to bottom when messages change
+  const messageSuggestions = ["Hello!", "I need help with design", "Can you assist me?", "Thanks!"]
+
   useEffect(() => {
     scrollToBottom()
   }, [messages])
@@ -28,6 +32,7 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
   }
 
   // Charger les messages initiaux
+
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -48,6 +53,8 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
         })
 
         // First create/get the chat
+        if (!token) return setError("Aucun token d'authentification trouvé.")
+
         const createResponse = await axios.post(
           `${CHAT_API_URL}/create`,
           {
@@ -139,9 +146,64 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
     } catch (error) {
       console.error("Error marking notifications as read:", error)
     }
+
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+
+        if (createResponse.data && createResponse.data.messages) {
+          setMessages(createResponse.data.messages || [])
+        } else {
+          const messagesResponse = await axios.get(`${CHAT_API_URL}/getMessages/${publication._id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          setMessages(messagesResponse.data.messages || [])
+        }
+
+        markRelatedNotificationsAsRead()
+        setLoading(false)
+      } catch (err) {
+        console.error("Erreur lors de l'initialisation du chat:", err)
+        setError("Erreur lors de l'initialisation du chat.")
+        setLoading(false)
+      }
+    }
+
+    if (publication && currentUser && selectedSender) {
+      fetchMessages()
+    } else {
+      setError("Données manquantes pour initialiser le chat.")
+      setLoading(false)
+    }
+  }, [publication, currentUser, selectedSender])
+
+  const markRelatedNotificationsAsRead = async () => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await axios.get(`${CHAT_API_URL}/notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      if (response.data.status === "SUCCESS") {
+        const notifications = response.data.notifications.filter(
+          (notif) =>
+            notif.publicationId._id === publication._id &&
+            notif.senderId._id === selectedSender._id &&
+            !notif.read
+        )
+
+        for (const notif of notifications) {
+          await axios.post(
+            `${CHAT_API_URL}/notifications/${notif._id}/read`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+        }
+      }
+    } catch (error) {
+      console.error("Erreur lors de la lecture des notifications:", error)
+    }
   }
 
-  // Gérer l'envoi d'un message
   const handleSendMessage = async (e) => {
     e.preventDefault()
     if (!newMessage.trim()) return
@@ -156,6 +218,7 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
           content: newMessage,
         },
         { headers: { Authorization: `Bearer ${token}` } },
+        { headers: { Authorization: `Bearer ${token}` } }
       )
 
       setMessages((prev) => [...prev, response.data.message])
@@ -163,21 +226,20 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
     } catch (err) {
       console.error("Erreur lors de l'envoi du message:", err.response ? err.response.data : err.message)
       alert("Erreur lors de l'envoi du message. Vérifiez la console pour plus de détails.")
+      console.error("Erreur lors de l'envoi du message:", err)
+      alert("Erreur lors de l'envoi du message.")
     }
   }
 
-  // Gérer le clic sur une suggestion
   const handleSuggestionClick = (suggestion) => {
     setNewMessage(suggestion)
   }
 
-  // Gérer le clic sur un emoji
   const handleEmojiClick = (emojiObject) => {
     setNewMessage((prev) => prev + emojiObject.emoji)
     setShowEmojiPicker(false)
   }
 
-  // Gérer le téléchargement de fichier
   const handleFileUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
@@ -201,6 +263,8 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
     } catch (err) {
       console.error("Erreur détaillée lors de l'upload:", err.response ? err.response.data : err.message)
       alert("Erreur lors de l'envoi du fichier. Vérifiez la console pour plus de détails.")
+      console.error("Erreur lors de l'envoi du fichier:", err)
+      alert("Erreur lors de l'envoi du fichier.")
     }
   }
 
@@ -217,6 +281,7 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
         <div className="chat-container">
           <div className="chat-header">
             <h3>Chargement de la conversation...</h3>
+            <h3>Chargement...</h3>
             <button onClick={onClose}>Fermer</button>
           </div>
           <div className="chat-loading">
@@ -253,21 +318,55 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
           <h3>Chat avec {selectedSender ? `${selectedSender.name} ${selectedSender.surname}` : "Utilisateur"}</h3>
           <button onClick={onClose}>Fermer</button>
         </div>
+
         <div className="chat-messages">
           {messages.length === 0 ? (
             <div className="no-messages">
-              <p>Aucun message pour le moment. Commencez la conversation!</p>
+
+              <p>Aucun message pour le moment. Commencez la conversation !</p>
             </div>
           ) : (
             messages.map((msg, index) => (
               <div key={index} className={`message ${msg.senderId === currentUser._id ? "sent" : "received"}`}>
                 <p>{msg.content}</p>
+                {msg.content.startsWith("File: ") ? (() => {
+  const fileUrl = msg.content.replace("File: ", "")
+  const fileName = decodeURIComponent(fileUrl.split("/").pop())
+
+  return (
+    <div className="file-message-card">
+      <div className="file-icon">📄</div>
+      <div className="file-details">
+        <div className="file-name">{fileName}</div>
+        <div className="file-actions">
+          <a
+            href={fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            download
+            className="download-btn"
+          >
+            📥 Télécharger
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+})() : (
+  <div
+    className="chat-message-content"
+    dangerouslySetInnerHTML={{ __html: msg.content }}
+  />
+)}
+
+
                 <span>{formatTime(msg.createdAt)}</span>
               </div>
             ))
           )}
           <div ref={messagesEndRef} />
         </div>
+
         <div className="chat-suggestions">
           {messageSuggestions.map((suggestion, index) => (
             <button key={index} className="suggestion-btn" onClick={() => handleSuggestionClick(suggestion)}>
@@ -275,6 +374,7 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
             </button>
           ))}
         </div>
+
         <form onSubmit={handleSendMessage} className="chat-input">
           <div className="input-wrapper">
             <input

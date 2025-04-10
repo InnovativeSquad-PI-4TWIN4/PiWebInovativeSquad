@@ -42,6 +42,7 @@ import ProfileDetail from './components/frontoffice/Manageprofile/ProfileDetails
 import ExchangeRoom from './components/frontoffice/Packs/ExchangeRoom';
 import PackDetails from "./components/frontoffice/Packs/PackDetails"; 
 
+
 import EmailVerification from './components/frontoffice/signup/EmailVerification';
 const App = () => {
     const [user, setUser] = useState(null);

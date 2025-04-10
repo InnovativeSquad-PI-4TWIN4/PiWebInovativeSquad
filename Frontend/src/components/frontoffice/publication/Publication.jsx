@@ -12,11 +12,21 @@ const Publication = () => {
   const [publications, setPublications] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  const [toastMessage, setToastMessage] = useState("")
+  const showToast = (message) => {
+    setToastMessage(message)
+    setTimeout(() => setToastMessage(""), 3000) // disparaît après 3 sec
+  }
+  
   const [newPublication, setNewPublication] = useState({
     type: "offer",
     description: "",
   })
   const [currentUser, setCurrentUser] = useState(null)
+
+  const [viewMode, setViewMode] = useState("all") // "all" | "my"
+
   const [newComments, setNewComments] = useState({})
   const [newReplies, setNewReplies] = useState({})
   const [replyingTo, setReplyingTo] = useState({})
@@ -221,6 +231,16 @@ const Publication = () => {
       surname: userId.substring(0, 5),
       image: null,
     }
+    }
+
+    // Si tout échoue, créer un objet utilisateur minimal avec l'ID
+    console.log("Création d'un objet utilisateur minimal")
+    return {
+      _id: userId,
+      name: "Utilisateur",
+      surname: userId.substring(0, 5),
+      image: null,
+    }
   }
 
   const handleInputChange = (e) => {
@@ -235,6 +255,8 @@ const Publication = () => {
     e.preventDefault()
     if (!newPublication.description.trim()) {
       alert("Veuillez entrer une description.")
+      showToast("Veuillez entrer une description.")
+
       return
     }
 
@@ -416,6 +438,29 @@ const Publication = () => {
     if (selectedPublication) {
       navigate(`/publication?id=${selectedPublication._id}`)
     }
+    }
+
+    try {
+      // Utiliser directement les informations de l'utilisateur de la publication
+      if (publication.user) {
+        setSelectedSender(publication.user)
+        setSelectedPublication(publication)
+        setChatOpen(true)
+      } else {
+        alert("Impossible de récupérer les informations de l'auteur de la publication")
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'ouverture du chat:", error)
+      alert("Une erreur s'est produite lors de l'ouverture du chat")
+    }
+  }
+
+  const handleCloseChat = () => {
+    setChatOpen(false)
+    // Mettre à jour l'URL pour supprimer les paramètres de chat
+    if (selectedPublication) {
+      navigate(`/publication?id=${selectedPublication._id}`)
+    }
   }
 
   const getImageUrl = (image) => {
@@ -439,6 +484,11 @@ const Publication = () => {
 
   if (loading) return <div>Chargement des publications...</div>
   if (error) return <div>{error}</div>
+
+  const displayedPublications =
+  viewMode === "my"
+    ? publications.filter((pub) => pub.user?._id === currentUser?._id)
+    : publications
 
   return (
     <div className="publications-container">
@@ -469,6 +519,39 @@ const Publication = () => {
               </div>
               <div className={`switch-indicator ${newPublication.type}`}></div>
             </div>
+          <div className="publication-type-switch">
+  {/* Ton switch Offre / Demande existant */}
+  <div
+    className={`switch-option ${newPublication.type === "offer" ? "active" : ""}`}
+    onClick={() => setNewPublication((prev) => ({ ...prev, type: "offer" }))}
+  >
+    Offre
+  </div>
+  <div
+    className={`switch-option ${newPublication.type === "request" ? "active" : ""}`}
+    onClick={() => setNewPublication((prev) => ({ ...prev, type: "request" }))}
+  >
+    Demande
+  </div>
+  <div className={`switch-indicator ${newPublication.type}`}></div>
+</div>
+
+{/* AJOUT : Switcher Tous / Mes publications */}
+<div className="switch-view-mode">
+  <button
+    className={viewMode === "all" ? "active" : ""}
+    onClick={() => setViewMode("all")}
+  >
+    Tous
+  </button>
+  <button
+    className={viewMode === "my" ? "active" : ""}
+    onClick={() => setViewMode("my")}
+  >
+    Mes publications
+  </button>
+</div>
+
           </div>
           <textarea
             name="description"
@@ -485,7 +568,7 @@ const Publication = () => {
         </form>
       </div>
 
-      {publications.map((pub) => (
+      {displayedPublications.map((pub) => (
         <div key={pub._id} className="publication-card">
           <div className="publication-header">
             <img
@@ -699,6 +782,13 @@ const Publication = () => {
           onClose={handleCloseChat}
         />
       )}
+
+      {toastMessage && (
+  <div className="custom-toast">
+    {toastMessage}
+  </div>
+)}
+
     </div>
   )
 }

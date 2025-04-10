@@ -106,7 +106,10 @@ exports.uploadFile = async (req, res) => {
   try {
     let chat = await Chat.findOne({
       publicationId,
-      $or: [{ user1: senderId, user2: receiverId }, { user1: receiverId, user2: senderId }],
+      $or: [
+        { user1: senderId, user2: receiverId },
+        { user1: receiverId, user2: senderId }
+      ],
     });
 
     if (!chat) {
@@ -118,18 +121,18 @@ exports.uploadFile = async (req, res) => {
       });
     }
 
-    const fileUrl = `/uploads/${req.file.filename}`;
+    const fileName = req.file.originalname;
+    const fileUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+
     const message = {
       senderId,
-      content: `File: ${fileUrl}`,
+      content: `<a href="${fileUrl}" download="${fileName}" target="_blank" rel="noopener noreferrer" style="color:#0a7cff;text-decoration:underline;">📎 Télécharger ${fileName}</a>`,
       createdAt: new Date(),
     };
 
     chat.messages.push(message);
     await chat.save();
 
-    // Créer une notification pour le destinataire
-    console.log('Création de la notification pour fichier:', { userId: receiverId, publicationId, senderId });
     const notification = new Notification({
       userId: receiverId,
       publicationId,
@@ -137,7 +140,6 @@ exports.uploadFile = async (req, res) => {
       message: `Nouveau fichier envoyé par ${senderId} dans la discussion de la publication ${publicationId}`,
     });
     await notification.save();
-    console.log('Notification fichier créée:', notification);
 
     res.status(200).json({ status: 'SUCCESS', message });
   } catch (error) {
@@ -145,6 +147,7 @@ exports.uploadFile = async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de l\'envoi du fichier.' });
   }
 };
+
 
 exports.getNotifications = async (req, res) => {
   const userId = req.user.userId;
