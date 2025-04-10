@@ -1,21 +1,35 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Invitation à la certification</title>
-  </head>
-  <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333;">
-    <div style="max-width: 600px; margin: 40px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-      <h2 style="color: #2a9d8f;">🎓 Bravo {{name}} !</h2>
-      <p>Vous avez validé plusieurs quiz sur notre plateforme <strong>SkillBridge</strong>.</p>
-      <p>👏 Nous tenons à vous féliciter pour vos efforts !</p>
-      <p>Souhaitez-vous obtenir une <strong>certification officielle</strong> ?</p>
-      <p>👉 Il ne vous reste plus qu’à passer l’examen final.</p>
-      <div style="text-align: center; margin: 30px 0;">
-        <a href="{{examLink}}" style="background: #2a9d8f; color: white; padding: 14px 24px; border-radius: 5px; text-decoration: none; font-weight: bold;">Passer l'examen maintenant</a>
-      </div>
-      <p>En cas de besoin, notre équipe reste à votre disposition.</p>
-      <p style="margin-top: 40px;">Cordialement,<br><strong>L’équipe SkillBridge</strong></p>
+<head>
+  <meta charset="UTF-8">
+  <title>Invitation à passer l’examen de certification</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+  <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    
+    <h2 style="color: #2c3e50;">
+      🎓 <span style="color: #16a085;">Bravo {{name}} !</span>
+    </h2>
+
+    <p style="font-size: 16px;">
+      Vous avez validé plusieurs quiz dans la catégorie <strong>{{category}}</strong> sur notre plateforme <strong>SkillBridge</strong>.
+    </p>
+
+    <p>👏 Nous tenons à vous féliciter pour vos efforts !</p>
+
+    <p>Souhaitez-vous obtenir une <strong>certification officielle</strong> ?</p>
+
+    <p>👉 Il ne vous reste plus qu’à passer l’examen final.</p>
+
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{{examLink}}" style="background-color: #27ae60; color: white; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px;">
+        Passer l'examen maintenant
+      </a>
     </div>
-  </body>
+
+    <p style="font-style: italic;">En cas de besoin, notre équipe reste à votre disposition.</p>
+
+    <p style="margin-top: 30px;">Cordialement,<br><strong>L’équipe SkillBridge</strong></p>
+  </div>
+</body>
 </html>
