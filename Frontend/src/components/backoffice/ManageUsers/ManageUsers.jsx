@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaTrash, FaEye, FaToggleOn, FaToggleOff, FaSearch,
-  FaMoneyBillWave, FaHistory, FaEnvelope
+  FaMoneyBillWave, FaHistory
 } from "react-icons/fa";
 import UserDetails from './Userdetails';
 import "./ManageUsers.scss";
@@ -18,7 +18,6 @@ const ManageUsers = () => {
   const [userToRecharge, setUserToRecharge] = useState(null);
   const [quizHistory, setQuizHistory] = useState([]);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
-  const [emailMessage, setEmailMessage] = useState("");
   const [emailUser, setEmailUser] = useState(null);
 
   useEffect(() => {
@@ -126,30 +125,10 @@ const ManageUsers = () => {
     }
   };
 
-  const sendEmail = async () => {
-    if (!emailUser || !emailMessage) return alert("Message vide");
-
-    try {
-      const res = await fetch("http://localhost:3000/api/email/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: emailUser.email,
-          subject: "Vos quiz validés sur SkillBridge",
-          message: emailMessage,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Erreur lord de l' envoi email");
-
-      alert("📧 Email envoyé avec succès !");
-      setEmailMessage("");
-      setShowHistoryModal(false);
-    } catch (err) {
-      console.error("Erreur email:", err);
-      alert("❌ Échec de l'envoi de l'email.");
-    }
+  const getTopCategory = () => {
+    if (quizHistory.length === 0) return null;
+    const sorted = [...quizHistory].sort((a, b) => b[1] - a[1]);
+    return sorted[0][0];
   };
 
   const filteredUsers = users.filter(user =>
@@ -212,6 +191,7 @@ const ManageUsers = () => {
           )}
         </div>
       </div>
+
       {showRechargeModal && (
         <div className="modal">
           <div className="modal-content">
@@ -229,105 +209,100 @@ const ManageUsers = () => {
         </div>
       )}
 
+      {showHistoryModal && (
+        <div className="modal">
+          <div className="modal-content" style={{ textAlign: 'center' }}>
+            <h3>Historique des quiz validés</h3>
 
-{showHistoryModal && (
-  <div className="modal">
-    <div className="modal-content" style={{ textAlign: 'center' }}>
-      <h3>Historique des quiz validés</h3>
-
-      {quizHistory.length === 0 ? (
-        <>
-          <p>Aucun quiz validé.</p>
-          <p style={{ fontStyle: "italic", color: "#999" }}>
-          Ce client n’a pas validé assez de quiz pour obtenir un certificat
-          </p>
-          <button
-            onClick={() => setShowHistoryModal(false)}
-            style={{
-              backgroundColor: "#dc3545",
-              color: "white",
-              padding: "8px 16px",
-              border: "none",
-              borderRadius: 5,
-              marginTop: 15
-            }}
-          >
-            Fermer
-          </button>
-        </>
-      ) : (
-        <>
-          <ul style={{ textAlign: "left" }}>
-            {quizHistory.map(([cat, count], i) => (
-              <li key={i}>{cat} : {count} quiz</li>
-            ))}
-          </ul>
-
-          {/* Email personnalisé */}
-          
-
-          
-            <button
-              onClick={() => setShowHistoryModal(false)}
-              style={{
-                backgroundColor: "#dc3545",
-                color: "white",
-                padding: "8px 16px",
-                border: "none",
-                borderRadius: 5
-              }}
-            >
-              Fermer
-            </button>
-         
-
-          {/* 🎓 Certification */}
-          <div style={{ marginTop: 20 }}>
-            {quizHistory.some(([_, count]) => count >= 2) ? (
-              <button
-                onClick={async () => {
-                  try {
-                    const examLink = "https://skillbridge.tn/examen/flutter"; // lien certif
-                    const res = await fetch("http://localhost:3000/api/email/send-certification", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        to: emailUser.email,
-                        name: emailUser.name,
-                        examLink,
-                      }),
-                    });
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.message);
-                    alert("🎓 Email de certification envoyé !");
-                    setShowHistoryModal(false);
-                  } catch (err) {
-                    console.error(err);
-                    alert("❌ Échec de l'envoi du certificat.");
-                  }
-                }}
-                style={{
-                  backgroundColor: "#007bff",
-                  color: "#fff",
-                  padding: "10px 20px",
-                  border: "none",
-                  borderRadius: "5px"
-                }}
-              >
-                🎓 GetCertificat
-              </button>
+            {quizHistory.length === 0 ? (
+              <>
+                <p>Aucun quiz validé.</p>
+                <p style={{ fontStyle: "italic", color: "#999" }}>
+                  Ce client n’a pas validé assez de quiz pour obtenir un certificat
+                </p>
+                <button
+                  onClick={() => setShowHistoryModal(false)}
+                  style={{
+                    backgroundColor: "#dc3545",
+                    color: "white",
+                    padding: "8px 16px",
+                    border: "none",
+                    borderRadius: 5,
+                    marginTop: 15
+                  }}
+                >
+                  Fermer
+                </button>
+              </>
             ) : (
-              <p style={{ marginTop: 10, fontStyle: "italic", color: "#999" }}>
-                Ce client n’a pas validé assez de quiz pour obtenir un certificat
-              </p>
+              <>
+                <ul style={{ textAlign: "left" }}>
+                  {quizHistory.map(([cat, count], i) => (
+                    <li key={i}>{cat} : {count} quiz</li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={() => setShowHistoryModal(false)}
+                  style={{
+                    backgroundColor: "#dc3545",
+                    color: "white",
+                    padding: "8px 16px",
+                    border: "none",
+                    borderRadius: 5
+                  }}
+                >
+                  Fermer
+                </button>
+
+                <div style={{ marginTop: 20 }}>
+                  {quizHistory.some(([_, count]) => count >= 2) ? (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const topCategory = getTopCategory();
+                          const formattedCategory = topCategory.toLowerCase().replace(/\s+/g, "%20");
+                          const examLink = `https://skillbridge.tn/examen/${formattedCategory}`;
+                          const res = await fetch("http://localhost:3000/api/email/send-certification", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              to: emailUser.email,
+                              name: emailUser.name,
+                              categoryCount: Object.fromEntries(quizHistory),
+                            }),
+                          });
+                          
+                          const data = await res.json();
+                          if (!res.ok) throw new Error(data.message);
+                          alert("🎓 Email de certification envoyé !");
+                          setShowHistoryModal(false);
+                        } catch (err) {
+                          console.error(err);
+                          alert("❌ Échec de l'envoi du certificat.");
+                        }
+                      }}
+                      style={{
+                        backgroundColor: "#007bff",
+                        color: "#fff",
+                        padding: "10px 20px",
+                        border: "none",
+                        borderRadius: "5px"
+                      }}
+                    >
+                      🎓 GetCertificat
+                    </button>
+                  ) : (
+                    <p style={{ marginTop: 10, fontStyle: "italic", color: "#999" }}>
+                      Ce client n’a pas validé assez de quiz pour obtenir un certificat
+                    </p>
+                  )}
+                </div>
+              </>
             )}
           </div>
-        </>
+        </div>
       )}
-    </div>
-  </div>
-)}
-
 
       {selectedUser && <UserDetails user={selectedUser} onClose={() => setSelectedUser(null)} />}
     </div>
