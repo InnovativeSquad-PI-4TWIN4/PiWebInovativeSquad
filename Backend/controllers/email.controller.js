@@ -30,17 +30,45 @@ exports.sendEmailToUser = async (req, res) => {
   }
 };
 exports.sendCertificationEmail = async (req, res) => {
-  const { to, name, examLink } = req.body;
+  const { to, name, categoryCount } = req.body;
+
+  // Liens d’examens par catégorie
+  const examLinksByCategory = {
+    "Programmation": "https://skillbridge.tn/examen/programmation",
+    "Design": "https://skillbridge.tn/examen/design",
+    "Marketing": "https://skillbridge.tn/examen/marketing",
+    "Réseau": "https://skillbridge.tn/examen/reseau",
+    "Développement Web": "https://skillbridge.tn/examen/devweb",
+    "Développement Mobile": "https://skillbridge.tn/examen/mobile",
+    "Mathématique": "https://skillbridge.tn/examen/math",
+  };
 
   try {
+    // ✅ Trouver la catégorie majoritaire
+    const topCategory = Object.entries(categoryCount || {})
+      .sort((a, b) => b[1] - a[1])[0]?.[0]; // ex: "Développement Web"
+
+    if (!topCategory || !examLinksByCategory[topCategory]) {
+      return res.status(400).json({ success: false, error: "Catégorie non valide ou manquante" });
+    }
+
+    const examLink = examLinksByCategory[topCategory];
+
+    // Charger le template
     const templatePath = path.join(__dirname, "../templates/certificationInvitation.html");
     let htmlContent = fs.readFileSync(templatePath, "utf8");
 
-    // Remplacer les variables dynamiques
+    // Injecter les valeurs dynamiques
     htmlContent = htmlContent
-      .replace("{{name}}", name)
-      .replace("{{examLink}}", examLink);
-
+    .replace("{{name}}", name)
+    .replace("{{examLink}}", examLink)
+    .replace("{{categoryList}}", categoryListHTML);
+  
+    const categoryListHTML = Object.entries(categoryCount || {})
+    .map(([cat, count]) => `<li><strong>${cat}</strong> : ${count} quiz</li>`)
+    .join("");
+  
+    // Transporteur mail
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
