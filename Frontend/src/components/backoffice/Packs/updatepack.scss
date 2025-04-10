@@ -1,205 +1,118 @@
-// UpdatePack.scss
+$primary-color: #007bff;
+$danger-color: #dc3545;
+$success-color: #28a745;
+$light-gray: #f9f9f9;
+$dark-color: #343a40;
 
-// Styles globaux pour le modal de mise à jour
 .update-pack-container {
-    position: relative;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 600px;
-    margin: auto;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-height: 90vh;
+  overflow-y: auto;
+  max-width: 600px;
+  margin: auto;
+
+  h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: $dark-color;
+  }
+
+  form {
     display: flex;
     flex-direction: column;
-    align-items: center;
-  
-    // Fermer le bouton du modal
-    .close-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: transparent;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: #333;
-      &:hover {
-        color: #ff4d4d;
+    gap: 1rem;
+
+    label {
+      font-weight: bold;
+      color: #444;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      padding: 0.7rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: border-color 0.3s;
+
+      &:focus {
+        border-color: $primary-color;
+        outline: none;
       }
     }
-  
-    h2 {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      color: #333;
-      text-align: center;
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
     }
-  
-    // Message d'erreur
-    .error-message {
-      background-color: #f8d7da;
-      color: #721c24;
-      padding: 10px;
-      border-radius: 4px;
-      margin-bottom: 20px;
-      font-size: 1rem;
-      width: 100%;
-      text-align: center;
-    }
-  
-    .update-pack-form {
-      width: 100%;
+
+    .exam-question-block {
+      background-color: $light-gray;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ddd;
       display: flex;
       flex-direction: column;
-      gap: 20px;
-  
-      // Champ de formulaire
-      .form-group {
-        display: flex;
-        flex-direction: column;
-  
-        label {
-          font-size: 1rem;
-          color: #333;
-          margin-bottom: 8px;
-        }
-  
-        input, textarea, select {
-          padding: 10px;
-          border-radius: 5px;
-          border: 1px solid #ccc;
-          font-size: 1rem;
-          width: 100%;
-          box-sizing: border-box;
-  
-          &:focus {
-            border-color: #007bff;
-            outline: none;
-          }
-        }
-  
-        textarea {
-          resize: vertical;
-          height: 150px;
-        }
-      }
-  
-      .submit-button {
-        background-color: #007bff;
-        color: white;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 5px;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-  
-        &:hover {
-          background-color: #0056b3;
-        }
+      gap: 0.5rem;
+
+      .options-block {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
       }
     }
-  }
-  
-  // Style d'arrière-plan pour le modal
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-.packs-container {
-    margin: 20px;
-    padding: 10px;
-  
-    .section-title {
-      font-size: 2rem;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-  
-    .add-pack-button {
-      background-color: #4CAF50;
+
+    .add-question-btn {
+      background-color: $primary-color;
       color: white;
+      padding: 0.5rem 1rem;
       border: none;
-      padding: 10px 20px;
-      margin-bottom: 20px;
+      border-radius: 6px;
+      font-weight: 600;
       cursor: pointer;
-      border-radius: 5px;
-  
+      transition: background-color 0.2s;
+
       &:hover {
-        background-color: #45a049;
+        background-color: darken($primary-color, 10%);
       }
     }
-  
-    .packs-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
-    }
-  
-    .pack-card {
-      background-color: #f9f9f9;
+
+    button[type="submit"] {
+      margin-top: 1rem;
+      background-color: $success-color;
+      color: white;
+      padding: 0.7rem 1.5rem;
+      border: none;
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      text-align: center;
-  
-      .discount-badge {
-        background-color: #e74c3c;
-        color: white;
-        padding: 5px;
-        border-radius: 5px;
-        font-size: 0.8rem;
-        position: absolute;
-        top: 10px;
-        right: 10px;
-      }
-  
-      .pack-icon {
-        margin-bottom: 15px;
-  
-        img {
-          width: 50px;
-          height: 50px;
-        }
-      }
-  
-      .pack-title {
-        font-size: 1.5rem;
-        margin-bottom: 10px;
-      }
-  
-      .pack-content {
-        font-size: 1rem;
-        margin-bottom: 15px;
-      }
-  
-      .pack-price {
-        font-size: 1.2rem;
-        margin-bottom: 15px;
-      }
-  
-      .pack-actions {
-        display: flex;
-        justify-content: space-around;
-        font-size: 1.5rem;
-  
-        .action-icon {
-          cursor: pointer;
-          color: #3498db;
-  
-          &:hover {
-            color: #2980b9;
-          }
-        }
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: darken($success-color, 10%);
       }
     }
   }
-  
+
+  button:last-of-type {
+    margin-top: 1rem;
+    background-color: $danger-color;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: darken($danger-color, 10%);
+    }
+  }
+}

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaTrash, FaEye, FaToggleOn, FaToggleOff, FaSearch, FaPlus, FaMoneyBillWave } from "react-icons/fa";
+import {
+  FaTrash, FaEye, FaToggleOn, FaToggleOff, FaSearch,
+  FaMoneyBillWave, FaHistory
+} from "react-icons/fa";
 import UserDetails from './Userdetails';
 import "./ManageUsers.scss";
 
@@ -13,27 +16,19 @@ const ManageUsers = () => {
   const [showRechargeModal, setShowRechargeModal] = useState(false);
   const [rechargeAmount, setRechargeAmount] = useState("");
   const [userToRecharge, setUserToRecharge] = useState(null);
+  const [quizHistory, setQuizHistory] = useState([]);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [emailUser, setEmailUser] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          throw new Error("Utilisateur non authentifié. Veuillez vous connecter.");
-        }
-
         const response = await fetch("http://localhost:3000/users/getAllUsers", {
-          method: "GET",
           headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
           },
         });
-
-        if (!response.ok) {
-          throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
-        }
-
         const data = await response.json();
         setUsers(data);
       } catch (err) {
@@ -42,60 +37,41 @@ const ManageUsers = () => {
         setLoading(false);
       }
     };
-
     fetchUsers();
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) return;
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3000/users/delete-profile/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la suppression de l'utilisateur");
-      }
-
-      setUsers(users.filter(user => user._id !== id));
-    } catch (err) {
-      alert("Erreur lors de la suppression de l'utilisateur");
-    }
+    if (!window.confirm("Supprimer cet utilisateur ?")) return;
+    const token = localStorage.getItem("token");
+    await fetch(`http://localhost:3000/users/delete-profile/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    setUsers(users.filter(user => user._id !== id));
   };
 
   const handleToggleStatus = async (id, isActive) => {
-    try {
-      const token = localStorage.getItem("token");
-      const url = isActive
-        ? `http://localhost:3000/users/deactivate/${id}`  // Désactiver
-        : `http://localhost:3000/users/activate/${id}`;   // Activer
-
-      const response = await fetch(url, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const result = await response.json();
-      if (!response.ok || result.status === "FAILED") {
-        throw new Error(result.message || "Erreur lors de la mise à jour du statut de l'utilisateur");
-      }
-
-      setUsers(prevUsers => prevUsers.map(user => user._id === id ? { ...user, isActive: !isActive } : user));
-    } catch (err) {
-      alert(err.message);
+    const token = localStorage.getItem("token");
+    const url = isActive
+      ? `http://localhost:3000/users/deactivate/${id}`
+      : `http://localhost:3000/users/activate/${id}`;
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const result = await response.json();
+    if (!response.ok || result.status === "FAILED") {
+      alert(result.message || "Erreur statut utilisateur");
+      return;
     }
-  };
-
-  const handleViewUserDetails = (user) => {
-    setSelectedUser(user);
+    setUsers(prevUsers =>
+      prevUsers.map(user =>
+        user._id === id ? { ...user, isActive: !isActive } : user
+      )
+    );
   };
 
   const handleRechargeClick = (user) => {
@@ -106,42 +82,53 @@ const ManageUsers = () => {
 
   const handleRecharge = async () => {
     if (!rechargeAmount || isNaN(rechargeAmount) || rechargeAmount <= 0) {
-      alert("Veuillez entrer un montant valide.");
+      alert("Montant invalide.");
       return;
     }
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:3000/users/rechargeAdmin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          userId: userToRecharge._id,
-          amount: parseFloat(rechargeAmount),
-        }),
-      });
-
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || "Erreur lors de la recharge du solde");
-      }
-
-      alert("Recharge effectuée avec succès !");
-      setUsers(prevUsers =>
-        prevUsers.map(user =>
-          user._id === userToRecharge._id
-            ? { ...user, solde: (user.solde || 0) + parseFloat(rechargeAmount) }
-            : user
-        )
-      );
-
-      setShowRechargeModal(false);
-    } catch (err) {
-      alert(err.message);
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://localhost:3000/users/rechargeAdmin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        userId: userToRecharge._id,
+        amount: parseFloat(rechargeAmount),
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      alert(result.message || "Erreur recharge.");
+      return;
     }
+    alert("✅ Recharge effectuée !");
+    setUsers(prev =>
+      prev.map(user =>
+        user._id === userToRecharge._id
+          ? { ...user, solde: (user.solde || 0) + parseFloat(rechargeAmount) }
+          : user
+      )
+    );
+    setShowRechargeModal(false);
+  };
+
+  const fetchQuizHistory = async (userId, user) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/quiz-result/validated-categories/${userId}`);
+      const data = await res.json();
+      setQuizHistory(Object.entries(data.categoryCount || {}));
+      setEmailUser(user);
+      setShowHistoryModal(true);
+    } catch (err) {
+      alert("Erreur chargement historique");
+    }
+  };
+
+  const getTopCategory = () => {
+    if (quizHistory.length === 0) return null;
+    const sorted = [...quizHistory].sort((a, b) => b[1] - a[1]);
+    return sorted[0][0];
   };
 
   const filteredUsers = users.filter(user =>
@@ -154,54 +141,62 @@ const ManageUsers = () => {
         <h1>Manage Users</h1>
 
         <div className="user-management__search">
-          <input type="text" placeholder="Rechercher un utilisateur..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          <input
+            type="text"
+            placeholder="Rechercher un utilisateur..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <FaSearch className="search-icon" />
         </div>
 
         <div className="user-management__content">
-          {loading ? <p>Chargement...</p> : error ? <p className="error">{error}</p> :
+          {loading ? (
+            <p>Chargement...</p>
+          ) : error ? (
+            <p className="error">{error}</p>
+          ) : (
             <motion.div className="list-view">
               <AnimatePresence>
                 {filteredUsers.map(user => (
                   <motion.div key={user._id} className="user-row">
                     <div className="user-info">
-                      <img src={`http://localhost:3000${user.image}`}
+                      <img
+                        src={`http://localhost:3000${user.image}`}
                         alt={user.name}
                         className="user-avatar"
-                        onError={(e) => { e.target.src = "https://via.placeholder.com/50"; }} />
+                        onError={(e) => {
+                          e.target.src = "https://via.placeholder.com/50";
+                        }}
+                      />
                       <div className="details">
                         <div className="name">{user.name} {user.surname}</div>
                         <div className="email">{user.email || "Email non disponible"}</div>
-                        <div className="solde" style={{ color: "black" }}> Solde: {user.solde || 0}DT</div>
+                        <div className="solde">Solde: {user.solde || 0}DT</div>
                       </div>
                     </div>
                     <div className="actions">
                       <button onClick={() => handleToggleStatus(user._id, user.isActive)}>
                         {user.isActive ? <FaToggleOn size={20} /> : <FaToggleOff size={20} />}
                       </button>
-                      <button onClick={() => handleViewUserDetails(user)}>
-                        <FaEye size={20} />
-                      </button>
-                      <button onClick={() => handleDelete(user._id)}>
-                        <FaTrash size={20} />
-                      </button>
-                      <button onClick={() => handleRechargeClick(user)}>
-                        <FaMoneyBillWave size={20} />
-                      </button>
+                      <button onClick={() => setSelectedUser(user)}><FaEye size={20} /></button>
+                      <button onClick={() => handleDelete(user._id)}><FaTrash size={20} /></button>
+                      <button onClick={() => handleRechargeClick(user)}><FaMoneyBillWave size={20} /></button>
+                      <button onClick={() => fetchQuizHistory(user._id, user)}><FaHistory size={20} /></button>
                     </div>
                   </motion.div>
                 ))}
               </AnimatePresence>
             </motion.div>
-          }
+          )}
         </div>
       </div>
 
       {showRechargeModal && (
         <div className="modal">
           <div className="modal-content">
-            <h2 style={{ color: "black" }}>Recharger le solde</h2>
-            <p style={{ color: "black" }}>Utilisateur : {userToRecharge.name} {userToRecharge.surname}</p>
+            <h2>Recharger le solde</h2>
+            <p>Utilisateur : {userToRecharge.name} {userToRecharge.surname}</p>
             <input
               type="number"
               placeholder="Montant"
@@ -213,7 +208,103 @@ const ManageUsers = () => {
           </div>
         </div>
       )}
-        {selectedUser && <UserDetails user={selectedUser} onClose={() => setSelectedUser(null)} />}
+
+      {showHistoryModal && (
+        <div className="modal">
+          <div className="modal-content" style={{ textAlign: 'center' }}>
+            <h3>Historique des quiz validés</h3>
+
+            {quizHistory.length === 0 ? (
+              <>
+                <p>Aucun quiz validé.</p>
+                <p style={{ fontStyle: "italic", color: "#999" }}>
+                  Ce client n’a pas validé assez de quiz pour obtenir un certificat
+                </p>
+                <button
+                  onClick={() => setShowHistoryModal(false)}
+                  style={{
+                    backgroundColor: "#dc3545",
+                    color: "white",
+                    padding: "8px 16px",
+                    border: "none",
+                    borderRadius: 5,
+                    marginTop: 15
+                  }}
+                >
+                  Fermer
+                </button>
+              </>
+            ) : (
+              <>
+                <ul style={{ textAlign: "left" }}>
+                  {quizHistory.map(([cat, count], i) => (
+                    <li key={i}>{cat} : {count} quiz</li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={() => setShowHistoryModal(false)}
+                  style={{
+                    backgroundColor: "#dc3545",
+                    color: "white",
+                    padding: "8px 16px",
+                    border: "none",
+                    borderRadius: 5
+                  }}
+                >
+                  Fermer
+                </button>
+
+                <div style={{ marginTop: 20 }}>
+                  {quizHistory.some(([_, count]) => count >= 2) ? (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const topCategory = getTopCategory();
+                          const formattedCategory = topCategory.toLowerCase().replace(/\s+/g, "%20");
+                          const examLink = `https://skillbridge.tn/examen/${formattedCategory}`;
+                          const res = await fetch("http://localhost:3000/api/email/send-certification", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              to: emailUser.email,
+                              name: emailUser.name,
+                              categoryCount: Object.fromEntries(quizHistory),
+                            }),
+                          });
+                          
+                          const data = await res.json();
+                          if (!res.ok) throw new Error(data.message);
+                          alert("🎓 Email de certification envoyé !");
+                          setShowHistoryModal(false);
+                        } catch (err) {
+                          console.error(err);
+                          alert("❌ Échec de l'envoi du certificat.");
+                        }
+                      }}
+                      style={{
+                        backgroundColor: "#007bff",
+                        color: "#fff",
+                        padding: "10px 20px",
+                        border: "none",
+                        borderRadius: "5px"
+                      }}
+                    >
+                      🎓 GetCertificat
+                    </button>
+                  ) : (
+                    <p style={{ marginTop: 10, fontStyle: "italic", color: "#999" }}>
+                      Ce client n’a pas validé assez de quiz pour obtenir un certificat
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {selectedUser && <UserDetails user={selectedUser} onClose={() => setSelectedUser(null)} />}
     </div>
   );
 };

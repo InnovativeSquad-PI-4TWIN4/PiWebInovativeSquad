@@ -9,6 +9,8 @@ const User = new Schema({
   dateOfBirth: Date,
   Skill: String,
   image: String,
+  verified: { type: Boolean, default: false },
+emailToken: { type: String },
   isActive: { type: Boolean, default: true },
   googleId: { type: String, unique: true, sparse: true },
   secret: { type: String },
@@ -23,6 +25,12 @@ const User = new Schema({
   resetPasswordExpires: Date,
   solde: { type: Number, default: 0 },
   abonnement: [{ type: Schema.Types.ObjectId, ref: "Pack" }],
+  pdfProgress: [
+    {
+      packId: { type: Schema.Types.ObjectId, ref: "Pack" },
+      pdfId: String // ou ObjectId si tes PDFs ont des IDs de Mongo
+    }
+  ],
   favorites: [{ type: Schema.Types.ObjectId, ref: "courses" }],
 }, {
   toJSON: { virtuals: true },

@@ -33,6 +33,10 @@ router.post("/addAdmin", authenticateUser, isAdmin, userController.addAdmin);
 router.post("/rechargeAdmin", userController.rechargeSolde);
 router.post("/updateAdminPassword", userController.updateAdminPassword);
 
+router.get('/verify-email/:token', userController.verifyEmail);
+router.get("/pdf-progress/:packId", authenticateUser,userController.getPdfProgress);
+router.post("/pdf-progress/:packId",authenticateUser, userController.savePdfProgress);
+
 
 
 

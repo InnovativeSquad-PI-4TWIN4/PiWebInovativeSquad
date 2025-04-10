@@ -40,6 +40,9 @@ import Publication from './components/frontoffice/publication/Publication';
 import Profiles from './components/frontoffice/Manageprofile/AllProfiles'
 import ProfileDetail from './components/frontoffice/Manageprofile/ProfileDetails'
 import ExchangeRoom from './components/frontoffice/Packs/ExchangeRoom';
+import PackDetails from "./components/frontoffice/Packs/PackDetails"; 
+
+import EmailVerification from './components/frontoffice/signup/EmailVerification';
 const App = () => {
     const [user, setUser] = useState(null);
 
@@ -154,6 +157,7 @@ const App = () => {
                             <Route path="/AvisWebsite" element={<Avis />} />
                             <Route path="/profiles" element={<Profiles currentUserId={user?._id} />} />
                             <Route path="/profile/:id" element={<ProfileDetail />} />
+                            <Route path="/pack/:id" element={<PackDetails />} />
                             <Route path="/Ourpacks" element={<Packs />} />
                             <Route path="/contact" element={<Contact />} />
                             <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
@@ -162,6 +166,7 @@ const App = () => {
                             <Route path="/publication" element={<Publication />} />
                             <Route path="/messenger" element={<Messenger />} />
                             <Route path="/auth/success" element={<AuthSuccess />} />
+                            <Route path="/verify-email/:token" element={<EmailVerification />} />
                         </>
                     )}
                     <Route path="*" element={<Home />} />

@@ -182,7 +182,7 @@ const PremiumCourses = () => {
             <p>{course.category}</p>
             <p><strong>Instructeur :</strong> {course.instructor?.name || "Inconnu"}</p>
             <p>💰 Prix : {course.price} DT</p>
-            {course.courseSummary && <p><strong>Résumé :</strong> {course.courseSummary}</p>}
+            
 
             {paidCourses.includes(course._id) ? (
               course.isMeetEnded ? (
@@ -205,7 +205,7 @@ const PremiumCourses = () => {
             )}
 
 {course.courseSummary && (
-  quizResults[course._id]?.validated ? (
+  quizResults[course._id] !== undefined ? (
     <button
       className="quiz-btn"
       onClick={() => handleGenerateQuiz(course._id)}
