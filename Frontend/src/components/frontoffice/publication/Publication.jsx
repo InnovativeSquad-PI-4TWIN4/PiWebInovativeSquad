@@ -527,9 +527,12 @@ const Publication = () => {
             <button className="action-btn comment-btn">
               <span className="icon">💬</span> Comment
             </button>
-            <button className="action-btn negotiate-btn" onClick={() => handleNegotiate(pub)}>
-              <span className="icon">🤝</span> Negotiate
-            </button>
+            {/* Afficher le bouton Negotiate uniquement si l'utilisateur connecté n'est pas l'auteur de la publication */}
+            {currentUser && pub.user && currentUser._id !== pub.user._id && (
+              <button className="action-btn negotiate-btn" onClick={() => handleNegotiate(pub)}>
+                <span className="icon">🤝</span> Negotiate
+              </button>
+            )}
           </div>
 
           <div className="comments-section">
