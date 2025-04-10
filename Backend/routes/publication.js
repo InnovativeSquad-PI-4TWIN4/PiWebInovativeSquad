@@ -12,4 +12,7 @@ router.delete("/deletePub/:id", PubController.deletePub);
 router.post("/like/:id" , authenticateUser, PubController.likePublication);
 router.post('/comment/:id', authenticateUser, PubController.addComment);
 router.post('/reply/:id/:commentId', authenticateUser, PubController.addReply);
+// Ajout des routes pour les notifications
+router.get("/notifications", authenticateUser, PubController.getUserNotifications);
+router.post("/notifications/:id/read", authenticateUser, PubController.markNotificationAsRead);
 module.exports = router;
