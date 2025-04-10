@@ -1,3 +1,4 @@
+// src/components/publication/Publication.jsx
 "use client"
 
 import { useState, useEffect } from "react"
@@ -524,7 +525,7 @@ const Publication = () => {
               {pub.likes.includes(currentUser?._id) ? "Dislike" : "Like"} ({pub.likes.length})
             </button>
             <button className="action-btn comment-btn">
-              <span className="icon">💬</span> Commenter
+              <span className="icon">💬</span> Comment
             </button>
             <button className="action-btn negotiate-btn" onClick={() => handleNegotiate(pub)}>
               <span className="icon">🤝</span> Negotiate
