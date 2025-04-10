@@ -9,6 +9,8 @@ const User = new Schema({
   dateOfBirth: Date,
   Skill: String,
   image: String,
+  verified: { type: Boolean, default: false },
+emailToken: { type: String },
   isActive: { type: Boolean, default: true },
   googleId: { type: String, unique: true, sparse: true },
   secret: { type: String },
