@@ -34,13 +34,14 @@ const stripeRouter = require("./routes/stripe");
 const chatRoutes = require("./routes/chatRoutes");
 const favoritesRoutes = require("./routes/favorites");
 const quizResultRoutes = require("./routes/quizResult.routes");
-
+const emailRoutes = require("./routes/email.routes");
 // ✅ Initialise app Express
 const app = express();
 
 // ✅ Création du serveur HTTP pour intégrer Socket.io
 const server = http.createServer(app);
 
+ 
 // ✅ Intégration de Socket.io
 const io = new Server(server, {
   cors: {
@@ -86,6 +87,7 @@ io.on("connection", (socket) => {
 });
 
 // ✅ Middleware et configuration Express
+ 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "twig");
 
@@ -137,6 +139,9 @@ app.use("/api/stripe", stripeRouter);
 app.use("/chat", chatRoutes);
 app.use("/favorites", favoritesRoutes);
 app.use("/api/quiz-result", quizResultRoutes);
+app.use("/api/email", emailRoutes);
+// Monter les routes de notification sur /chat
+app.use("/chat", publicationRouter);
 
 // ✅ Gestion 404
 app.use((req, res, next) => {

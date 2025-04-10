@@ -1,152 +1,106 @@
-import React, { useState,useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FcGoogle } from 'react-icons/fc';
-import ReCAPTCHA from "react-google-recaptcha";  // ✅ Ajout de reCAPTCHA
-import { FaFacebook } from 'react-icons/fa';
+import ReCAPTCHA from "react-google-recaptcha";
 import './SignUp.scss';
 
+const recommendedSkills = ["JavaScript", "Java", "Python", "Git", "React", "Node.js", "Spring Boot", "SQL"];
+
 const SignUp = () => {
-  const [name, setName] = useState('');
-  const [surname, setSurname] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState('');
-  const [skill, setSkill] = useState('');
+  const [formState, setFormState] = useState({
+    name: '', surname: '', email: '', password: '', dateOfBirth: '',
+    skills: [], otherSkill: '', useOther: false,
+  });
   const [image, setImage] = useState(null);
-  
   const [capturedImage, setCapturedImage] = useState(null);
-
   const [error, setError] = useState('');
-  const [recaptchaToken, setRecaptchaToken] = useState(null); // ✅ Ajout d'un état pour reCAPTCHA
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
 
+  const navigate = useNavigate();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  const navigate = useNavigate();
-  const handleRecaptchaChange = (token) => {
-    setRecaptchaToken(token);  // ✅ Stocke le token reCAPTCHA
+  const handleChange = (field) => (e) => {
+    setFormState({ ...formState, [field]: e.target.value });
   };
 
+  const toggleSkill = (skill) => {
+    const updatedSkills = formState.skills.includes(skill)
+      ? formState.skills.filter(s => s !== skill)
+      : [...formState.skills, skill];
+    setFormState({ ...formState, skills: updatedSkills });
+  };
 
-  const handleSignUp = async (e) => {
+  const handleRecaptchaChange = (token) => setRecaptchaToken(token);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    if (!image && !capturedImage) return setError("Please upload or capture an image.");
+    if (!recaptchaToken) return setError("Please complete the reCAPTCHA.");
 
- // Vérification si une image est téléchargée ou capturée avant de soumettre
- if (!image && !capturedImage) {
-  setError('Please upload or capture an image before signing up.');
-  return;
-}
-if (!recaptchaToken) {
-  setError("Please complete the reCAPTCHA verification.");
-  return;
-}
+    let finalSkills = [...formState.skills];
+    if (formState.useOther && formState.otherSkill.trim() !== '') {
+      if (!finalSkills.includes(formState.otherSkill.trim())) {
+        finalSkills.push(formState.otherSkill.trim());
+      }
+    }
 
-
+    if (finalSkills.length === 0)
+      return setError("Please select or enter at least one skill.");
 
     const formData = new FormData();
-    formData.append('name', name);
-    formData.append('surname', surname);
-    formData.append('email', email);
-    formData.append('password', password);
-    formData.append('dateOfBirth', dateOfBirth);
-    formData.append('Skill', skill);
-    formData.append('recaptchaToken', recaptchaToken); // ✅ Ajout du token reCAPTCHA
+    formData.append("Skill", finalSkills.join(", "));
+    formData.append("name", formState.name);
+    formData.append("surname", formState.surname);
+    formData.append("email", formState.email);
+    formData.append("password", formState.password);
+    formData.append("dateOfBirth", formState.dateOfBirth);
+    formData.append("recaptchaToken", recaptchaToken);
 
-
-   
-    if (image) {
-      formData.append('image', image);
-    } else if (capturedImage) {
-      formData.append('image', capturedImage);
-    }
-
-    // Affichez les données pour vérifier
-    for (let [key, value] of formData.entries()) {
-      console.log('${key}:', value);
-    }
-
-    // Arrêter la caméra avant d'envoyer le formulaire
-    stopCamera();
-
+    if (image) formData.append("image", image);
+    else if (capturedImage) formData.append("image", capturedImage);
 
     try {
-      const response = await axios.post('http://localhost:3000/users/signup', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      if (response.data.status) {
-        localStorage.setItem('token', response.data.token);
-        navigate('/signin');
-      } else {
-        setError('Signup failed, please try again.');
-      }
-    } catch (error) {
-      setError(error.response?.data?.message || 'An error occurred during sign-up.');
+      const res = await axios.post('http://localhost:3000/users/signup', formData);
+      localStorage.setItem("token", res.data.token);
+      navigate('/signin');
+    } catch (err) {
+      setError(err.response?.data?.message || "Signup failed.");
     }
   };
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImage(file);
-      setCapturedImage(null); // Réinitialiser l'image capturée
+      setCapturedImage(null);
     }
   };
 
   const openCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-    } catch (error) {
-      setError('Error accessing the camera.');
-      console.error(error);
-    }
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    if (videoRef.current) videoRef.current.srcObject = stream;
   };
 
   const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject;
-      stream.getTracks().forEach((track) => track.stop());
-      videoRef.current.srcObject = null;
-    }
+    const stream = videoRef.current?.srcObject;
+    stream?.getTracks().forEach((track) => track.stop());
+    if (videoRef.current) videoRef.current.srcObject = null;
   };
 
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current) {
-      const context = canvasRef.current.getContext('2d');
+      const context = canvasRef.current.getContext("2d");
       canvasRef.current.width = videoRef.current.videoWidth;
       canvasRef.current.height = videoRef.current.videoHeight;
-      context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
-  
+      context.drawImage(videoRef.current, 0, 0);
       canvasRef.current.toBlob((blob) => {
-        const file = new File([blob], 'captured-image.jpg', { type: 'image/jpeg' });
+        const file = new File([blob], "captured.jpg", { type: "image/jpeg" });
         setCapturedImage(file);
-        setImage(file); // Mettre à jour l'image pour l'envoi
-  
-        // Simuler un FileList pour l'input file
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        document.getElementById('fileInput').files = dataTransfer.files;
-      }, 'image/jpeg');
-  
-      stopCamera(); // Arrêter la caméra après la capture
+        setImage(file);
+      });
+      stopCamera();
     }
-  };
-  
-
-
-
-  const handleGoogleSignIn = () => {
-    console.log('Google Sign In Clicked');
-    // Ajouter ici la logique de connexion avec Google
-  };
-
-  const handleFacebookSignIn = () => {
-    console.log('Facebook Sign In Clicked');
-    // Ajouter ici la logique de connexion avec Facebook
   };
 
   return (
@@ -154,54 +108,78 @@ if (!recaptchaToken) {
       <div className="signup-box">
         <h2>Sign Up</h2>
         {error && <p className="error">{error}</p>}
-        <form onSubmit={handleSignUp}>
-          <input type="text" placeholder="First Name" value={name} onChange={(e) => setName(e.target.value)} required />
-          <input type="text" placeholder="Last Name" value={surname} onChange={(e) => setSurname(e.target.value)} required />
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <input type="date" placeholder="Date of Birth" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} required />
-          <input type="text" placeholder="Skill" value={skill} onChange={(e) => setSkill(e.target.value)} required />
-          {/* <input type="file" accept="image/png, image/jpeg, image/jpg" onChange={(e) => setImage(e.target.files[0])} /> */}
-          <input
-  id="fileInput"
-  type="file"
-  accept="image/png, image/jpeg, image/jpg"
-  onChange={handleImageUpload}
-/>
+        <form onSubmit={handleSubmit}>
+          <input type="text" placeholder="First Name" value={formState.name} onChange={handleChange("name")} required />
+          <input type="text" placeholder="Last Name" value={formState.surname} onChange={handleChange("surname")} required />
+          <input type="email" placeholder="Email" value={formState.email} onChange={handleChange("email")} required />
+          <input type="password" placeholder="Password" value={formState.password} onChange={handleChange("password")} required />
+          <input type="date" value={formState.dateOfBirth} onChange={handleChange("dateOfBirth")} required />
 
-{(capturedImage || image) && (
-  <img
-    src={URL.createObjectURL(capturedImage || image)}
-    alt="Selected"
-    className="preview-image"
+          <div className="skills-section">
+            <p>Choose your skills:</p>
+            <div className="skills-grid">
+              {recommendedSkills.map((skill) => (
+                <label key={skill} className={`skill-option ${formState.skills.includes(skill) ? "selected" : ""}`}>
+                  <input
+                    type="checkbox"
+                    checked={formState.skills.includes(skill)}
+                    onChange={() => toggleSkill(skill)}
+                  />
+                  {skill}
+                </label>
+              ))}
+              <label className="skill-option">
+                <input
+                  type="checkbox"
+                  checked={formState.useOther}
+                  onChange={() => setFormState({ ...formState, useOther: !formState.useOther })}
+                />
+                Autres
+              </label>
+            </div>
+            {formState.useOther && (
+  <input
+    type="text"
+    placeholder="Enter your skill and press Enter"
+    value={formState.otherSkill}
+    onChange={(e) =>
+      setFormState((prev) => ({
+        ...prev,
+        otherSkill: e.target.value,
+      }))
+    }
+    onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const trimmedSkill = formState.otherSkill.trim();
+        if (trimmedSkill && !formState.skills.includes(trimmedSkill)) {
+          setFormState((prev) => ({
+            ...prev,
+            skills: [...prev.skills, trimmedSkill],
+            otherSkill: "",
+          }));
+        }
+      }
+    }}
+    className="other-skill-input"
   />
 )}
 
 
+          </div>
+
+          <input id="fileInput" type="file" accept="image/*" onChange={handleImageUpload} />
+          {(image || capturedImage) && <img src={URL.createObjectURL(image || capturedImage)} alt="preview" className="preview-image" />}
           <button type="button" onClick={openCamera}>📷 Ouvrir la Caméra</button>
-          {videoRef.current && videoRef.current.srcObject && (
-            <button type="button" onClick={stopCamera}>❌ Fermer la Caméra</button>
-          )}
           <video ref={videoRef} autoPlay className="camera-view"></video>
           <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
           <button type="button" onClick={capturePhoto}>📸 Prendre une photo</button>
-          <ReCAPTCHA sitekey="6LeiZ-QqAAAAAFjqeHfNgCeTBBzRVfwta1SgRx4v" onChange={handleRecaptchaChange} />  {/* ✅ Ajout du reCAPTCHA */}
+
+          <ReCAPTCHA sitekey="6LeiZ-QqAAAAAFjqeHfNgCeTBBzRVfwta1SgRx4v" onChange={handleRecaptchaChange} />
 
           <button type="submit">Sign Up</button>
         </form>
-
-        
-
-        <p>
-          Already have an account? <Link to="/signin">Sign In</Link>
-        </p>
-        <button className="google-btn" onClick={handleGoogleSignIn}>
-          <FcGoogle className="google-icon" /> Sign Up With Google
-        </button>
-
-        {/* <button className="facebook-btn" onClick={handleFacebookSignIn}>
-          <FaFacebook className="facebook-icon" /> Sign In With Facebook
-        </button> */}
+        <p>Already have an account? <Link to="/signin">Sign In</Link></p>
       </div>
     </div>
   );

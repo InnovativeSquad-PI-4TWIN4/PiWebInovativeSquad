@@ -1,194 +1,176 @@
-// Packs.scss
-
-
-.add-pack-form {
-  max-height: 400px;  // Définit une hauteur max pour éviter le débordement
-  overflow-y: auto;   // Active le scroll si nécessaire
-  padding-right: 10px; // Ajoute un petit padding pour éviter le chevauchement avec la scrollbar
-}
-
-/* Permet d'améliorer l'apparence de la scrollbar */
-.add-pack-form::-webkit-scrollbar {
-  width: 6px;
-}
-
-.add-pack-form::-webkit-scrollbar-thumb {
-  background-color: #888;
-  border-radius: 4px;
-}
-
-.add-pack-form::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
-}
-
-// Styles globaux pour le modal
-.add-pack-container {
-  position: relative;
-  width: 600px; // Ajuste selon ton design
-  height: 500px;
-  max-width: 90%;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  
-    // Fermer le bouton du modal
-    .close-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: transparent;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: #333;
-      &:hover {
-        color: #ff4d4d;
-      }
-    }
-  
-    h2 {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      color: #333;
-      text-align: center;
-    }
-  
-    // Message d'erreur
-    .error-message {
-      background-color: #f8d7da;
-      color: #721c24;
-      padding: 10px;
-      border-radius: 4px;
-      margin-bottom: 20px;
-      font-size: 1rem;
-      width: 100%;
-      text-align: center;
-    }
-  
-    .add-pack-form {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-  
-      // Champ de formulaire
-      .form-group {
-        display: flex;
-        flex-direction: column;
-  
-        label {
-          font-size: 1rem;
-          color: #333;
-          margin-bottom: 8px;
-        }
-  
-        input, textarea, select {
-          padding: 10px;
-          border-radius: 5px;
-          border: 1px solid #ccc;
-          font-size: 1rem;
-          width: 100%;
-          box-sizing: border-box;
-  
-          &:focus {
-            border-color: #007bff;
-            outline: none;
-          }
-        }
-  
-        textarea {
-          resize: vertical;
-          height: 150px;
-        }
-      }
-  
-      .submit-button {
-        background-color: #007bff;
-        color: white;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 5px;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-  
-        &:hover {
-          background-color: #0056b3;
-        }
-      }
-    }
-  }
-  
-  // Style d'arrière-plan pour le modal
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-/* Example Styles for Modal and Packs */
 .add-pack-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.5);
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;         // ✅ limite la hauteur
+  overflow-y: auto;         // ✅ active le scroll vertical
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 1001;
+}
+.exam-question-block {
+  margin-bottom: 1rem;
+  background-color: #f1f1f1;
+  padding: 1rem;
+  border-radius: 8px;
+
+  input {
+    margin-bottom: 0.5rem;
+    width: 100%;
   }
-  
-  .modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 400px;
+
+  .options-block {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
   }
-  
+}
+
+.add-question-btn {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+}
+
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem; // ✅ pour éviter que le contenu touche les bords
+}
+
+.add-pack-container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  max-width: 500px;
+  margin: 2rem auto;
+  position: relative;
+  font-family: "Segoe UI", sans-serif;
+  animation: fadeInUp 0.4s ease-in-out;
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #333;
+  }
+
   .close-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-  }
-  
-  .add-pack-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #4caf50;
-    color: white;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
     border: none;
-    border-radius: 5px;
+    font-size: 1.5rem;
+    color: #888;
     cursor: pointer;
+
+    &:hover {
+      color: #000;
+    }
   }
-  
-  .packs-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+
+  .error-message {
+    background-color: #f8d7da;
+    color: #842029;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 500;
   }
-  
-  .pack-card {
-    padding: 15px;
-    border-radius: 10px;
+
+  .add-pack-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+
+      label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+      }
+
+      input,
+      textarea,
+      select {
+        padding: 0.6rem 0.9rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+
+        &:focus {
+          outline: none;
+          border-color: #007bff;
+          box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+        }
+      }
+
+      input[type="file"] {
+        padding: 0.4rem 0.3rem;
+        font-size: 0.95rem;
+      }
+    }
+
+    .icon-preview {
+      margin-top: 0.5rem;
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .submit-button {
+      background-color: #007bff;
+      color: white;
+      padding: 0.75rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+
+      &:hover {
+        background-color: darken(#007bff, 10%);
+        transform: scale(1.03);
+      }
+    }
   }
-  
-  .discount-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background-color: red;
-    color: white;
-    padding: 5px;
-    border-radius: 5px;
+}
+
+// Animation douce
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

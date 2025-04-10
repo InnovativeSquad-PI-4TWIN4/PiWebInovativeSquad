@@ -142,3 +142,102 @@
     }
   }
 }
+.skill-select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: none;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+
+  option {
+    color: black;
+    background: white;
+  }
+
+  &:focus {
+    outline: 2px solid #00ff88;
+  }
+}
+.skills-section {
+  margin: 25px 0;
+  text-align: left;
+
+  p {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 12px;
+  }
+
+  .skills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 15px;
+  }
+
+  .skill-option {
+    position: relative;
+    padding: 10px 20px;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    border: 2px solid transparent;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s ease;
+
+    input[type="checkbox"] {
+      display: none;
+    }
+
+    &.selected {
+      background-color: #00ff88;
+      color: #000;
+      font-weight: bold;
+      border-color: #00ff88;
+    }
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.25);
+    }
+  }
+
+  .other-skill-input {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 2px solid #00ff88;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    outline: none;
+    margin-top: 10px;
+    transition: border-color 0.3s ease;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 400;
+    }
+
+    &:focus {
+      border-color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+}
+.success-message {
+  color: #00ff88;
+  background-color: rgba(0, 255, 136, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  text-align: center;
+}

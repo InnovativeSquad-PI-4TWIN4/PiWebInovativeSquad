@@ -24,7 +24,6 @@ exports.getPackById = async (req, res) => {
 };
 
 // ✅ Ajouter un nouveau pack
-// ✅ Ajouter un nouveau pack enrichi
 exports.createPack = async (req, res) => {
   try {
     const {
@@ -39,8 +38,22 @@ exports.createPack = async (req, res) => {
       bonuses,
       prerequisites,
       content,
-      icon
+      icon,
+      exam // ✅ ajout de l'examen ici
     } = req.body;
+
+    const parsedSkills = JSON.parse(skills || "[]");
+    const parsedBonuses = JSON.parse(bonuses || "[]");
+    const parsedPrerequisites = JSON.parse(prerequisites || "[]");
+    const parsedContent = JSON.parse(content || "[]");
+    const parsedExam = JSON.parse(exam || "[]"); // ✅ Parse exam if provided
+
+    const pdfs = req.files?.map((file, index) => ({
+      title: file.originalname,
+      url: `/uploads/${file.filename}`,
+      locked: index !== 0,
+      order: index + 1
+    })) || [];
 
     const newPack = new Pack({
       title,
@@ -50,19 +63,24 @@ exports.createPack = async (req, res) => {
       category,
       level,
       duration,
-      skills,
-      bonuses,
-      prerequisites,
-      content,
-      icon
+      skills: parsedSkills,
+      bonuses: parsedBonuses,
+      prerequisites: parsedPrerequisites,
+      content: parsedContent,
+      icon,
+      pdfs,
+      exam: parsedExam.length > 0 ? { questions: parsedExam } : undefined // ✅ conditionnel si examen envoyé
     });
 
     await newPack.save();
     res.status(201).json(newPack.toJSON());
   } catch (error) {
+    console.error("Erreur lors de l'ajout du pack :", error);
     res.status(400).json({ message: "Erreur lors de l'ajout du pack", error });
   }
 };
+
+
 
 // ✅ Mettre à jour un pack
 exports.updatePack = async (req, res) => {
@@ -86,6 +104,19 @@ exports.deletePack = async (req, res) => {
   }
   
 };
+
+exports.getPackPdfs = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const pack = await Pack.findById(id);
+    if (!pack) return res.status(404).json({ message: "Pack introuvable" });
+
+    res.json({ pdfs: pack.pdfs }); // [{ title, url }]
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
 // ✅ Acheter un pack
 exports.buyPack = async (req, res) => {
   try {
@@ -137,4 +168,5 @@ exports.buyPack = async (req, res) => {
     res.status(500).json({ message: "Erreur interne du serveur", error: error.message });
   }
 };
+
 

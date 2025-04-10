@@ -1,3 +1,4 @@
+// controllers/chatController.js
 const Chat = require('../models/Chat');
 const Notification = require('../models/Notification');
 
@@ -81,7 +82,7 @@ exports.getMessages = async (req, res) => {
     const chat = await Chat.findOne({
       publicationId,
       $or: [{ user1: userId }, { user2: userId }],
-    }).populate('messages.senderId', 'name surname'); // Ajout du peuplement
+    }).populate('messages.senderId', 'name surname');
 
     if (!chat) {
       return res.status(404).json({ error: 'Salle de chat non trouvée.' });
@@ -149,13 +150,13 @@ exports.getNotifications = async (req, res) => {
   const userId = req.user.userId;
 
   try {
+    console.log('Récupération des notifications pour userId:', userId);
     const notifications = await Notification.find({ userId })
       .populate('senderId', 'name surname')
       .populate('publicationId', 'description')
       .sort({ createdAt: -1 });
 
-    // Ajout de logs détaillés
-    console.log('Notifications après peuplement:', JSON.stringify(notifications, null, 2));
+    console.log('Notifications récupérées:', notifications);
     res.status(200).json({ status: 'SUCCESS', notifications });
   } catch (error) {
     console.error('Erreur getNotifications:', error);
