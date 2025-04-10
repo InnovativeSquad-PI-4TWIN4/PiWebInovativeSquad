@@ -40,6 +40,7 @@ import Publication from './components/frontoffice/publication/Publication';
 import Profiles from './components/frontoffice/Manageprofile/AllProfiles'
 import ProfileDetail from './components/frontoffice/Manageprofile/ProfileDetails'
 import ExchangeRoom from './components/frontoffice/Packs/ExchangeRoom';
+import EmailVerification from './components/frontoffice/signup/EmailVerification';
 const App = () => {
     const [user, setUser] = useState(null);
 
@@ -162,6 +163,7 @@ const App = () => {
                             <Route path="/publication" element={<Publication />} />
                             <Route path="/messenger" element={<Messenger />} />
                             <Route path="/auth/success" element={<AuthSuccess />} />
+                            <Route path="/verify-email/:token" element={<EmailVerification />} />
                         </>
                     )}
                     <Route path="*" element={<Home />} />
