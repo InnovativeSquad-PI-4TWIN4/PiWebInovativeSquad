@@ -1,4 +1,3 @@
-
 // ChatComponent.jsx
 "use client"
 
@@ -17,10 +16,6 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
   const messagesEndRef = useRef(null)
   const CHAT_API_URL = "http://localhost:3000/chat"
 
-  // Suggestions de messages
-  const messageSuggestions = ["Hello!", "I need help with design", "Can you assist me?", "Thanks!"]
-
-  // Scroll to bottom when messages change
   const messageSuggestions = ["Hello!", "I need help with design", "Can you assist me?", "Thanks!"]
 
   useEffect(() => {
@@ -31,28 +26,12 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
-  // Charger les messages initiaux
-
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         setLoading(true)
         setError(null)
         const token = localStorage.getItem("token")
-        if (!token) {
-          console.error("Aucun token d'authentification trouvé.")
-          setError("Aucun token d'authentification trouvé.")
-          setLoading(false)
-          return
-        }
-
-        console.log("ChatComponent - Initialisation du chat avec:", {
-          currentUser: currentUser?._id,
-          selectedSender: selectedSender?._id,
-          publication: publication?._id,
-        })
-
-        // First create/get the chat
         if (!token) return setError("Aucun token d'authentification trouvé.")
 
         const createResponse = await axios.post(
@@ -62,91 +41,6 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
             user2: selectedSender._id,
             publicationId: publication._id,
           },
-          { headers: { Authorization: `Bearer ${token}` } },
-        )
-
-        console.log("Réponse de création/récupération du chat:", createResponse.data)
-
-        // Vérifier si la réponse contient déjà des messages
-        if (createResponse.data && createResponse.data.messages) {
-          console.log("Messages récupérés depuis la création du chat:", createResponse.data.messages)
-          setMessages(createResponse.data.messages || [])
-          setLoading(false)
-        } else {
-          // Sinon, essayer de récupérer les messages via l'endpoint getMessages
-          try {
-            const messagesResponse = await axios.get(`${CHAT_API_URL}/getMessages/${publication._id}`, {
-              headers: { Authorization: `Bearer ${token}` },
-              params: {
-                user1: currentUser._id,
-                user2: selectedSender._id,
-              },
-            })
-
-            console.log("Messages récupérés via getMessages:", messagesResponse.data)
-            setMessages(messagesResponse.data.messages || [])
-          } catch (messagesError) {
-            console.error("Erreur lors de la récupération des messages:", messagesError)
-            // Si l'endpoint getMessages échoue, utiliser un tableau vide
-            setMessages([])
-          }
-          setLoading(false)
-        }
-
-        // Mark related notifications as read
-        markRelatedNotificationsAsRead()
-      } catch (err) {
-        console.error("Erreur lors de l'initialisation du chat:", err.response ? err.response.data : err.message)
-        setError("Erreur lors de l'initialisation du chat. Veuillez réessayer.")
-        setLoading(false)
-      }
-    }
-
-    if (publication && currentUser && selectedSender) {
-      fetchMessages()
-    } else {
-      console.error("Impossible d'initialiser le chat, données manquantes:", {
-        publication: !!publication,
-        currentUser: !!currentUser,
-        selectedSender: !!selectedSender,
-      })
-      setError("Données manquantes pour initialiser le chat.")
-      setLoading(false)
-    }
-  }, [publication, currentUser, selectedSender])
-
-  // Mark notifications related to this chat as read
-  const markRelatedNotificationsAsRead = async () => {
-    try {
-      const token = localStorage.getItem("token")
-      const response = await axios.get(`${CHAT_API_URL}/notifications`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-
-      if (response.data.status === "SUCCESS") {
-        const notifications = response.data.notifications
-
-        // Find notifications related to this publication and sender
-        const relatedNotifications = notifications.filter(
-          (notif) =>
-            notif.publicationId._id === publication._id && notif.senderId._id === selectedSender._id && !notif.read,
-        )
-
-        console.log("Notifications liées à ce chat:", relatedNotifications.length)
-
-        // Mark each notification as read
-        for (const notif of relatedNotifications) {
-          await axios.post(
-            `${CHAT_API_URL}/notifications/${notif._id}/read`,
-            {},
-            { headers: { Authorization: `Bearer ${token}` } },
-          )
-        }
-      }
-    } catch (error) {
-      console.error("Error marking notifications as read:", error)
-    }
-
           { headers: { Authorization: `Bearer ${token}` } }
         )
 
@@ -217,15 +111,12 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
           receiverId: selectedSender._id,
           content: newMessage,
         },
-        { headers: { Authorization: `Bearer ${token}` } },
         { headers: { Authorization: `Bearer ${token}` } }
       )
 
       setMessages((prev) => [...prev, response.data.message])
       setNewMessage("")
     } catch (err) {
-      console.error("Erreur lors de l'envoi du message:", err.response ? err.response.data : err.message)
-      alert("Erreur lors de l'envoi du message. Vérifiez la console pour plus de détails.")
       console.error("Erreur lors de l'envoi du message:", err)
       alert("Erreur lors de l'envoi du message.")
     }
@@ -261,8 +152,6 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
 
       setMessages((prev) => [...prev, response.data.message])
     } catch (err) {
-      console.error("Erreur détaillée lors de l'upload:", err.response ? err.response.data : err.message)
-      alert("Erreur lors de l'envoi du fichier. Vérifiez la console pour plus de détails.")
       console.error("Erreur lors de l'envoi du fichier:", err)
       alert("Erreur lors de l'envoi du fichier.")
     }
@@ -280,7 +169,6 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
       <div className="chat-overlay">
         <div className="chat-container">
           <div className="chat-header">
-            <h3>Chargement de la conversation...</h3>
             <h3>Chargement...</h3>
             <button onClick={onClose}>Fermer</button>
           </div>
@@ -322,13 +210,11 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
         <div className="chat-messages">
           {messages.length === 0 ? (
             <div className="no-messages">
-
               <p>Aucun message pour le moment. Commencez la conversation !</p>
             </div>
           ) : (
             messages.map((msg, index) => (
               <div key={index} className={`message ${msg.senderId === currentUser._id ? "sent" : "received"}`}>
-                <p>{msg.content}</p>
                 {msg.content.startsWith("File: ") ? (() => {
   const fileUrl = msg.content.replace("File: ", "")
   const fileName = decodeURIComponent(fileUrl.split("/").pop())
