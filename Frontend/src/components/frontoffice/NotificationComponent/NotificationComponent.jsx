@@ -1,3 +1,4 @@
+// src/components/NotificationComponent/NotificationComponent.jsx
 "use client"
 
 import { useState, useEffect, useContext } from "react"
@@ -39,13 +40,22 @@ const NotificationComponent = () => {
 
   const handleNotificationClick = async (notification) => {
     try {
+      // Marquer la notification comme lue
       await axios.post(
         `http://localhost:3000/chat/notifications/${notification._id}/read`,
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       )
 
-      openChat(notification.publicationId._id, notification.senderId._id)
+      // Vérifier le type de notification en fonction du message
+      if (notification.message.includes('Nouveau commentaire')) {
+        // Rediriger vers la publication sans ouvrir le chat
+        navigate(`/publication?id=${notification.publicationId._id}`)
+      } else {
+        // Pour les messages de chat, ouvrir le chat comme avant
+        openChat(notification.publicationId._id, notification.senderId._id)
+      }
+
       fetchNotifications()
     } catch (error) {
       console.error("Error handling notification:", error)
@@ -102,7 +112,7 @@ const NotificationComponent = () => {
                     </div>
                     <p className="notification-message">
                       <MessageCircle size={16} className="message-icon" />
-                      Nouveau message dans la publication "{notification.publicationId.description.substring(0, 20)}..."
+                      {notification.message}
                     </p>
                   </div>
                 </li>
