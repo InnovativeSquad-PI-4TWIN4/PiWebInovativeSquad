@@ -1,0 +1,52 @@
+.exam-container {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-top: 2rem;
+  
+    h3 {
+      color: #333;
+      margin-bottom: 1rem;
+    }
+  
+    .exam-question {
+      margin-bottom: 1.5rem;
+  
+      p {
+        color: #000; // Texte en noir
+font-weight: bold;
+        margin-bottom: 0.5rem;
+      }
+    }
+   
+      
+    .exam-option {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+      color: #000; 
+    }
+  
+    .submit-exam-btn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 1rem;
+  
+      &:hover {
+        background-color: darken(#007bff, 10%);
+      }
+    }
+  
+    .exam-score {
+      font-size: 1.1rem;
+      color: green;
+      font-weight: bold;
+    }
+  }
+  

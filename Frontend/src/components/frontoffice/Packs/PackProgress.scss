@@ -1,0 +1,65 @@
+.start-exam-btn {
+    padding: 0.75rem 1.5rem;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 1rem auto;
+    display: block;
+    transition: background-color 0.3s ease;
+  
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+  
+.pack-progress-container {
+    padding: 1rem;
+  }
+  
+  .pack-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .status-icon {
+    font-size: 1.5rem;
+    margin-right: 0.8rem;
+  }
+  
+  .status-icon.done {
+    color: green;
+  }
+  
+  .status-icon.unlocked {
+    color: #007bff;
+  }
+  
+  .status-icon.locked {
+    color: gray;
+  }
+  
+  .pack-content {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .open-button {
+    margin-top: 0.3rem;
+    padding: 0.3rem 0.8rem;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+  
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+  
