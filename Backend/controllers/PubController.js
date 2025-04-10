@@ -1,7 +1,6 @@
-// controllers/PubController.js
 const Publication = require('../models/publication');
-const Notification = require('../models/Notification'); // Ajout de l'importation
-const User = require('../models/User'); // Ajout de l'importation
+const Notification = require('../models/Notification');
+const User = require('../models/User');
 
 // ➤ Récupérer toutes les publications
 exports.getAllPub = async (req, res) => {
@@ -133,10 +132,8 @@ exports.likePublication = async (req, res) => {
     const hasLiked = publication.likes.includes(userId);
 
     if (hasLiked) {
-      // Dislike : retirer le like
       publication.likes = publication.likes.filter(id => id.toString() !== userId);
     } else {
-      // Like : ajouter le like
       publication.likes.push(userId);
     }
 
@@ -261,6 +258,33 @@ exports.addReply = async (req, res) => {
 
     await publication.save();
 
+    // Créer une notification pour l'auteur du commentaire
+    const commentOwnerId = comment.user.toString();
+    console.log('Auteur du commentaire:', commentOwnerId, 'Utilisateur qui répond:', userId);
+
+    if (commentOwnerId !== userId) {
+      console.log('Création de la notification pour l\'auteur du commentaire...');
+      const sender = await User.findById(userId).select('name surname');
+      if (!sender) {
+        console.log('Erreur: Utilisateur expéditeur non trouvé pour ID:', userId);
+        return res.status(404).json({ error: 'Utilisateur expéditeur non trouvé' });
+      }
+
+      console.log('Utilisateur expéditeur:', sender);
+
+      const notification = new Notification({
+        userId: commentOwnerId,
+        publicationId: publicationId,
+        senderId: userId,
+        message: `${sender.name || 'Utilisateur'} ${sender.surname || 'Inconnu'} a répondu à votre commentaire sur la publication "${publication.description.substring(0, 20)}..."`,
+      });
+
+      await notification.save();
+      console.log('Notification de réponse créée avec succès:', notification);
+    } else {
+      console.log('Pas de notification créée: L\'utilisateur répond à son propre commentaire');
+    }
+
     const updatedPublication = await Publication.findById(publicationId)
       .populate('user', 'name surname image')
       .populate('comments.user', 'name surname image')
@@ -272,5 +296,50 @@ exports.addReply = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+// ➤ Récupérer toutes les notifications d'un utilisateur
+exports.getUserNotifications = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const notifications = await Notification.find({ userId })
+      .populate('senderId', 'name surname')
+      .populate('publicationId', 'description')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      status: 'SUCCESS',
+      notifications,
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des notifications:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ➤ Marquer une notification comme lue
+exports.markNotificationAsRead = async (req, res) => {
+  try {
+    const notificationId = req.params.id;
+    const userId = req.user.userId;
+
+    const notification = await Notification.findById(notificationId);
+    if (!notification) {
+      return res.status(404).json({ error: 'Notification non trouvée' });
+    }
+
+    if (notification.userId.toString() !== userId) {
+      return res.status(403).json({ error: 'Utilisateur non autorisé' });
+    }
+
+    notification.read = true;
+    await notification.save();
+
+    res.status(200).json({ message: 'Notification marquée comme lue' });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la notification:', error);
+    res.status(500).json({ error: error.message });
   }
 };
