@@ -1,4 +1,3 @@
-// src/components/NotificationComponent/NotificationComponent.jsx
 "use client"
 
 import { useState, useEffect, useContext } from "react"
@@ -34,7 +33,7 @@ const NotificationComponent = () => {
         setUnreadCount(unread)
       }
     } catch (error) {
-      console.error("Error fetching notifications:", error)
+      console.error("Erreur lors de la récupération des notifications:", error)
     }
   }
 
@@ -48,7 +47,7 @@ const NotificationComponent = () => {
       )
 
       // Vérifier le type de notification en fonction du message
-      if (notification.message.includes('Nouveau commentaire')) {
+      if (notification.message.includes('Nouveau commentaire') || notification.message.includes('a répondu à votre commentaire')) {
         // Rediriger vers la publication sans ouvrir le chat
         navigate(`/publication?id=${notification.publicationId._id}`)
       } else {
@@ -58,7 +57,7 @@ const NotificationComponent = () => {
 
       fetchNotifications()
     } catch (error) {
-      console.error("Error handling notification:", error)
+      console.error("Erreur lors du traitement de la notification:", error)
     }
   }
 

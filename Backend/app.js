@@ -140,6 +140,8 @@ app.use("/chat", chatRoutes);
 app.use("/favorites", favoritesRoutes);
 app.use("/api/quiz-result", quizResultRoutes);
 app.use("/api/email", emailRoutes);
+// Monter les routes de notification sur /chat
+app.use("/chat", publicationRouter);
 
 // ✅ Gestion 404
 app.use((req, res, next) => {
