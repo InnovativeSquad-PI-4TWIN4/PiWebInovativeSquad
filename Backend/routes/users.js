@@ -37,7 +37,9 @@ router.get('/verify-email/:token', userController.verifyEmail);
 router.get("/pdf-progress/:packId", authenticateUser,userController.getPdfProgress);
 router.post("/pdf-progress/:packId",authenticateUser, userController.savePdfProgress);
 
+router.post("/mark-certified", userController.markAsCertified);
 
+router.get('/email/:email', userController.getUserByEmail);
 
 
 module.exports = router;
