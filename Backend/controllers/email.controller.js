@@ -32,14 +32,17 @@ exports.sendEmailToUser = async (req, res) => {
 exports.sendCertificationEmail = async (req, res) => {
   const { to, name, categoryCount } = req.body;
 
+  // ✅ Utilisation de CLIENT_URL pour rendre les liens dynamiques
+  const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+
   const examLinksByCategory = {
-    "Programmation": "https://skillbridge.tn/examen/programmation",
-    "Design": "https://skillbridge.tn/examen/design",
-    "Marketing": "https://skillbridge.tn/examen/marketing",
-    "Réseau": "https://skillbridge.tn/examen/reseau",
-    "Développement Web": "https://skillbridge.tn/examen/devweb",
-    "Développement Mobile": "https://skillbridge.tn/examen/mobile",
-    "Mathématique": "https://skillbridge.tn/examen/math",
+    "Programmation": `${clientUrl}/examen/programmation`,
+    "Design": `${clientUrl}/examen/design`,
+    "Marketing": `${clientUrl}/examen/marketing`,
+    "Réseau": `${clientUrl}/examen/reseau`,
+    "Développement Web": `${clientUrl}/examen/devweb`,
+    "Développement Mobile": `${clientUrl}/examen/mobile`,
+    "Mathématique": `${clientUrl}/examen/math`,
   };
 
   try {
@@ -52,7 +55,7 @@ exports.sendCertificationEmail = async (req, res) => {
 
     const examLink = examLinksByCategory[topCategory];
 
-    // 🛠️ Construction HTML dynamique avant les remplacements
+    // ✅ HTML dynamique avec la liste des catégories validées
     const categoryListHTML = Object.entries(categoryCount || {})
       .map(([cat, count]) => `<li><strong>${cat}</strong> : ${count} quiz</li>`)
       .join("");
@@ -84,5 +87,65 @@ exports.sendCertificationEmail = async (req, res) => {
   } catch (error) {
     console.error("Erreur email:", error);
     res.status(500).json({ success: false, error: "Erreur lors de l’envoi de l’email" });
+  }
+};
+exports.sendSuccessCertificateEmail = async (req, res) => {
+  const { to, name, category, score } = req.body;
+
+  try {
+    const PDFDocument = require("pdfkit");
+    const os = require("os");
+
+    const doc = new PDFDocument();
+    const filePath = path.join(os.tmpdir(), `${name}-certificat.pdf`);
+    const stream = fs.createWriteStream(filePath);
+
+    doc.pipe(stream);
+    doc.fontSize(22).text("🎓 CERTIFICAT DE RÉUSSITE", { align: "center" });
+    doc.moveDown();
+    doc.fontSize(14).text(`Félicitations ${name} !`);
+    doc.text(`Catégorie : ${category}`);
+    doc.text(`Score : ${score}/5`);
+    doc.text(`Date : ${new Date().toLocaleDateString()}`);
+    doc.moveDown();
+    doc.text("L'équipe SkillBridge", { align: "right" });
+    doc.end();
+
+    stream.on("finish", async () => {
+      const templatePath = path.join(__dirname, "../templates/certificationSuccess.html");
+      let htmlContent = fs.readFileSync(templatePath, "utf8");
+
+      htmlContent = htmlContent
+        .replace("{{name}}", name)
+        .replace("{{category}}", category)
+        .replace("{{score}}", score);
+
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+
+      await transporter.sendMail({
+        from: `"SkillBridge Admin" <${process.env.EMAIL_USER}>`,
+        to,
+        subject: "🎉 Votre certificat de réussite SkillBridge",
+        html: htmlContent,
+        attachments: [
+          {
+            filename: `${category}-certificat.pdf`,
+            path: filePath,
+            contentType: "application/pdf",
+          },
+        ],
+      });
+
+      res.status(200).json({ success: true, message: "Certificat envoyé avec succès 🎉" });
+    });
+  } catch (error) {
+    console.error("Erreur email:", error);
+    res.status(500).json({ success: false, error: "Erreur lors de l’envoi du certificat" });
   }
 };
