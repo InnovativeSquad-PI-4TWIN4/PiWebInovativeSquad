@@ -41,6 +41,7 @@ import Profiles from './components/frontoffice/Manageprofile/AllProfiles'
 import ProfileDetail from './components/frontoffice/Manageprofile/ProfileDetails'
 import ExchangeRoom from './components/frontoffice/Packs/ExchangeRoom';
 import PackDetails from "./components/frontoffice/Packs/PackDetails"; 
+import ExamCertification from './components/frontoffice/exam/ExamCertification';
 
 
 import EmailVerification from './components/frontoffice/signup/EmailVerification';
@@ -124,54 +125,57 @@ const App = () => {
                 ) : (
                     <Navbar user={user} onLogout={handleLogout} />
                 )}
-                <Routes>
-                    <Route path="/update-admin-password" element={<UpdateAdminPassword />} />
-                    {user?.role === 'admin' ? (
-                        <>
-                            <Route path="/" element={<Navigate to="/admin/dashboard" />} />
-                            <Route path="/admin/dashboard" element={<DashbordAdmin />} />
-                            <Route path="/admin/manage-users" element={<ManageUsers />} />
-                            <Route path="/admin/manage-admins" element={<ManageAdmins />} />
-                            <Route path="/admin/add-admin" element={<AddAdmin />} />
-                            <Route path="/coursesadmin" element={<CoursesAdmin />} />
-                            <Route path="/add-course" element={<AddCourses />} />
-                            <Route path="/room/:packId" element={<ExchangeRoom />} />
+               <Routes>
+  <Route path="/update-admin-password" element={<UpdateAdminPassword />} />
 
-                            <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
-                            <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
-                            
-                        </>
-                    ) : (
-                        <>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
-                            <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
-                            <Route path="/overview" element={<Overview />} />
-                            <Route path="/Full" element={<Full />} />
-                            <Route path="/Personal" element={<Personall />} />
-                            <Route path="/forgot-password" element={<ForgotPassword />} />
-                            <Route path="/reset-password/:token" element={<ResetPassword />} />
-                            <Route path="/marketplace" element={<Marketplace />} />
-                            <Route path="/marketplace/premium" element={<PremiumCourses />} />
-                            <Route path="/marketplace/free" element={<FreeCourses />} />
-                            <Route path="/success" element={<Success />} />
-                            <Route path="/AvisWebsite" element={<Avis />} />
-                            <Route path="/profiles" element={<Profiles currentUserId={user?._id} />} />
-                            <Route path="/profile/:id" element={<ProfileDetail />} />
-                            <Route path="/pack/:id" element={<PackDetails />} />
-                            <Route path="/Ourpacks" element={<Packs />} />
-                            <Route path="/contact" element={<Contact />} />
-                            <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
-                            <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
-                            <Route path="/manage-profile" element={<ManageProfile />} />
-                            <Route path="/publication" element={<Publication />} />
-                            <Route path="/messenger" element={<Messenger />} />
-                            <Route path="/auth/success" element={<AuthSuccess />} />
-                            <Route path="/verify-email/:token" element={<EmailVerification />} />
-                        </>
-                    )}
-                    <Route path="*" element={<Home />} />
-                </Routes>
+  {user?.role === 'admin' ? (
+    <>
+      <Route path="/" element={<Navigate to="/admin/dashboard" />} />
+      <Route path="/admin/dashboard" element={<DashbordAdmin />} />
+      <Route path="/admin/manage-users" element={<ManageUsers />} />
+      <Route path="/admin/manage-admins" element={<ManageAdmins />} />
+      <Route path="/admin/add-admin" element={<AddAdmin />} />
+      <Route path="/coursesadmin" element={<CoursesAdmin />} />
+      <Route path="/add-course" element={<AddCourses />} />
+      <Route path="/room/:packId" element={<ExchangeRoom />} />
+      <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
+      <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
+    </>
+  ) : (
+    <>
+      <Route path="/examen/:category" element={<ExamCertification />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
+      <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
+      <Route path="/overview" element={<Overview />} />
+      <Route path="/Full" element={<Full />} />
+      <Route path="/Personal" element={<Personall />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/marketplace" element={<Marketplace />} />
+      <Route path="/marketplace/premium" element={<PremiumCourses />} />
+      <Route path="/marketplace/free" element={<FreeCourses />} />
+      <Route path="/success" element={<Success />} />
+      <Route path="/AvisWebsite" element={<Avis />} />
+      <Route path="/profiles" element={<Profiles currentUserId={user?._id} />} />
+      <Route path="/profile/:id" element={<ProfileDetail />} />
+      <Route path="/pack/:id" element={<PackDetails />} />
+      <Route path="/Ourpacks" element={<Packs />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
+      <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
+      <Route path="/manage-profile" element={<ManageProfile />} />
+      <Route path="/publication" element={<Publication />} />
+      <Route path="/messenger" element={<Messenger />} />
+      <Route path="/auth/success" element={<AuthSuccess />} />
+      <Route path="/verify-email/:token" element={<EmailVerification />} />
+    </>
+  )}
+
+  {/* 💡 Cette ligne DOIT rester en dehors de la condition */}
+  <Route path="*" element={<Home />} />
+</Routes>
+
                 <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />
                 <Footer />
             </Router>
