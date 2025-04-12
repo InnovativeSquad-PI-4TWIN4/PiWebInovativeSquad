@@ -2,8 +2,11 @@ require("dotenv").config();
 const nodemailer = require("nodemailer");
 const path = require("path");
 const fs = require("fs");
+const PDFDocument = require("pdfkit");
+const os = require("os");
+const User = require("../models/User"); // ✅ Pour mettre à jour hasCertificate
 
-
+// 📧 Email simple
 exports.sendEmailToUser = async (req, res) => {
   const { to, subject, message } = req.body;
 
@@ -29,10 +32,10 @@ exports.sendEmailToUser = async (req, res) => {
     res.status(500).json({ success: false, error: "Erreur d’envoi ❌" });
   }
 };
+
+// 📩 Invitation à passer l’examen
 exports.sendCertificationEmail = async (req, res) => {
   const { to, name, categoryCount } = req.body;
-
-  // ✅ Utilisation de CLIENT_URL pour rendre les liens dynamiques
   const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
 
   const examLinksByCategory = {
@@ -54,8 +57,6 @@ exports.sendCertificationEmail = async (req, res) => {
     }
 
     const examLink = examLinksByCategory[topCategory];
-
-    // ✅ HTML dynamique avec la liste des catégories validées
     const categoryListHTML = Object.entries(categoryCount || {})
       .map(([cat, count]) => `<li><strong>${cat}</strong> : ${count} quiz</li>`)
       .join("");
@@ -89,6 +90,8 @@ exports.sendCertificationEmail = async (req, res) => {
     res.status(500).json({ success: false, error: "Erreur lors de l’envoi de l’email" });
   }
 };
+
+// 🎓 Envoi du certificat officiel après succès
 exports.sendSuccessCertificateEmail = async (req, res) => {
   const { to, name, category, score } = req.body;
 
@@ -112,6 +115,9 @@ exports.sendSuccessCertificateEmail = async (req, res) => {
     doc.end();
 
     stream.on("finish", async () => {
+      // 🔄 Mettre à jour le champ hasCertificate = true
+      await User.findOneAndUpdate({ email: to }, { hasCertificate: true });
+
       const templatePath = path.join(__dirname, "../templates/certificationSuccess.html");
       let htmlContent = fs.readFileSync(templatePath, "utf8");
 
@@ -144,6 +150,7 @@ exports.sendSuccessCertificateEmail = async (req, res) => {
 
       res.status(200).json({ success: true, message: "Certificat envoyé avec succès 🎉" });
     });
+
   } catch (error) {
     console.error("Erreur email:", error);
     res.status(500).json({ success: false, error: "Erreur lors de l’envoi du certificat" });

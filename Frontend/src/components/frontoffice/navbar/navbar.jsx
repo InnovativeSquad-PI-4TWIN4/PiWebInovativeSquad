@@ -63,17 +63,20 @@ const Navbar = ({ user, onLogout }) => {
             <li><Link to="/Personal" className="overview">Personal Space</Link></li>
             <li><Link to="/contact">Contact</Link></li>
 
-            {/* Bouton dark/light mode */}
+            {/* Mode clair/sombre */}
             <li>
               <button className="theme-toggle" onClick={toggleTheme}>
                 {theme === 'dark' ? <FiSun /> : <FiMoon />}
               </button>
             </li>
 
-            {/* Profil utilisateur */}
+            {/* Menu utilisateur avec badge */}
             <li>
               <div className="user-menu" ref={dropdownRef}>
-                <div className="user-initials" onClick={toggleDropdown}>
+                <div
+                  className={`user-initials ${user.hasCertificate ? 'certified' : ''}`}
+                  onClick={toggleDropdown}
+                >
                   {user.name.charAt(0).toUpperCase()}
                   {user.surname.charAt(0).toUpperCase()}
                 </div>
@@ -88,6 +91,10 @@ const Navbar = ({ user, onLogout }) => {
                       <div className="user-details">
                         <p className="user-name">{user.name} {user.surname}</p>
                         <p className="user-email">{user.email}</p>
+                        {user.hasCertificate && (
+  <p className="certified-label">🏅 Certifié SkillBridge</p>
+)}
+
                       </div>
                     </div>
 
@@ -106,7 +113,7 @@ const Navbar = ({ user, onLogout }) => {
               </div>
             </li>
 
-            {/* Notification à la fin complètement à droite */}
+            {/* Notifications */}
             <li className="navbar-icon">
               <div style={{ color: theme === 'dark' ? '#ffffff' : '#000000' }}>
                 <NotificationComponent />
