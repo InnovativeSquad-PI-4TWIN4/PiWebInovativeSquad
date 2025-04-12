@@ -1,0 +1,66 @@
+.exam-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', sans-serif;
+  
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+  
+    .exam-form {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+  
+      .question-block {
+        background-color: #f7f7f7;
+        padding: 20px;
+        border-radius: 8px;
+  
+        .question {
+          font-weight: bold;
+          margin-bottom: 10px;
+        }
+  
+        .choice {
+          display: block;
+          margin: 5px 0;
+          font-size: 15px;
+  
+          input {
+            margin-right: 8px;
+          }
+        }
+      }
+  
+      .submit-btn {
+        margin-top: 20px;
+        padding: 12px 25px;
+        background-color: #2ecc71;
+        color: white;
+        border: none;
+        font-weight: bold;
+        border-radius: 6px;
+        cursor: pointer;
+  
+        &:hover {
+          background-color: #27ae60;
+        }
+      }
+  
+      .result {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #34495e;
+      }
+    }
+  }
+  
