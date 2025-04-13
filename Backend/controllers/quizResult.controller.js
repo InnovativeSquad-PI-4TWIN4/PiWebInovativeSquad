@@ -54,3 +54,19 @@ exports.getValidatedCategories = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+exports.getUserQuizResults = async (req, res) => {
+  try {
+    const results = await QuizResult.find({ userId: req.params.userId })
+      .populate({ path: "courseId", strictPopulate: false });
+
+    // Ne renvoie que les quizzes avec titre de cours valide
+    const filtered = results.filter(q => q.courseId && q.courseId.title);
+
+    res.status(200).json(filtered);
+  } catch (err) {
+    console.error("Erreur getUserQuizResults:", err);
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
+
