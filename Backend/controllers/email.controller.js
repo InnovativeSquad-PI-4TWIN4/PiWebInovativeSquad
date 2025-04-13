@@ -2,8 +2,11 @@ require("dotenv").config();
 const nodemailer = require("nodemailer");
 const path = require("path");
 const fs = require("fs");
+const PDFDocument = require("pdfkit");
+const os = require("os");
+const User = require("../models/User"); // ✅ Pour mettre à jour hasCertificate
 
-
+// 📧 Email simple
 exports.sendEmailToUser = async (req, res) => {
   const { to, subject, message } = req.body;
 
@@ -29,46 +32,43 @@ exports.sendEmailToUser = async (req, res) => {
     res.status(500).json({ success: false, error: "Erreur d’envoi ❌" });
   }
 };
+
+// 📩 Invitation à passer l’examen
 exports.sendCertificationEmail = async (req, res) => {
   const { to, name, categoryCount } = req.body;
+  const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
 
-  // Liens d’examens par catégorie
   const examLinksByCategory = {
-    "Programmation": "https://skillbridge.tn/examen/programmation",
-    "Design": "https://skillbridge.tn/examen/design",
-    "Marketing": "https://skillbridge.tn/examen/marketing",
-    "Réseau": "https://skillbridge.tn/examen/reseau",
-    "Développement Web": "https://skillbridge.tn/examen/devweb",
-    "Développement Mobile": "https://skillbridge.tn/examen/mobile",
-    "Mathématique": "https://skillbridge.tn/examen/math",
+    "Programmation": `${clientUrl}/examen/programmation`,
+    "Design": `${clientUrl}/examen/design`,
+    "Marketing": `${clientUrl}/examen/marketing`,
+    "Réseau": `${clientUrl}/examen/reseau`,
+    "Développement Web": `${clientUrl}/examen/devweb`,
+    "Développement Mobile": `${clientUrl}/examen/mobile`,
+    "Mathématique": `${clientUrl}/examen/math`,
   };
 
   try {
-    // ✅ Trouver la catégorie majoritaire
     const topCategory = Object.entries(categoryCount || {})
-      .sort((a, b) => b[1] - a[1])[0]?.[0]; // ex: "Développement Web"
+      .sort((a, b) => b[1] - a[1])[0]?.[0];
 
     if (!topCategory || !examLinksByCategory[topCategory]) {
       return res.status(400).json({ success: false, error: "Catégorie non valide ou manquante" });
     }
 
     const examLink = examLinksByCategory[topCategory];
+    const categoryListHTML = Object.entries(categoryCount || {})
+      .map(([cat, count]) => `<li><strong>${cat}</strong> : ${count} quiz</li>`)
+      .join("");
 
-    // Charger le template
     const templatePath = path.join(__dirname, "../templates/certificationInvitation.html");
     let htmlContent = fs.readFileSync(templatePath, "utf8");
 
-    // Injecter les valeurs dynamiques
     htmlContent = htmlContent
-    .replace("{{name}}", name)
-    .replace("{{examLink}}", examLink)
-    .replace("{{categoryList}}", categoryListHTML);
-  
-    const categoryListHTML = Object.entries(categoryCount || {})
-    .map(([cat, count]) => `<li><strong>${cat}</strong> : ${count} quiz</li>`)
-    .join("");
-  
-    // Transporteur mail
+      .replace("{{name}}", name)
+      .replace("{{examLink}}", examLink)
+      .replace("{{categoryList}}", categoryListHTML);
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -88,5 +88,71 @@ exports.sendCertificationEmail = async (req, res) => {
   } catch (error) {
     console.error("Erreur email:", error);
     res.status(500).json({ success: false, error: "Erreur lors de l’envoi de l’email" });
+  }
+};
+
+// 🎓 Envoi du certificat officiel après succès
+exports.sendSuccessCertificateEmail = async (req, res) => {
+  const { to, name, category, score } = req.body;
+
+  try {
+    const PDFDocument = require("pdfkit");
+    const os = require("os");
+
+    const doc = new PDFDocument();
+    const filePath = path.join(os.tmpdir(), `${name}-certificat.pdf`);
+    const stream = fs.createWriteStream(filePath);
+
+    doc.pipe(stream);
+    doc.fontSize(22).text("🎓 CERTIFICAT DE RÉUSSITE", { align: "center" });
+    doc.moveDown();
+    doc.fontSize(14).text(`Félicitations ${name} !`);
+    doc.text(`Catégorie : ${category}`);
+    doc.text(`Score : ${score}/5`);
+    doc.text(`Date : ${new Date().toLocaleDateString()}`);
+    doc.moveDown();
+    doc.text("L'équipe SkillBridge", { align: "right" });
+    doc.end();
+
+    stream.on("finish", async () => {
+      // 🔄 Mettre à jour le champ hasCertificate = true
+      await User.findOneAndUpdate({ email: to }, { hasCertificate: true });
+
+      const templatePath = path.join(__dirname, "../templates/certificationSuccess.html");
+      let htmlContent = fs.readFileSync(templatePath, "utf8");
+
+      htmlContent = htmlContent
+        .replace("{{name}}", name)
+        .replace("{{category}}", category)
+        .replace("{{score}}", score);
+
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+
+      await transporter.sendMail({
+        from: `"SkillBridge Admin" <${process.env.EMAIL_USER}>`,
+        to,
+        subject: "🎉 Votre certificat de réussite SkillBridge",
+        html: htmlContent,
+        attachments: [
+          {
+            filename: `${category}-certificat.pdf`,
+            path: filePath,
+            contentType: "application/pdf",
+          },
+        ],
+      });
+
+      res.status(200).json({ success: true, message: "Certificat envoyé avec succès 🎉" });
+    });
+
+  } catch (error) {
+    console.error("Erreur email:", error);
+    res.status(500).json({ success: false, error: "Erreur lors de l’envoi du certificat" });
   }
 };

@@ -84,6 +84,21 @@
           font-weight: bold;
           font-size: 16px;
           text-transform: uppercase;
+          position: relative;
+
+          // ✅ Badge certifié
+          &.certified::after {
+            content: "🏅";
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background-color: #2ecc71;
+            color: white;
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 8px;
+            font-weight: bold;
+          }
         }
 
         .dropdown-menu {
@@ -176,3 +191,27 @@
     }
   }
 }
+.user-initials.certified::after {
+  content: "🏅";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #2ecc71;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.certified-label {
+  margin-top: 4px;
+  font-size: 13px;
+  background-color: #2ecc71;
+  color: white;
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
