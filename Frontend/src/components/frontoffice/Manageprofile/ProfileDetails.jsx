@@ -18,20 +18,19 @@ const ProfileDetail = () => {
         });
         setUser(res.data);
       } catch (err) {
-        console.error('Erreur chargement profil :', err);
+        console.error('Error loading profile:', err);
       }
     };
 
     fetchUser();
   }, [id]);
 
-  if (!user) return <div className="loading">Chargement du profil...</div>;
+  if (!user) return <div className="loading">Loading profile...</div>;
 
   return (
     <div className="facebook-profile">
-      {/* Bannière + avatar */}
+      {/* Banner + Avatar */}
       <div className="cover-photo">
-        
         <div className="profile-image">
           {user.image ? (
             <img src={`http://localhost:3000${user.image}`} alt="profile" />
@@ -41,36 +40,36 @@ const ProfileDetail = () => {
         </div>
       </div>
 
-      {/* Nom + stats */}
+      {/* Name + Stats */}
       <div className="user-info">
         <h1>{user.firstName} {user.lastName}</h1>
-        <p>{user.friends?.length || 0} ami(e)s • {user.commonFriends || 0} en commun</p>
+        <p>{user.friends?.length || 0} friends • {user.commonFriends || 0} mutual</p>
         <div className="action-buttons">
-          <button>Ami(e)</button>
+          <button>Friend</button>
           <button className="message">Message</button>
         </div>
       </div>
 
-      {/* Onglets */}
+      {/* Tabs */}
       <div className="tabs">
-        <button className="active">Publications</button>
-        <button>À propos</button>
-        <button>Amis</button>
+        <button className="active">Posts</button>
+        <button>About</button>
+        <button>Friends</button>
         <button>Photos</button>
-        <button>Vidéos</button>
-        <button>Plus ▾</button>
+        <button>Videos</button>
+        <button>More ▾</button>
       </div>
 
-      {/* Section principale */}
+      {/* Main Content */}
       <div className="main-section">
         <div className="left">
           <div className="intro">
             <h3>Intro</h3>
-            <p>{user.bio || 'Aucune intro.'}</p>
+            <p>{user.bio || 'No bio provided.'}</p>
           </div>
 
           <div className="skills">
-            <h4>Compétences</h4>
+            <h4>Skills</h4>
             <ul>
               {user.skills?.map((skill, idx) => (
                 <li key={idx}>{skill}</li>
@@ -90,16 +89,16 @@ const ProfileDetail = () => {
 
         <div className="right">
           <div className="post-box">
-            <input placeholder={`Écrivez quelque chose à ${user.firstName}...`} />
+            <input placeholder={`Write something to ${user.firstName}...`} />
             <div className="actions">
-              <button>📷 Photo/Vidéo</button>
-              <button>👥 Identifier</button>
-              <button>😊 Humeur</button>
+              <button>📷 Photo/Video</button>
+              <button>👥 Tag</button>
+              <button>😊 Feeling</button>
             </div>
           </div>
 
           <div className="posts">
-            <h4>Publications</h4>
+            <h4>Posts</h4>
             {(user.posts || []).map((post, idx) => (
               <div key={idx} className="post">
                 <p>{post.content}</p>
