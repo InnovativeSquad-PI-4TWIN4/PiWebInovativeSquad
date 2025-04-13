@@ -3,6 +3,8 @@ const router = express.Router();
 const userController = require("../controllers/userController");
 const { activateUser, deactivateUser } = require("../controllers/userController");
 const { authenticateUser, isAdmin } = require("../middleware/authMiddleware");
+const User = require("../models/User");
+
 // ✅ Routes principales
 router.post("/signup", userController.signup);
 router.post("/signin", userController.signin);
@@ -43,6 +45,20 @@ router.get("/get-exam-score/:packId", authenticateUser, userController.getExamSc
 router.post("/mark-certified", userController.markAsCertified);
 
 router.get('/email/:email', userController.getUserByEmail);
+router.get("/certificates/:userId", async (req, res) => {
+    try {
+      const user = await User.findById(req.params.userId);
+      if (!user || !user.certificates || user.certificates.length === 0) {
+        return res.status(200).json([]);
+      }
+  
+      res.status(200).json(user.certificates);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur récupération certificats", error });
+    }
+  });
+  
+  
 
 
 module.exports = router;

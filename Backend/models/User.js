@@ -10,7 +10,7 @@ const User = new Schema({
   Skill: String,
   image: String,
   verified: { type: Boolean, default: false },
-emailToken: { type: String },
+  emailToken: { type: String },
   isActive: { type: Boolean, default: true },
   googleId: { type: String, unique: true, sparse: true },
   secret: { type: String },
@@ -20,16 +20,27 @@ emailToken: { type: String },
     default: 'client'
   },
   status: { type: String, enum: ['unapproved', 'pending', 'approved'], default: 'unapproved' },
-  verified: Boolean,
-  hasCertificate: { type: Boolean, default: false },
+  
   resetPasswordToken: String,
   resetPasswordExpires: Date,
   solde: { type: Number, default: 0 },
+  hasCertificate: { type: Boolean, default: false },
+
+  // ✅ Ajoute cette section :
+  certificates: [
+    {
+      category: String,
+      url: String,
+      date: { type: Date, default: Date.now }
+    }
+  ],
+  
+
   abonnement: [{ type: Schema.Types.ObjectId, ref: "Pack" }],
   pdfProgress: [
     {
       packId: { type: Schema.Types.ObjectId, ref: "Pack" },
-      pdfId: String // ou ObjectId si tes PDFs ont des IDs de Mongo
+      pdfId: String
     }
   ],
   examResults: [
@@ -43,6 +54,7 @@ emailToken: { type: String },
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
+
 
 User.virtual('wallet').get(function () {
   return Math.floor(this.solde * 1.3) + ' pts';
