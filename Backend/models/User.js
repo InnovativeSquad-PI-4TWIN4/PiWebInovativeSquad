@@ -32,6 +32,12 @@ emailToken: { type: String },
       pdfId: String // ou ObjectId si tes PDFs ont des IDs de Mongo
     }
   ],
+  examResults: [
+    {
+      packId: { type: Schema.Types.ObjectId, ref: "Pack" },
+      score: { type: String }
+    }
+  ],
   favorites: [{ type: Schema.Types.ObjectId, ref: "courses" }],
 }, {
   toJSON: { virtuals: true },

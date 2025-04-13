@@ -780,6 +780,46 @@ exports.getPdfProgress = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
+exports.saveExamScore = async (req, res) => {
+  const userId = req.user.userId;
+  const { score } = req.body;
+  const { packId } = req.params;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
+
+    // Supprimer l'ancien score si existant (optionnel)
+    user.examResults = user.examResults.filter(result => result.packId.toString() !== packId);
+
+    // Ajouter le nouveau résultat
+    user.examResults.push({ packId, score });
+
+    await user.save();
+    res.status(200).json({ message: "Score enregistré avec succès" });
+  } catch (err) {
+    console.error("Erreur en sauvegardant le score :", err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+// ✅ Obtenir le score d'examen d'un utilisateur pour un pack donné
+exports.getExamScore = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+
+    const result = user.examResults.find(
+      (r) => r.packId.toString() === req.params.packId
+    );
+
+    if (result) {
+      return res.status(200).json({ score: result.score });
+    } else {
+      return res.status(200).json({ score: null });
+    }
+  } catch (error) {
+    console.error("Erreur lors de la récupération du score :", error);
+    return res.status(500).json({ error: "Erreur serveur" });
+
 // ✅ Marquer un utilisateur comme certifié après examen validé
 exports.markAsCertified = async (req, res) => {
   try {
