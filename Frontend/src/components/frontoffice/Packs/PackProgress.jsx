@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { FaLock, FaCheckCircle, FaFilePdf } from "react-icons/fa";
 import axios from "axios";
-import ExamComponent from "./ExamComponent"; // Assure-toi que ce fichier existe
+import ExamComponent from "./ExamComponent";
 import "./PackProgress.scss";
 
 const PackProgress = ({ packId }) => {
   const [resources, setResources] = useState([]);
   const [completed, setCompleted] = useState([]);
   const [exam, setExam] = useState([]);
+  const [existingScore, setExistingScore] = useState(null);
   const [allPdfsOpened, setAllPdfsOpened] = useState(false);
-  const [showExam, setShowExam] = useState(false); // ⬅️ Ajout ici
+  const [showExam, setShowExam] = useState(false);
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -36,9 +37,21 @@ const PackProgress = ({ packId }) => {
     const fetchExam = async () => {
       try {
         const res = await axios.get(`http://localhost:3000/packs/getPackById/${packId}`);
-        setExam(res.data.exam || []);
+        setExam(res.data.exam?.questions || []);
       } catch (err) {
         console.error("Erreur lors du chargement de l'examen:", err);
+      }
+    };
+
+    const fetchScore = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`http://localhost:3000/users/get-exam-score/${packId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.data?.score) setExistingScore(res.data.score);
+      } catch (err) {
+        console.error("Erreur lors du chargement du score:", err);
       }
     };
 
@@ -46,6 +59,7 @@ const PackProgress = ({ packId }) => {
       fetchPdfs();
       fetchProgress();
       fetchExam();
+      fetchScore();
     }
   }, [packId]);
 
@@ -96,22 +110,28 @@ const PackProgress = ({ packId }) => {
         );
       })}
 
-{allPdfsOpened  && !showExam && (
-  <div className="exam-section">
-    <hr />
-    <button className="start-exam-btn" onClick={() => setShowExam(true)}>
-      🎓 Commencer l'examen
-    </button>
-  </div>
-)}
+      {allPdfsOpened && existingScore && (
+        <div className="exam-score-display">
+          <hr />
+          <p>🎓 Vous avez déjà passé l'examen. Score obtenu : <strong>{existingScore}</strong></p>
+        </div>
+      )}
 
-{showExam && (
-  <div className="exam-section">
-    <hr />
-    <ExamComponent exam={exam.questions || []} />
-    </div>
-)}
+      {allPdfsOpened && !existingScore && !showExam && (
+        <div className="exam-section">
+          <hr />
+          <button className="start-exam-btn" onClick={() => setShowExam(true)}>
+            🎓 Commencer l'examen
+          </button>
+        </div>
+      )}
 
+      {showExam && !existingScore && (
+        <div className="exam-section">
+          <hr />
+          <ExamComponent exam={exam} packId={packId} />
+        </div>
+      )}
     </div>
   );
 };
