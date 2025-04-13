@@ -568,4 +568,30 @@
       transform: translateY(0);
     }
   }
+  .translate-container {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    z-index: 9999;
+    background-color: #2a2a2a;
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
+  }
+  
+  .goog-te-gadget {
+    font-family: "Arial", sans-serif !important;
+    color: white !important;
+  }
+  
+  .goog-te-combo {
+    background-color: #2a2a2a !important;
+    color: white !important;
+    border: 1px solid #555 !important;
+    padding: 5px 10px !important;
+    font-size: 13px !important;
+    border-radius: 5px !important;
+  }
+  
+
   
