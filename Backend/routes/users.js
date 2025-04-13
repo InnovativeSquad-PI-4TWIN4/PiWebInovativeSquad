@@ -36,7 +36,8 @@ router.post("/updateAdminPassword", userController.updateAdminPassword);
 router.get('/verify-email/:token', userController.verifyEmail);
 router.get("/pdf-progress/:packId", authenticateUser,userController.getPdfProgress);
 router.post("/pdf-progress/:packId",authenticateUser, userController.savePdfProgress);
-
+router.post("/save-exam-score/:packId", authenticateUser, userController.saveExamScore);
+router.get("/get-exam-score/:packId", authenticateUser, userController.getExamScore);
 
 
 
