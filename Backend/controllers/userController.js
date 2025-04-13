@@ -498,6 +498,7 @@ exports.getProfile = async (req, res) => {
               image: user.image,
               isActive: user.isActive,
               abonnement: user.abonnement, 
+              examResults: user.examResults,
               wallet  // ✅ Ajout du wallet dans la réponse
           }
       });
@@ -819,7 +820,7 @@ exports.getExamScore = async (req, res) => {
   } catch (error) {
     console.error("Erreur lors de la récupération du score :", error);
     return res.status(500).json({ error: "Erreur serveur" });
-
+  }};
 // ✅ Marquer un utilisateur comme certifié après examen validé
 exports.markAsCertified = async (req, res) => {
   try {
