@@ -1,6 +1,6 @@
 // src/components/publication/Publication.jsx
 "use client"
-
+import GoogleTranslate from "./GoogleTranslate"
 import { useState, useEffect } from "react"
 import axios from "axios"
 import "./Publication.scss"
@@ -74,6 +74,10 @@ const Publication = () => {
     fetchCurrentUser()
   }, [])
 
+  
+  
+  
+  
   // Récupérer les publications
   useEffect(() => {
     const fetchPublications = async () => {
@@ -454,6 +458,7 @@ const Publication = () => {
     : publications
 
   return (
+    
     <div className="publications-container">
       <div className="create-publication">
         <form onSubmit={handleSubmit}>
@@ -730,13 +735,15 @@ const Publication = () => {
           onClose={handleCloseChat}
         />
       )}
+      
       {toastMessage && (
   <div className="custom-toast">
     {toastMessage}
   </div>
 )}
+<GoogleTranslate />
 
-    </div>
+</div>
   )
 }
 
