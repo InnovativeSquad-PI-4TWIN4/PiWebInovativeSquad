@@ -19,7 +19,6 @@ import ManageUsers from './components/backoffice/ManageUsers/ManageUsers';
 import AdminNavbar from './components/backoffice/Adminnavbar/adminnavbar';
 import './index.css';
 import Overview from './components/frontoffice/OverView/overview';
-import Chatbot from './components/frontoffice/chatbot/chatBot'; 
 import ManageAdmins from './components/backoffice/ManageAdmins/ManageAdmin';
 import AddCourses from './components/backoffice/Courses/AddCourses';
 import CoursesAdmin from './components/backoffice/Courses/coursesAdmin';
@@ -37,146 +36,161 @@ import { ThemeProvider } from "./context/ThemeContext";
 import Full from './components/PersonalSpace/Full';
 import Personall from './components/PersonalSpace/Personal';
 import Publication from './components/frontoffice/publication/Publication';
-import Profiles from './components/frontoffice/Manageprofile/AllProfiles'
-import ProfileDetail from './components/frontoffice/Manageprofile/ProfileDetails'
+import Profiles from './components/frontoffice/Manageprofile/AllProfiles';
+import ProfileDetail from './components/frontoffice/Manageprofile/ProfileDetails';
 import ExchangeRoom from './components/frontoffice/Packs/ExchangeRoom';
 import PackDetails from "./components/frontoffice/Packs/PackDetails"; 
-
-
+import ExamCertification from './components/frontoffice/exam/ExamCertification';
 import EmailVerification from './components/frontoffice/signup/EmailVerification';
+
 const App = () => {
-    const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
 
-    useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        } else {
-            fetch("http://localhost:3000/auth/current_user", {
-                credentials: "include",
-            })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data && data.id) {
-                    setUser(data);
-                    localStorage.setItem('user', JSON.stringify(data));
-                }
-            })
-            .catch((err) => console.error("Erreur de récupération de l'utilisateur :", err));
+  const handleUserUpdate = (updatedUser) => {
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setUser({ ...updatedUser });
+  };
+  // ⏱ Surveiller manuellement les changements du localStorage (toutes les 2 secondes)
+useEffect(() => {
+    const interval = setInterval(() => {
+      const latestUser = JSON.parse(localStorage.getItem("user"));
+      if (latestUser && JSON.stringify(latestUser) !== JSON.stringify(user)) {
+        setUser(latestUser); // ✅ Forcer la mise à jour si l'objet a changé
+      }
+    }, 2000); // toutes les 2 secondes
+  
+    return () => clearInterval(interval); // nettoyage
+  }, [user]);
+  
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  useEffect(() => {
+    const checkNewPremiumCourses = async () => {
+      try {
+        const lastSeen = localStorage.getItem("lastSeenPremium") || new Date(0).toISOString();
+        const res = await axios.get("http://localhost:3000/courses/getallcourses");
+        const newPremium = res.data.find(course =>
+          course.isPremium && new Date(course.createdAt) > new Date(lastSeen)
+        );
+
+        if (newPremium) {
+          const audio = new Audio("/notif.mp3");
+          audio.play();
+
+          toast.info(
+            <div
+              onClick={() => {
+                localStorage.setItem("highlightedCourseId", newPremium._id);
+                window.location.href = "/marketplace/premium";
+              }}
+              style={{ cursor: "pointer" }}
+            >
+              🆕 Nouveau cours premium : <strong>{newPremium.title}</strong>
+              <br />👉 Cliquez ici pour le voir
+            </div>,
+            { autoClose: 7000 }
+          );
         }
-    }, []);
 
-    useEffect(() => {
-        const checkNewPremiumCourses = async () => {
-            try {
-                const lastSeen = localStorage.getItem("lastSeenPremium") || new Date(0).toISOString();
-                const res = await axios.get("http://localhost:3000/courses/getallcourses");
-                const newPremium = res.data.find(course =>
-                    course.isPremium && new Date(course.createdAt) > new Date(lastSeen)
-                );
-
-                if (newPremium) {
-                    const audio = new Audio("/notif.mp3");
-                    audio.play();
-
-                    toast.info(
-                        <div
-                          onClick={() => {
-                            localStorage.setItem("highlightedCourseId", newPremium._id); // ✅ Ajout ici
-                            window.location.href = "/marketplace/premium";
-                          }}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          🆕 Nouveau cours premium : <strong>{newPremium.title}</strong><br />
-                          👉 Cliquez ici pour le voir
-                        </div>,
-                        { autoClose: 7000 }
-                      );
-                      
-                }
-
-                localStorage.setItem("lastSeenPremium", new Date().toISOString());
-            } catch (err) {
-                console.error("Erreur lors de la vérification des cours premium :", err);
-            }
-        };
-
-        if (user) checkNewPremiumCourses();
-    }, [user]);
-
-    const handleLogin = (userData) => {
-        localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('userId', userData._id);
-        setUser(userData);
+        localStorage.setItem("lastSeenPremium", new Date().toISOString());
+      } catch (err) {
+        console.error("Erreur lors de la vérification des cours premium :", err);
+      }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setUser(null);
-    };
+    if (user) checkNewPremiumCourses();
+  }, [user]);
 
-    return (
-        <ThemeProvider>
-            <Router>
-                {user?.role === 'admin' ? (
-                    <AdminNavbar user={user} onLogout={handleLogout} />
-                ) : (
-                    <Navbar user={user} onLogout={handleLogout} />
-                )}
-                <Routes>
-                    <Route path="/update-admin-password" element={<UpdateAdminPassword />} />
-                    {user?.role === 'admin' ? (
-                        <>
-                            <Route path="/" element={<Navigate to="/admin/dashboard" />} />
-                            <Route path="/admin/dashboard" element={<DashbordAdmin />} />
-                            <Route path="/admin/manage-users" element={<ManageUsers />} />
-                            <Route path="/admin/manage-admins" element={<ManageAdmins />} />
-                            <Route path="/admin/add-admin" element={<AddAdmin />} />
-                            <Route path="/coursesadmin" element={<CoursesAdmin />} />
-                            <Route path="/add-course" element={<AddCourses />} />
-                            <Route path="/room/:packId" element={<ExchangeRoom />} />
+  const handleLogin = async (userData) => {
+    try {
+        const res = await axios.get(`http://localhost:3000/users/email/${userData.email}`);
+      const updatedUser = res.data;
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour des infos utilisateur après login :", err);
+      localStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
+    }
+  };
+  
+  
 
-                            <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
-                            <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
-                            
-                        </>
-                    ) : (
-                        <>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
-                            <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
-                            <Route path="/overview" element={<Overview />} />
-                            <Route path="/Full" element={<Full />} />
-                            <Route path="/Personal" element={<Personall />} />
-                            <Route path="/forgot-password" element={<ForgotPassword />} />
-                            <Route path="/reset-password/:token" element={<ResetPassword />} />
-                            <Route path="/marketplace" element={<Marketplace />} />
-                            <Route path="/marketplace/premium" element={<PremiumCourses />} />
-                            <Route path="/marketplace/free" element={<FreeCourses />} />
-                            <Route path="/success" element={<Success />} />
-                            <Route path="/AvisWebsite" element={<Avis />} />
-                            <Route path="/profiles" element={<Profiles currentUserId={user?._id} />} />
-                            <Route path="/profile/:id" element={<ProfileDetail />} />
-                            <Route path="/pack/:id" element={<PackDetails />} />
-                            <Route path="/Ourpacks" element={<Packs />} />
-                            <Route path="/contact" element={<Contact />} />
-                            <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
-                            <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
-                            <Route path="/manage-profile" element={<ManageProfile />} />
-                            <Route path="/publication" element={<Publication />} />
-                            <Route path="/messenger" element={<Messenger />} />
-                            <Route path="/auth/success" element={<AuthSuccess />} />
-                            <Route path="/verify-email/:token" element={<EmailVerification />} />
-                        </>
-                    )}
-                    <Route path="*" element={<Home />} />
-                </Routes>
-                <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />
-                <Footer />
-            </Router>
-        </ThemeProvider>
-    );
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+  };
+
+  return (
+    <ThemeProvider>
+      <Router>
+        {user?.role === "admin" ? (
+          <AdminNavbar user={user} onLogout={handleLogout} />
+        ) : (
+          <Navbar key={user?.hasCertificate} user={user} onLogout={handleLogout} />
+        )}
+
+        <Routes>
+          <Route path="/update-admin-password" element={<UpdateAdminPassword />} />
+
+          {user?.role === "admin" ? (
+            <>
+              <Route path="/" element={<Navigate to="/admin/dashboard" />} />
+              <Route path="/admin/dashboard" element={<DashbordAdmin />} />
+              <Route path="/admin/manage-users" element={<ManageUsers />} />
+              <Route path="/admin/manage-admins" element={<ManageAdmins />} />
+              <Route path="/admin/add-admin" element={<AddAdmin />} />
+              <Route path="/coursesadmin" element={<CoursesAdmin />} />
+              <Route path="/add-course" element={<AddCourses />} />
+              <Route path="/room/:packId" element={<ExchangeRoom />} />
+              <Route path="/admin/settings" element={<h1>Settings Page</h1>} />
+              <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
+            </>
+          ) : (
+            <>
+              <Route path="/examen/:category" element={<ExamCertification onUserUpdate={handleUserUpdate} />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/signin" element={<SignIn onLogin={handleLogin} />} />
+              <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
+              <Route path="/overview" element={<Overview />} />
+              <Route path="/Full" element={<Full />} />
+              <Route path="/Personal" element={<Personall />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
+              <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/marketplace/premium" element={<PremiumCourses />} />
+              <Route path="/marketplace/free" element={<FreeCourses />} />
+              <Route path="/success" element={<Success />} />
+              <Route path="/AvisWebsite" element={<Avis />} />
+              <Route path="/profiles" element={<Profiles currentUserId={user?._id} />} />
+              <Route path="/profile/:id" element={<ProfileDetail />} />
+              <Route path="/pack/:id" element={<PackDetails />} />
+              <Route path="/Ourpacks" element={<Packs />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <SignIn onLogin={handleLogin} />} />
+              <Route path="/update-profile" element={user ? <UpdateProfile user={user} /> : <SignIn onLogin={handleLogin} />} />
+              <Route path="/manage-profile" element={<ManageProfile />} />
+              <Route path="/publication" element={<Publication />} />
+              <Route path="/messenger" element={<Messenger />} />
+              <Route path="/auth/success" element={<AuthSuccess />} />
+              <Route path="/verify-email/:token" element={<EmailVerification />} />
+            </>
+          )}
+          <Route path="*" element={<Home />} />
+        </Routes>
+
+        <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />
+        <Footer />
+      </Router>
+    </ThemeProvider>
+  );
 };
 
 export default App;
