@@ -22,6 +22,8 @@ router.get("/user/:userId", async (req, res) => {
 router.post("/save-score", quizResultController.saveQuizResult);
 // ✅ Obtenir un score spécifique (par cours + user)
 router.get("/:courseId/:userId", quizResultController.getQuizResult);
+router.get("/user-populated/:userId", quizResultController.getUserQuizResults);
+
 
 
 

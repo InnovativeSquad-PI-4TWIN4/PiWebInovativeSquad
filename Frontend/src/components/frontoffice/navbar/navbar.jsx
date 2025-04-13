@@ -7,6 +7,8 @@ import { ThemeContext } from '../../../context/ThemeContext';
 import NotificationComponent from "../NotificationComponent/NotificationComponent";
 import './Navbar.scss';
 import AdminNavbar from '../../backoffice/Adminnavbar/adminnavbar';
+import { MdWorkspacePremium } from "react-icons/md";
+
 
 const Navbar = ({ user, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,9 +51,7 @@ const Navbar = ({ user, onLogout }) => {
       </Link>
 
       <ul className="navbar-links">
-        <li>
-          <Link to="/overview" className="overview">Challenges</Link>
-        </li>
+        <li><Link to="/overview" className="overview">Challenges</Link></li>
 
         {user ? (
           <>
@@ -63,14 +63,12 @@ const Navbar = ({ user, onLogout }) => {
             <li><Link to="/Personal" className="overview">Personal Space</Link></li>
             <li><Link to="/contact">Contact</Link></li>
 
-            {/* Mode clair/sombre */}
             <li>
               <button className="theme-toggle" onClick={toggleTheme}>
                 {theme === 'dark' ? <FiSun /> : <FiMoon />}
               </button>
             </li>
 
-            {/* Menu utilisateur avec badge */}
             <li>
               <div className="user-menu" ref={dropdownRef}>
                 <div
@@ -92,9 +90,8 @@ const Navbar = ({ user, onLogout }) => {
                         <p className="user-name">{user.name} {user.surname}</p>
                         <p className="user-email">{user.email}</p>
                         {user.hasCertificate && (
-  <p className="certified-label">🏅 Certifié SkillBridge</p>
-)}
-
+                          <p className="certified-label">🏅 Certifié SkillBridge</p>
+                        )}
                       </div>
                     </div>
 
@@ -103,6 +100,13 @@ const Navbar = ({ user, onLogout }) => {
                         <MdManageAccounts className="menu-icon" />
                         Manage Profile
                       </div>
+
+                      {/* 👉 NOUVEAU : lien vers le parcours utilisateur */}
+                      <div className="menu-item" onClick={() => navigate('/mycareer')}>
+                      <MdWorkspacePremium className="menu-icon" />
+                         My Career
+                      </div>
+
                       <div className="menu-item" onClick={handleLogout}>
                         <FiLogOut className="menu-icon logout-icon" />
                         Log out
@@ -113,7 +117,6 @@ const Navbar = ({ user, onLogout }) => {
               </div>
             </li>
 
-            {/* Notifications */}
             <li className="navbar-icon">
               <div style={{ color: theme === 'dark' ? '#ffffff' : '#000000' }}>
                 <NotificationComponent />
