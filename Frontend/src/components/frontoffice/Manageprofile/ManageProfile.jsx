@@ -27,10 +27,10 @@ const ManageProfile = () => {
         if (data.user && data.user._id) {
           setUser(data.user);
         } else {
-          alert("Erreur : utilisateur invalide.");
+          alert("Error: Invalid user.");
         }
       } catch (error) {
-        console.error("Erreur récupération :", error);
+        console.error("Error fetching user:", error);
       } finally {
         setLoading(false);
       }
@@ -55,15 +55,15 @@ const ManageProfile = () => {
         body: JSON.stringify({ userId: user._id }),
       });
 
-      if (!response.ok) throw new Error("Erreur lors de la demande");
-      alert("Demande envoyée !");
+      if (!response.ok) throw new Error("Error during request");
+      alert("Request sent!");
     } catch (err) {
-      alert("Erreur : " + err.message);
+      alert("Error: " + err.message);
     }
   };
 
   const handleDelete = async () => {
-    if (window.confirm("Voulez-vous supprimer votre compte ?")) {
+    if (window.confirm("Do you really want to delete your account?")) {
       try {
         const response = await fetch(`http://localhost:3000/users/delete-profile/${user._id}`, {
           method: "DELETE",
@@ -73,23 +73,24 @@ const ManageProfile = () => {
           },
         });
 
-        if (!response.ok) throw new Error("Erreur suppression");
+        if (!response.ok) throw new Error("Delete error");
         localStorage.clear();
-        alert("Compte supprimé.");
+        alert("Account deleted.");
         navigate("/signin");
       } catch (err) {
-        alert("Erreur : " + err.message);
+        alert("Error: " + err.message);
       }
     }
   };
+
   const handleViewProfiles = () => {
     navigate('/profiles'); 
   };
-  
+
   const openImageModal = () => setIsImageModalOpen(true);
   const closeImageModal = () => setIsImageModalOpen(false);
 
-  if (loading) return <p>Chargement...</p>;
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div className="facebook-profile">
@@ -102,55 +103,66 @@ const ManageProfile = () => {
           )}
         </div>
       </div>
-  
+
       <div className="user-info">
         <h1>{user.name} {user.surname}</h1>
         <p>@{user.username || user.email?.split("@")[0]}</p>
         <p className="wallet-btn" onClick={() => setIsWalletOpen(true)}>
           <FaWallet /> {user.wallet} points
         </p>
-  
+
         <div className="btn-row">
-          <button onClick={() => navigate("/update-profile")} className="btn">Update profil</button>
+          <button onClick={() => navigate("/update-profile")} className="btn">Update Profile</button>
           <button onClick={handleDelete} className="btn danger">Delete</button>
           <button onClick={handleViewProfiles} className="btn primary">View Other Profiles</button>
           {user.role !== "client_approuve" && (
             <button onClick={handleRequestApproval} className="btn approve">
-              <FaCheckCircle /> Demander l'approbation
+              <FaCheckCircle /> Request Approval
             </button>
           )}
         </div>
       </div>
-  
+
       <div className="main-section">
-      <div className="messenger-link" onClick={handleMessengerClick}>
-            <FaFacebookMessenger size={28} color="#1DA1F2" />
-            <span>Go to Messen-SkillBridge</span>
-          </div>
-  
-        <div className="right-section">
-        <div className="left-section">
-          <div className="intro">
-            <h3>Skills</h3>
-            <ul>
-              {user.skills?.length ? user.skills.map((s, i) => <li key={i}>{s}</li>) : <p>Aucune compétence</p>}
-            </ul>
-  
-            <h3>Abonnements</h3>
-            <ul>
-              {user.abonnement?.length ? user.abonnement.map((pack, i) => <li key={i}>{pack.title}</li>) : <p>Aucun pack</p>}
-            </ul>
-  
-            <h3>Projects</h3>
-            <ul>
-              {user.projects?.length ? user.projects.map((p, i) => <li key={i}>{p}</li>) : <p>Aucun projet</p>}
-            </ul>
-          </div>
+        <div className="messenger-link" onClick={handleMessengerClick}>
+          <FaFacebookMessenger size={28} color="#1DA1F2" />
+          <span>Go to SkillBridge Messenger</span>
         </div>
-          
+
+        <div className="right-section">
+          <div className="left-section">
+            <div className="intro">
+              <h3>Skills</h3>
+              <ul>
+                {user.skills?.length ? user.skills.map((s, i) => <li key={i}>{s}</li>) : <p>No skills</p>}
+              </ul>
+
+              <h3>Subscriptions</h3>
+              <ul>
+                {user.abonnement?.length ? user.abonnement.map((pack, i) => {
+                  const result = user.examResults?.find((r) => r.packId === pack._id || r.packId === pack._id?.toString());
+                  return (
+                    <li key={i}>
+                      {pack.title}
+                      {result && (
+                        <span style={{ color: "green", fontWeight: "bold", marginLeft: "10px" }}>
+                          ✅ Score: {result.score} — Certified
+                        </span>
+                      )}
+                    </li>
+                  );
+                }) : <p>No packs</p>}
+              </ul>
+
+              <h3>Projects</h3>
+              <ul>
+                {user.projects?.length ? user.projects.map((p, i) => <li key={i}>{p}</li>) : <p>No projects</p>}
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
-   
+
       <AnimatePresence>
         {isWalletOpen && (
           <motion.div
@@ -162,7 +174,7 @@ const ManageProfile = () => {
             onClick={() => setIsWalletOpen(false)}
           >
             <GiTwoCoins size={50} />
-            <h4>My solde</h4>
+            <h4>Wallet Balance</h4>
             <p>{user.wallet} points</p>
           </motion.div>
         )}
@@ -171,13 +183,12 @@ const ManageProfile = () => {
       {isImageModalOpen && (
         <div className="image-modal" onClick={closeImageModal}>
           <div className="modal-content">
-            <img src={`http://localhost:3000${user.image}`} alt="Profil" className="expanded-image" />
+            <img src={`http://localhost:3000${user.image}`} alt="Profile" className="expanded-image" />
           </div>
         </div>
       )}
-      
+
     </div>
-    
   );
 };
 
