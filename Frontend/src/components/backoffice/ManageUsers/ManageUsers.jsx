@@ -191,7 +191,21 @@ const ManageUsers = () => {
                         }}
                       />
                       <div className="details">
-                        <div className="name">{user.name} {user.surname}</div>
+                        <div className="name">
+                          {user.name} {user.surname}
+                          {user.hasCertificate && (
+                            <span
+                              title="Utilisateur certifié"
+                              style={{
+                                marginLeft: 8,
+                                color: "#f4c542",
+                                fontSize: "18px"
+                              }}
+                            >
+                              🏅
+                            </span>
+                          )}
+                        </div>
                         <div className="email">{user.email || "Email non disponible"}</div>
                         <div className="solde">Solde: {user.solde || 0}DT</div>
                       </div>
@@ -212,6 +226,7 @@ const ManageUsers = () => {
           )}
         </div>
       </div>
+
       {showRechargeModal && (
         <div className="modal">
           <div className="modal-content">
@@ -229,105 +244,96 @@ const ManageUsers = () => {
         </div>
       )}
 
-
-{showHistoryModal && (
-  <div className="modal">
-    <div className="modal-content" style={{ textAlign: 'center' }}>
-      <h3>Historique des quiz validés</h3>
-
-      {quizHistory.length === 0 ? (
-        <>
-          <p>Aucun quiz validé.</p>
-          <p style={{ fontStyle: "italic", color: "#999" }}>
-          Ce client n’a pas validé assez de quiz pour obtenir un certificat
-          </p>
-          <button
-            onClick={() => setShowHistoryModal(false)}
-            style={{
-              backgroundColor: "#dc3545",
-              color: "white",
-              padding: "8px 16px",
-              border: "none",
-              borderRadius: 5,
-              marginTop: 15
-            }}
-          >
-            Fermer
-          </button>
-        </>
-      ) : (
-        <>
-          <ul style={{ textAlign: "left" }}>
-            {quizHistory.map(([cat, count], i) => (
-              <li key={i}>{cat} : {count} quiz</li>
-            ))}
-          </ul>
-
-          {/* Email personnalisé */}
-          
-
-          
-            <button
-              onClick={() => setShowHistoryModal(false)}
-              style={{
-                backgroundColor: "#dc3545",
-                color: "white",
-                padding: "8px 16px",
-                border: "none",
-                borderRadius: 5
-              }}
-            >
-              Fermer
-            </button>
-         
-
-          {/* 🎓 Certification */}
-          <div style={{ marginTop: 20 }}>
-            {quizHistory.some(([_, count]) => count >= 2) ? (
-              <button
-                onClick={async () => {
-                  try {
-                    const res = await fetch("http://localhost:3000/api/email/send-certification", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        to: emailUser.email,
-                        name: emailUser.name,
-                        categoryCount: Object.fromEntries(quizHistory), // 🧠 transforme en objet pour le backend
-                      }),
-                    });
-                    
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.message);
-                    alert("🎓 Email de certification envoyé !");
-                    setShowHistoryModal(false);
-                  } catch (err) {
-                    console.error(err);
-                    alert("❌ Échec de l'envoi du certificat.");
-                  }
-                }}
-                style={{
-                  backgroundColor: "#007bff",
-                  color: "#fff",
-                  padding: "10px 20px",
-                  border: "none",
-                  borderRadius: "5px"
-                }}
-              >
-                🎓 GetCertificat
-              </button>
+      {showHistoryModal && (
+        <div className="modal">
+          <div className="modal-content" style={{ textAlign: 'center' }}>
+            <h3>Historique des quiz validés</h3>
+            {quizHistory.length === 0 ? (
+              <>
+                <p>Aucun quiz validé.</p>
+                <p style={{ fontStyle: "italic", color: "#999" }}>
+                  Ce client n’a pas validé assez de quiz pour obtenir un certificat
+                </p>
+                <button
+                  onClick={() => setShowHistoryModal(false)}
+                  style={{
+                    backgroundColor: "#dc3545",
+                    color: "white",
+                    padding: "8px 16px",
+                    border: "none",
+                    borderRadius: 5,
+                    marginTop: 15
+                  }}
+                >
+                  Fermer
+                </button>
+              </>
             ) : (
-              <p style={{ marginTop: 10, fontStyle: "italic", color: "#999" }}>
-                Ce client n’a pas validé assez de quiz pour obtenir un certificat
-              </p>
+              <>
+                <ul style={{ textAlign: "left" }}>
+                  {quizHistory.map(([cat, count], i) => (
+                    <li key={i}>{cat} : {count} quiz</li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={() => setShowHistoryModal(false)}
+                  style={{
+                    backgroundColor: "#dc3545",
+                    color: "white",
+                    padding: "8px 16px",
+                    border: "none",
+                    borderRadius: 5
+                  }}
+                >
+                  Fermer
+                </button>
+
+                <div style={{ marginTop: 20 }}>
+                  {quizHistory.some(([_, count]) => count >= 2) ? (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await fetch("http://localhost:3000/api/email/send-certification", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              to: emailUser.email,
+                              name: emailUser.name,
+                              categoryCount: Object.fromEntries(quizHistory),
+                            }),
+                          });
+
+                          const data = await res.json();
+                          if (!res.ok) throw new Error(data.message);
+                          alert("🎓 Email de certification envoyé !");
+                          setShowHistoryModal(false);
+                        } catch (err) {
+                          console.error(err);
+                          alert("❌ Échec de l'envoi du certificat.");
+                        }
+                      }}
+                      style={{
+                        backgroundColor: "#007bff",
+                        color: "#fff",
+                        padding: "10px 20px",
+                        border: "none",
+                        borderRadius: "5px"
+                      }}
+                    >
+                      🎓 GetCertificat
+                    </button>
+                  ) : (
+                    <p style={{ marginTop: 10, fontStyle: "italic", color: "#999" }}>
+                      Ce client n’a pas validé assez de quiz pour obtenir un certificat
+                    </p>
+                  )}
+                </div>
+              </>
             )}
           </div>
-        </>
+        </div>
       )}
-    </div>
-  </div>
-)}
-
 
       {selectedUser && <UserDetails user={selectedUser} onClose={() => setSelectedUser(null)} />}
     </div>
