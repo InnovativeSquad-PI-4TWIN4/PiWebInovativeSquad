@@ -1,5 +1,6 @@
 const QuizResult = require("../models/QuizResult");
-const Course = require("../models/Courses");
+const Course =require("../models/Courses"); // ✅ Ce fichier doit être importé AVANT le controller
+
 
 
 exports.saveQuizResult = async (req, res) => {
@@ -56,17 +57,20 @@ exports.getValidatedCategories = async (req, res) => {
 };
 exports.getUserQuizResults = async (req, res) => {
   try {
-    const results = await QuizResult.find({ userId: req.params.userId })
-      .populate({ path: "courseId", strictPopulate: false });
+    const results = await QuizResult.find({ userId: req.params.userId }).populate({
+      path: "courseId",
+      model: "courses", // 👈 assure-toi que c'est bien "courses" (en minuscule)
+      select: "title",  // 👈 ne récupère que le titre
+    });
 
-    // Ne renvoie que les quizzes avec titre de cours valide
-    const filtered = results.filter(q => q.courseId && q.courseId.title);
-
-    res.status(200).json(filtered);
+    res.status(200).json(results);
   } catch (err) {
-    console.error("Erreur getUserQuizResults:", err);
+    console.error("❌ Erreur dans getUserQuizResults :", err);
     res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
+
+
+
 
 
