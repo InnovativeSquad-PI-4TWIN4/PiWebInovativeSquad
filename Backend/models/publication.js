@@ -1,5 +1,6 @@
-const mongo = require('mongoose');
-const Schema = mongo.Schema;
+// Backend/models/Publication.js
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const CommentSchema = new Schema({
   user: {
@@ -38,7 +39,7 @@ const CommentSchema = new Schema({
   ],
 });
 
-const Publication = new Schema({
+const PublicationSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: 'users',
@@ -59,6 +60,10 @@ const Publication = new Schema({
     type: Date,
     default: Date.now,
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
   likes: [
     {
       type: Schema.Types.ObjectId,
@@ -66,6 +71,10 @@ const Publication = new Schema({
     },
   ],
   comments: [CommentSchema],
+  isArchived: {
+    type: Boolean,
+    default: false, // Par défaut, une publication n'est pas archivée
+  },
 });
 
-module.exports = mongo.model('Publication', Publication);
+module.exports = mongoose.model('Publication', PublicationSchema);
