@@ -15,4 +15,5 @@ router.post('/reply/:id/:commentId', authenticateUser, PubController.addReply);
 // Ajout des routes pour les notifications
 router.get("/notifications", authenticateUser, PubController.getUserNotifications);
 router.post("/notifications/:id/read", authenticateUser, PubController.markNotificationAsRead);
+router.get("/stats", PubController.getPublicationStats);
 module.exports = router;
