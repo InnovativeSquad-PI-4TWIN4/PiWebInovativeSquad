@@ -1,85 +1,159 @@
-  $primary: #1a73e8;
-  $accent: #fbbc04;
-  $bg-dark: #121212;
-  $card-dark: #1e1e1e;
-  $text-light: #e4e6eb;
-  $text-muted: #b0b3b8;
-  $border-dark: #2c2c2c;
-  $radius: 12px;
-  $transition: all 0.3s ease;
+$primary: #1a73e8;
+$accent: #fbbc04;
+$bg-dark: #121212;
+$card-dark: #1e1e1e;
+$text-light: #e4e6eb;
+$text-muted: #b0b3b8;
+$border-dark: #2c2c2c;
+$radius: 12px;
+$transition: all 0.3s ease;
 
-  .publications-container {
-    max-width: 700px;
-    margin: 30px auto;
-    padding: 0 15px;
-    color: $text-light;
-  }
+.publications-container {
+  max-width: 700px;
+  margin: 30px auto;
+  padding: 0 15px;
+  color: $text-light;
+}
 
-  .create-publication {
-    background: $card-dark;
-    border-radius: $radius;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    padding: 16px;
-    margin-bottom: 20px;
+.create-publication {
+  background: $card-dark;
+  border-radius: $radius;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  margin-bottom: 20px;
 
-    .create-publication-header {
+  .create-publication-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap; // pour responsive
+  
+    .user-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  
+    .controls-row {
       display: flex;
       align-items: center;
-      margin-bottom: 10px;
-
-      .user-avatar {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        margin-right: 12px;
-        object-fit: cover;
+      flex-wrap: wrap;
+      gap: 140px;
+  
+      .switch-view-mode {
+        display: flex;
+        gap: 0px;
+        margin-bottom: 4px;
+  
+        button {
+          background-color: transparent;
+          border: 1px solid $border-dark;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 13px;
+          color: $text-light;
+          cursor: pointer;
+          transition: background 0.3s ease;
+  
+          &.active {
+            background-color: $primary;
+            color: white;
+            border-color: $primary;
+          }
+  
+          &:hover {
+            background-color: lighten($primary, 5%);
+          }
+        }
       }
-
-      .publication-type-select {
+  
+      .publication-type-switch {
+        display: flex;
+        background-color: #2a2a2a;
         border: 1px solid $border-dark;
-        border-radius: 8px;
-        padding: 6px 10px;
-        font-size: 14px;
-        background: #2a2a2a;
-        color: $text-light;
-      }
-    }
-
-    .publication-textarea {
-      width: 100%;
-      min-height: 80px;
-      padding: 12px;
-      border-radius: $radius;
-      border: 1px solid $border-dark;
-      font-size: 14px;
-      background: #2a2a2a;
-      color: $text-light;
-      resize: none;
-
-      &:focus {
-        border-color: $primary;
-      }
-    }
-
-    .create-publication-actions {
-      text-align: right;
-      margin-top: 10px;
-
-      .submit-btn {
-        background: $primary;
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 8px;
-        font-weight: 500;
-        cursor: pointer;
-
-        &:hover {
-          background: darken($primary, 10%);
+        border-radius: 30px;
+        overflow: hidden;
+        transition: $transition;
+        margin-top: 4px;
+  
+        .switch-option {
+          padding: 8px 20px;
+          font-size: 14px;
+          font-weight: 600;
+          color: $text-muted;
+          cursor: pointer;
+          z-index: 2;
+          text-align: center;
+  
+          &.active {
+            color: white;
+          }
+        }
+  
+        .switch-indicator {
+          position: absolute;
+          top: 2px;
+          bottom: 2px;
+          width: 50%;
+          background-color: $primary;
+          border-radius: 30px;
+          transition: $transition;
+          z-index: 1;
+  
+          &.offer {
+            left: 2px;
+          }
+  
+          &.request {
+            left: 50%;
+          }
         }
       }
     }
   }
+  
+  .publication-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px;
+    border-radius: $radius;
+    border: 1px solid $border-dark;
+    font-size: 14px;
+    background: #2a2a2a;
+    color: $text-light;
+    resize: none;
+    margin-top: -30px;
+  
+    &:focus {
+      border-color: $primary;
+    }
+  }
+  
+  .create-publication-actions {
+    text-align: right;
+    margin-top: 10px;
+  
+    .submit-btn {
+      background: $primary;
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+  
+      &:hover {
+        background: darken($primary, 10%);
+      }
+    }
+  }
+  
+}
+
+// ... reste du fichier sans modification ...
+
 
   .publication-card {
     background: $card-dark;

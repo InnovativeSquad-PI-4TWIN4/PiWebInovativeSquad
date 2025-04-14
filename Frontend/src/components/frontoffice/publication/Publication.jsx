@@ -462,48 +462,67 @@ const Publication = () => {
     <div className="publications-container">
       <div className="create-publication">
         <form onSubmit={handleSubmit}>
-          <div className="create-publication-header">
-            <img
-              src={getImageUrl(currentUser?.image) || "/placeholder.svg"}
-              alt={`${currentUser?.name || "Utilisateur"} ${currentUser?.surname || ""}`}
-              className="user-avatar"
-              onError={(e) => {
-                console.error("Erreur de chargement de l'image pour l'utilisateur connecté")
-                e.target.src = "https://via.placeholder.com/40"
-              }}
-            />
+      <div className="publications-container">
+  <div className="create-publication">
+    <form onSubmit={handleSubmit}>
+      <div className="create-publication-header">
+        <img
+          src={getImageUrl(currentUser?.image) || "/placeholder.svg"}
+          alt={`${currentUser?.name || "Utilisateur"} ${currentUser?.surname || ""}`}
+          className="user-avatar"
+          onError={(e) => {
+            console.error("Erreur de chargement de l'image")
+            e.target.src = "https://via.placeholder.com/40"
+          }}
+        />
+
+        <div className="controls-row">
+          {/* Tous / Mes publications */}
+          <div className="switch-view-mode">
+            <button
+              type="button"
+              className={viewMode === "all" ? "active" : ""}
+              onClick={() => setViewMode("all")}
+            >
+              Tous
+            </button>
+            <button
+              type="button"
+              className={viewMode === "my" ? "active" : ""}
+              onClick={() => setViewMode("my")}
+            >
+              Mes publications
+            </button>
+          </div>
+
+          {/* Offre / Demande */}
           <div className="publication-type-switch">
-  {/* Ton switch Offre / Demande existant */}
-  <div
-    className={`switch-option ${newPublication.type === "offer" ? "active" : ""}`}
-    onClick={() => setNewPublication((prev) => ({ ...prev, type: "offer" }))}
-  >
-    Offre
+            <div
+              className={`switch-option ${newPublication.type === "offer" ? "active" : ""}`}
+              onClick={() => setNewPublication((prev) => ({ ...prev, type: "offer" }))}
+            >
+              Offre
+            </div>
+            <div
+              className={`switch-option ${newPublication.type === "request" ? "active" : ""}`}
+              onClick={() => setNewPublication((prev) => ({ ...prev, type: "request" }))}
+            >
+              Demande
+            </div>
+            <div className={`switch-indicator ${newPublication.type}`}></div>
+          </div>
+        </div>
+      </div>
+
+     
+      
+    </form>
   </div>
-  <div
-    className={`switch-option ${newPublication.type === "request" ? "active" : ""}`}
-    onClick={() => setNewPublication((prev) => ({ ...prev, type: "request" }))}
-  >
-    Demande
-  </div>
-  <div className={`switch-indicator ${newPublication.type}`}></div>
-</div>
+
 
 {/* AJOUT : Switcher Tous / Mes publications */}
-<div className="switch-view-mode">
-  <button
-    className={viewMode === "all" ? "active" : ""}
-    onClick={() => setViewMode("all")}
-  >
-    Tous
-  </button>
-  <button
-    className={viewMode === "my" ? "active" : ""}
-    onClick={() => setViewMode("my")}
-  >
-    Mes publications
-  </button>
-</div>
+
+
 
           </div>
           <textarea
@@ -741,8 +760,8 @@ const Publication = () => {
     {toastMessage}
   </div>
 )}
-<GoogleTranslate />
 
+<GoogleTranslate/>
 </div>
   )
 }

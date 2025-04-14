@@ -203,64 +203,63 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
     <div className="chat-overlay">
       <div className="chat-container">
         <div className="chat-header">
-          <h3>Chat avec {selectedSender ? `${selectedSender.name} ${selectedSender.surname}` : "Utilisateur"}</h3>
+          <h3>
+            Chat avec{" "}
+            {selectedSender
+              ? `${selectedSender.name} ${selectedSender.surname}`
+              : "Utilisateur"}
+          </h3>
           <button onClick={onClose}>Fermer</button>
         </div>
-
+  
         <div className="chat-messages">
           {messages.length === 0 ? (
             <div className="no-messages">
               <p>Aucun message pour le moment. Commencez la conversation !</p>
             </div>
           ) : (
-            messages.map((msg, index) => (
-              <div key={index} className={`message ${msg.senderId === currentUser._id ? "sent" : "received"}`}>
-                {msg.content.startsWith("File: ") ? (() => {
-  const fileUrl = msg.content.replace("File: ", "")
-  const fileName = decodeURIComponent(fileUrl.split("/").pop())
+           messages.map((msg, index) => {
+  const isFile = msg.content.startsWith("File: ");
+  const fileUrl = isFile ? msg.content.replace("File: ", "").trim() : "";
+  const fileName = isFile ? decodeURIComponent(fileUrl.split("/").pop()) : "";
+  const isSender = msg.senderId === currentUser._id;
 
   return (
-    <div className="file-message-card">
-      <div className="file-icon">📄</div>
-      <div className="file-details">
-        <div className="file-name">{fileName}</div>
-        <div className="file-actions">
-          <a
-            href={fileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            download
-            className="download-btn"
-          >
-            📥 Télécharger
-          </a>
-        </div>
+    <div key={index} className={`message ${isSender ? "sent" : "received"}`}>
+      {isFile ? (
+        <div className="file-message">
+        <a href={fileUrl} download title="Télécharger le fichier">
+          📄 {fileName}
+        </a>
       </div>
+      
+      ) : (
+        <div
+          className="chat-message-content"
+          dangerouslySetInnerHTML={{ __html: msg.content }}
+        />
+      )}
+      <span>{formatTime(msg.createdAt)}</span>
     </div>
-  )
-})() : (
-  <div
-    className="chat-message-content"
-    dangerouslySetInnerHTML={{ __html: msg.content }}
-  />
-)}
+  );
+})
 
-
-                <span>{formatTime(msg.createdAt)}</span>
-              </div>
-            ))
           )}
           <div ref={messagesEndRef} />
         </div>
-
+  
         <div className="chat-suggestions">
           {messageSuggestions.map((suggestion, index) => (
-            <button key={index} className="suggestion-btn" onClick={() => handleSuggestionClick(suggestion)}>
+            <button
+              key={index}
+              className="suggestion-btn"
+              onClick={() => handleSuggestionClick(suggestion)}
+            >
               {suggestion}
             </button>
           ))}
         </div>
-
+  
         <form onSubmit={handleSendMessage} className="chat-input">
           <div className="input-wrapper">
             <input
@@ -272,9 +271,17 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
             <div className="input-actions">
               <label className="file-upload">
                 <FaPaperclip />
-                <input type="file" onChange={handleFileUpload} style={{ display: "none" }} />
+                <input
+                  type="file"
+                  onChange={handleFileUpload}
+                  style={{ display: "none" }}
+                />
               </label>
-              <button type="button" className="emoji-btn" onClick={() => setShowEmojiPicker((prev) => !prev)}>
+              <button
+                type="button"
+                className="emoji-btn"
+                onClick={() => setShowEmojiPicker((prev) => !prev)}
+              >
                 <FaSmile />
               </button>
               <button type="submit" disabled={!newMessage.trim()}>
@@ -290,7 +297,8 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
         </form>
       </div>
     </div>
-  )
+  );
+  
 }
 
 export default ChatComponent
