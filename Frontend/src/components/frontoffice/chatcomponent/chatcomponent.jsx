@@ -218,31 +218,34 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
               <p>Aucun message pour le moment. Commencez la conversation !</p>
             </div>
           ) : (
-           messages.map((msg, index) => {
-  const isFile = msg.content.startsWith("File: ");
-  const fileUrl = isFile ? msg.content.replace("File: ", "").trim() : "";
-  const fileName = isFile ? decodeURIComponent(fileUrl.split("/").pop()) : "";
-  const isSender = msg.senderId === currentUser._id;
-
-  return (
-    <div key={index} className={`message ${isSender ? "sent" : "received"}`}>
-      {isFile ? (
-        <div className="file-message">
-        <a href={fileUrl} download title="Télécharger le fichier">
-          📄 {fileName}
-        </a>
-      </div>
-      
-      ) : (
-        <div
-          className="chat-message-content"
-          dangerouslySetInnerHTML={{ __html: msg.content }}
-        />
-      )}
-      <span>{formatTime(msg.createdAt)}</span>
-    </div>
-  );
-})
+            messages.map((msg, index) => {
+              const isFile = msg.content.includes("uploads/") && msg.content.match(/\.(pdf|docx?|txt)$/i);
+              const fileUrl = isFile ? msg.content.replace("File: ", "").trim() : "";
+              const fileName = isFile ? decodeURIComponent(fileUrl.split("/").pop()) : "";
+              const isSender = msg.senderId === currentUser._id;
+            
+              return (
+                <div key={index} className={`message ${isSender ? "sent" : "received"}`}>
+                  {isFile ? (
+                    <div className="file-message-card">
+                      <div className="file-icon">📄</div>
+                      <div className="file-details">
+                        <div className="file-name">{fileName}</div>
+                        <a href={fileUrl} download className="download-btn">
+                          Télécharger
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className="chat-message-content"
+                      dangerouslySetInnerHTML={{ __html: msg.content }}
+                    />
+                  )}
+                  <span className="message-time">{formatTime(msg.createdAt)}</span>
+                </div>
+              );
+            })
 
           )}
           <div ref={messagesEndRef} />
