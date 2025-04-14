@@ -16,7 +16,7 @@ const MyCareer = () => {
         setUserData(user);
   
         // ✅ Obtenir les résultats de quiz validés
-        const resQuiz = await fetch(`http://localhost:3000/api/quiz-result/user/${user._id}`);
+        const resQuiz = await fetch(`http://localhost:3000/api/quiz-result/user-populated/${user._id}`);
         const quizData = await resQuiz.json();
         setQuizHistory(Array.isArray(quizData) ? quizData : []);
   
@@ -72,19 +72,26 @@ const MyCareer = () => {
       </section>
 
       <section className="section">
-        <h2>📚 Quiz History</h2>
-        {quizHistory.length === 0 ? (
-          <p>No quizzes completed yet.</p>
+  <h2>📚 Quiz History</h2>
+  {quizHistory.length === 0 ? (
+    <p>No quizzes completed yet.</p>
+  ) : (
+    <ul className="history-list">
+      {quizHistory.map((quiz, index) => (
+        <li key={index}><strong>Course:</strong>{" "}
+        {quiz.courseId?.title ? (
+          quiz.courseId.title
         ) : (
-          <ul className="history-list">
-            {quizHistory.map((quiz, index) => (
-              <li key={index}>
-                <strong>Course ID:</strong> {quiz.courseId} — <strong>Score:</strong> {quiz.score}/5
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+          <span style={{ color: "red" }}>⚠️ Course Deleted</span>
+        )} —
+          
+          <strong>Score:</strong> {quiz.score}/{quiz.total}
+        </li>
+      ))}
+    </ul>
+  )}
+</section>
+
 
       <section className="section">
         <h2>🧪 Exams</h2>
