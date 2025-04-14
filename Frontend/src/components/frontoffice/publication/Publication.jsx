@@ -1,4 +1,3 @@
-// src/components/publication/Publication.jsx
 "use client"
 import GoogleTranslate from "./GoogleTranslate"
 import { useState, useEffect } from "react"
@@ -24,6 +23,7 @@ const Publication = () => {
   })
   const [currentUser, setCurrentUser] = useState(null)
   const [viewMode, setViewMode] = useState("all") // "all" | "my"
+  const [filterType, setFilterType] = useState("all") // "all" | "offer" | "request" - Nouveau pour filtrer par type
 
   const [newComments, setNewComments] = useState({})
   const [newReplies, setNewReplies] = useState({})
@@ -74,10 +74,6 @@ const Publication = () => {
     fetchCurrentUser()
   }, [])
 
-  
-  
-  
-  
   // Récupérer les publications
   useEffect(() => {
     const fetchPublications = async () => {
@@ -247,7 +243,6 @@ const Publication = () => {
     e.preventDefault()
     if (!newPublication.description.trim()) {
       showToast("Veuillez entrer une description.")
-
       return
     }
 
@@ -452,92 +447,100 @@ const Publication = () => {
 
   if (loading) return <div>Chargement des publications...</div>
   if (error) return <div>{error}</div>
-  const displayedPublications =
-  viewMode === "my"
-    ? publications.filter((pub) => pub.user?._id === currentUser?._id)
-    : publications
+
+  // Filtrer les publications en fonction de viewMode et filterType
+  const displayedPublications = publications
+    .filter((pub) => viewMode === "my" ? pub.user?._id === currentUser?._id : true)
+    .filter((pub) => filterType === "all" || pub.type === filterType)
 
   return (
-    
     <div className="publications-container">
       <div className="create-publication">
         <form onSubmit={handleSubmit}>
-      <div className="publications-container">
-  <div className="create-publication">
-    <form onSubmit={handleSubmit}>
-      <div className="create-publication-header">
-        <img
-          src={getImageUrl(currentUser?.image) || "/placeholder.svg"}
-          alt={`${currentUser?.name || "Utilisateur"} ${currentUser?.surname || ""}`}
-          className="user-avatar"
-          onError={(e) => {
-            console.error("Erreur de chargement de l'image")
-            e.target.src = "https://via.placeholder.com/40"
-          }}
-        />
+          <div className="create-publication-header">
+            <img
+              src={getImageUrl(currentUser?.image) || "/placeholder.svg"}
+              alt={`${currentUser?.name || "Utilisateur"} ${currentUser?.surname || ""}`}
+              className="user-avatar"
+              onError={(e) => {
+                console.error("Erreur de chargement de l'image")
+                e.target.src = "https://via.placeholder.com/40"
+              }}
+            />
 
-        <div className="controls-row">
-          {/* Tous / Mes publications */}
-          <div className="switch-view-mode">
-            <button
-              type="button"
-              className={viewMode === "all" ? "active" : ""}
-              onClick={() => setViewMode("all")}
-            >
-              Tous
-            </button>
-            <button
-              type="button"
-              className={viewMode === "my" ? "active" : ""}
-              onClick={() => setViewMode("my")}
-            >
-              Mes publications
-            </button>
-          </div>
+            <div className="controls-row">
+              {/* Tous / Mes publications */}
+              <div className="switch-view-mode">
+                <button
+                  type="button"
+                  className={viewMode === "all" ? "active" : ""}
+                  onClick={() => setViewMode("all")}
+                >
+                  Tous
+                </button>
+                <button
+                  type="button"
+                  className={viewMode === "my" ? "active" : ""}
+                  onClick={() => setViewMode("my")}
+                >
+                  Mes publications
+                </button>
+              </div>
 
-          {/* Offre / Demande */}
-          <div className="publication-type-switch">
-            <div
-              className={`switch-option ${newPublication.type === "offer" ? "active" : ""}`}
-              onClick={() => setNewPublication((prev) => ({ ...prev, type: "offer" }))}
-            >
-              Offre
+              {/* Offre / Demande */}
+              <div className="publication-type-switch">
+                <div
+                  className={`switch-option ${newPublication.type === "offer" ? "active" : ""}`}
+                  onClick={() => setNewPublication((prev) => ({ ...prev, type: "offer" }))}
+                >
+                  Offre
+                </div>
+                <div
+                  className={`switch-option ${newPublication.type === "request" ? "active" : ""}`}
+                  onClick={() => setNewPublication((prev) => ({ ...prev, type: "request" }))}
+                >
+                  Demande
+                </div>
+                <div className={`switch-indicator ${newPublication.type}`}></div>
+              </div>
             </div>
-            <div
-              className={`switch-option ${newPublication.type === "request" ? "active" : ""}`}
-              onClick={() => setNewPublication((prev) => ({ ...prev, type: "request" }))}
-            >
-              Demande
-            </div>
-            <div className={`switch-indicator ${newPublication.type}`}></div>
           </div>
-        </div>
-      </div>
 
-     
-      
-    </form>
-  </div>
-
-
-{/* AJOUT : Switcher Tous / Mes publications */}
-
-
-
-          </div>
           <textarea
             name="description"
             value={newPublication.description}
             onChange={handleInputChange}
-            placeholder="What's on your mind?"
+            placeholder="Quoi de neuf ?"
             className="publication-textarea"
           />
           <div className="create-publication-actions">
             <button type="submit" className="submit-btn">
-              Post
+              Publier
             </button>
           </div>
         </form>
+      </div>
+
+      {/* AJOUT : Section de filtrage par type (Tout / Offres / Demandes) */}
+      <div className="filter-type-section">
+        <button
+          className={filterType === "all" ? "active" : ""}
+          onClick={() => setFilterType("all")}
+        >
+          Tout
+        </button>
+        <button
+          className={filterType === "offer" ? "active" : ""}
+          onClick={() => setFilterType("offer")}
+        >
+          Offres
+        </button>
+        <button
+          className={filterType === "request" ? "active" : ""}
+          onClick={() => setFilterType("request")}
+        >
+          Demandes
+        </button>
       </div>
 
       {displayedPublications.map((pub) => (
@@ -756,13 +759,13 @@ const Publication = () => {
       )}
       
       {toastMessage && (
-  <div className="custom-toast">
-    {toastMessage}
-  </div>
-)}
+        <div className="custom-toast">
+          {toastMessage}
+        </div>
+      )}
 
-<GoogleTranslate/>
-</div>
+      <GoogleTranslate />
+    </div>
   )
 }
 
