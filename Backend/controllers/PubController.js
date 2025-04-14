@@ -249,36 +249,36 @@ exports.addReply = async (req, res) => {
   try {
     const publicationId = req.params.id;
     const commentId = req.params.commentId;
-    const userId = req.user.userId;
+    const userId = req.user.userId; // Utilisateur connecté qui répond
     const { content } = req.body;
 
+    // Vérifier que le contenu de la réponse est valide
     if (!content || content.trim().length === 0) {
       return res.status(400).json({ error: 'Le contenu de la réponse est requis' });
     }
 
+    // Récupérer la publication
     const publication = await Publication.findById(publicationId);
     if (!publication) {
       return res.status(404).json({ error: 'Publication non trouvée' });
     }
 
-    // Vérifier si l'utilisateur est le créateur de la publication
-    if (publication.user.toString() !== userId) {
-      return res.status(403).json({ error: 'Seul le créateur de la publication peut répondre aux commentaires' });
-    }
-
+    // Récupérer le commentaire
     const comment = publication.comments.id(commentId);
     if (!comment) {
       return res.status(404).json({ error: 'Commentaire non trouvé' });
     }
 
+    // Ajouter la réponse au commentaire
     comment.replies.push({
       user: userId,
       content,
     });
 
+    // Sauvegarder les modifications
     await publication.save();
 
-    // Créer une notification pour l'auteur du commentaire
+    // Créer une notification pour l'auteur du commentaire (sauf si c'est lui-même qui répond)
     const commentOwnerId = comment.user.toString();
     console.log('Auteur du commentaire:', commentOwnerId, 'Utilisateur qui répond:', userId);
 
@@ -305,6 +305,7 @@ exports.addReply = async (req, res) => {
       console.log('Pas de notification créée: L\'utilisateur répond à son propre commentaire');
     }
 
+    // Récupérer la publication mise à jour avec les populate nécessaires
     const updatedPublication = await Publication.findById(publicationId)
       .populate('user', 'name surname image')
       .populate('comments.user', 'name surname image')
@@ -315,9 +316,11 @@ exports.addReply = async (req, res) => {
       publication: updatedPublication,
     });
   } catch (err) {
+    console.error('Erreur dans addReply:', err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // ➤ Récupérer toutes les notifications d'un utilisateur
 exports.getUserNotifications = async (req, res) => {
