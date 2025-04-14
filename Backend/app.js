@@ -19,6 +19,7 @@ require("./models/Notification");
 require("./models/Chat");
 require("./models/Packs");
 require("./models/Courses");
+require("./models/ExamResult"); 
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");

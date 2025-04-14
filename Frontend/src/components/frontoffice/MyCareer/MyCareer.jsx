@@ -23,7 +23,10 @@ const MyCareer = () => {
         // ✅ Obtenir les résultats d'examen IA
         const resExams = await fetch(`http://localhost:3000/api/exam-ai/results/${user._id}`);
         const examData = await resExams.json();
+        console.log("🧪 Résultat examen reçu côté frontend:", examData); // 👈 Ajoute ça
         setExamHistory(Array.isArray(examData) ? examData : []);
+        
+        
   
         // ✅ Obtenir les certificats utilisateur
         const resCert = await fetch(`http://localhost:3000/users/certificates/${user._id}`);
@@ -58,7 +61,12 @@ const MyCareer = () => {
           </div>
           <div className="stat-box">
             <h3>Exams Passed</h3>
-            <p>{examHistory.filter(e => e.score >= 3).length || 0}</p>
+            <p>
+  {examHistory && examHistory.length > 0
+    ? examHistory.filter(e => e.score >= 3).length
+    : 0}
+</p>
+
           </div>
           <div className="stat-box">
             <h3>Certificates</h3>
