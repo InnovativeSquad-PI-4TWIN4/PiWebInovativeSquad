@@ -24,7 +24,7 @@ $transition: all 0.3s ease;
 
   .create-publication-header {
     display: flex;
-    align-items: center; // Centre verticalement l'avatar et les boutons
+    align-items: center;
     gap: 12px;
     margin-bottom: 10px;
 
@@ -33,16 +33,16 @@ $transition: all 0.3s ease;
       height: 45px;
       border-radius: 50%;
       object-fit: cover;
-      flex-shrink: 0; // Empêche l'avatar de se déformer
+      flex-shrink: 0;
     }
 
     .controls-row {
       display: flex;
       align-items: center;
-      gap: 10px; // Espacement raisonnable entre les éléments
-      justify-content: space-between; // Répartit les éléments uniformément
-      flex: 1; // Prend l'espace restant après l'avatar
-      min-width: 0; // Permet à .controls-row de rétrécir si nécessaire
+      gap: 10px;
+      justify-content: space-between;
+      flex: 1;
+      min-width: 0;
 
       .switch-view-mode {
         display: flex;
@@ -126,7 +126,7 @@ $transition: all 0.3s ease;
     background: #2a2a2a;
     color: $text-light;
     resize: none;
-    margin-top: 20px; // Ajoute un espace au-dessus du textarea pour le décaler vers le bas
+    margin-top: 20px;
 
     &:focus {
       border-color: $primary;
@@ -153,19 +153,17 @@ $transition: all 0.3s ease;
   }
 }
 
-// Media query pour les petits écrans si nécessaire
 @media (max-width: 500px) {
   .create-publication-header {
-    flex-wrap: wrap; // Permet le wrapping sur des écrans très petits
+    flex-wrap: wrap;
 
     .controls-row {
-      justify-content: center; // Centre les éléments si wrapping
+      justify-content: center;
       margin-top: 10px;
     }
   }
 }
 
-// AJOUT : Styles pour la section de filtrage par type
 .filter-type-section {
   display: flex;
   gap: 10px;
@@ -194,12 +192,25 @@ $transition: all 0.3s ease;
   }
 }
 
+.no-publications {
+  text-align: center;
+  color: $text-muted;
+  font-size: 14px;
+  margin: 20px 0;
+}
+
 .publication-card {
   background: $card-dark;
   border-radius: $radius;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
   margin-bottom: 20px;
   padding: 16px;
+  position: relative;
+
+  &.archived {
+    opacity: 0.7;
+    border: 1px solid $text-muted;
+  }
 
   .publication-header {
     display: flex;
@@ -214,14 +225,61 @@ $transition: all 0.3s ease;
     }
 
     .user-info {
+      flex: 1;
       .user-name {
-        font-weight: 600;  // Correct syntax        font-size: 14px;
+        font-weight: 600;
+        font-size: 14px;
         color: white;
       }
 
       .publication-date {
         font-size: 12px;
         color: $text-muted;
+      }
+    }
+
+    .context-menu-container {
+      position: relative;
+
+      .context-menu-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        color: $text-muted;
+        padding: 5px;
+
+        &:hover {
+          color: $primary;
+        }
+      }
+
+      .context-menu {
+        position: absolute;
+        top: 30px;
+        right: 0;
+        background: #2a2a2a;
+        border: 1px solid $border-dark;
+        border-radius: $radius;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        min-width: 120px;
+
+        button {
+          display: block;
+          width: 100%;
+          padding: 8px 12px;
+          background: none;
+          border: none;
+          text-align: left;
+          font-size: 14px;
+          color: $text-light;
+          cursor: pointer;
+
+          &:hover {
+            background: lighten(#2a2a2a, 10%);
+          }
+        }
       }
     }
   }
@@ -388,18 +446,8 @@ $transition: all 0.3s ease;
 
         .replies-list {
           margin-top: 10px;
-          padding-left: 45px; // Indentation pour aligner avec l'avatar du commentaire
+          padding-left: 45px;
           position: relative;
-
-          &:before {
-            content: '';
-            position: absolute;
-            left: 25px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: $border-dark; // Ligne de connexion
-          }
 
           .reply {
             display: flex;
@@ -407,16 +455,6 @@ $transition: all 0.3s ease;
             gap: 10px;
             margin-bottom: 10px;
             position: relative;
-
-            &:before {
-              content: '';
-              position: absolute;
-              left: -20px;
-              top: 18px;
-              width: 20px;
-              height: 2px;
-              background: $border-dark; // Ligne horizontale de connexion
-            }
 
             .reply-avatar {
               width: 35px;
@@ -483,7 +521,7 @@ $transition: all 0.3s ease;
         .comment-suggestions {
           display: flex;
           gap: 8px;
-          margin-bottom: 12px; // Espacement entre les suggestions et le champ de texte
+          margin-bottom: 12px;
           flex-wrap: wrap;
 
           .suggestion-btn {
@@ -598,6 +636,78 @@ $transition: all 0.3s ease;
 
     &.request {
       left: 50%;
+    }
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: $card-dark;
+  padding: 20px;
+  border-radius: $radius;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: $text-light;
+  }
+
+  .publication-type-switch {
+    margin-bottom: 15px;
+  }
+
+  .publication-textarea {
+    margin-top: 0;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+
+    .submit-btn {
+      background: $primary;
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+
+      &:hover {
+        background: darken($primary, 10%);
+      }
+    }
+
+    .cancel-btn {
+      background: $border-dark;
+      color: $text-light;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+
+      &:hover {
+        background: lighten($border-dark, 10%);
+      }
     }
   }
 }
