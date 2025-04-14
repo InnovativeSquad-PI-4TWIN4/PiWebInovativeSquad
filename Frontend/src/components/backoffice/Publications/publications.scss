@@ -1,0 +1,31 @@
+.publications-stats {
+    padding: 2rem;
+  
+    h2 {
+      text-align: center;
+      font-size: 1.5rem;
+      color: #374151;
+      margin-bottom: 2rem;
+    }
+  
+    .charts {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 2rem;
+  
+      .chart {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        text-align: center;
+  
+        h3 {
+          margin-bottom: 1rem;
+          color: #4b5563;
+        }
+      }
+    }
+  }
+  
