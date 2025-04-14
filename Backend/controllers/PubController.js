@@ -343,3 +343,28 @@ exports.markNotificationAsRead = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+// ➤ Statistiques des publications par type (offre vs demande)
+exports.getPublicationStats = async (req, res) => {
+  try {
+    const stats = await Publication.aggregate([
+      {
+        $group: {
+          _id: "$type", // "offer" ou "request"
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          type: "$_id",
+          count: 1,
+        },
+      },
+    ])
+
+    res.status(200).json(stats)
+  } catch (error) {
+    console.error("Erreur lors de l'agrégation des statistiques des publications :", error)
+    res.status(500).json({ error: error.message })
+  }
+}
