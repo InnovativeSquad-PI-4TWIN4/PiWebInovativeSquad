@@ -5,6 +5,8 @@ import { FaTrashAlt } from "react-icons/fa";
 import {  MdDeleteForever } from "react-icons/md";
 import { formatDistanceToNow } from 'date-fns';
 import { io } from "socket.io-client";
+import VideoCallComponent from "./VideoCall.jsx"; // ajuste le chemin si besoin
+import { FiEdit2 } from "react-icons/fi"; // ✒️ Icône moderne pour l’édition
 
 const Messenger = () => {
     const recognitionRef = useRef(null);
@@ -20,7 +22,9 @@ const Messenger = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [typingUser, setTypingUser] = useState(null); // ✅ Ajout de typingUser
     const [onlineUsers, setOnlineUsers] = useState([]);
-   
+    const [editingMessage, setEditingMessage] = useState(null);
+    const [editedText, setEditedText] = useState("");
+    
     const token = localStorage.getItem("token");
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const userId = storedUser?.id || localStorage.getItem("userId");
@@ -31,8 +35,10 @@ const Messenger = () => {
     let typingTimeout = null;
     const typingTimeoutRef = useRef(null);
 
-    
+    const [suggestions, setSuggestions] = useState([]);
     useEffect(() => {
+
+       
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
     alert("La reconnaissance vocale n'est pas prise en charge par ce navigateur.");
@@ -59,6 +65,7 @@ const Messenger = () => {
     console.error("❌ Erreur de reconnaissance vocale :", event.error);
     setIsRecording(false);
   };
+
         socket.current = io("http://localhost:3000");
 
         if (!socket.current) return;
@@ -117,6 +124,23 @@ const Messenger = () => {
         };
     }, [navigate, token, userId]);
 
+    useEffect(() => {
+        if (messageText.trim().length > 1 && messages.length > 0) {
+          const matches = messages
+            .map((msg) => msg.content)
+            .filter(
+              (m) =>
+                m.toLowerCase().startsWith(messageText.toLowerCase()) &&
+                m.toLowerCase() !== messageText.toLowerCase()
+            )
+            .slice(0, 3);
+      
+          setSuggestions([...new Set(matches)]);
+        } else {
+          setSuggestions([]);
+        }
+      }, [messageText, messages]);
+      
     const isUserOnline = (userIdToCheck) => {
         return onlineUsers.includes(userIdToCheck.toString());
     };
@@ -248,7 +272,37 @@ const Messenger = () => {
             console.error("Error marking message as read:", error);
         }
     };
-
+    const startEditing = (msg) => {
+        setEditingMessage(msg._id);
+        setEditedText(msg.content);
+      };
+      
+      const saveEditedMessage = async (messageId) => {
+        try {
+          const response = await fetch(`http://localhost:3000/messages/update-message/${messageId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // si nécessaire
+            },
+            body: JSON.stringify({ content: editedText }),
+          });
+      
+          const data = await response.json();
+          if (response.ok) {
+            setMessages((prev) =>
+              prev.map((msg) => (msg._id === messageId ? { ...msg, content: editedText } : msg))
+            );
+            setEditingMessage(null);
+            setEditedText("");
+          } else {
+            console.error("Erreur lors de la mise à jour :", data.error);
+          }
+        } catch (err) {
+          console.error("Erreur réseau :", err);
+        }
+      };
+      
     const sendMessage = async () => {
         if (!messageText.trim()) {
             console.error("Message is empty.");
@@ -328,6 +382,9 @@ const Messenger = () => {
                         <div className="chat-header">
                             <h3>{selectedUser.name} {selectedUser.surname}<p> Skill : {selectedUser.Skill} </p>
                             </h3>
+                            {selectedUser && (
+  <VideoCallComponent currentUserId={userId} selectedUser={selectedUser} />
+)}
                         </div>
                                    
                         
@@ -336,6 +393,7 @@ const Messenger = () => {
                             {messages.map((msg) => (
                                 
                                 <div key={msg._id} className={msg.sender._id === userId ? "message sent" : "message received"}>
+  
    <small className="timestamp">
         {formatDistanceToNow(new Date(msg.timestamp), { addSuffix: true })}
       </small>
@@ -348,7 +406,38 @@ const Messenger = () => {
         )}
        <div className={`message-content ${msg.sender._id === userId ? "sent" : "received"}`}>
             <p>{msg.sender._id === userId ? "You" : msg.sender.name}</p>
-            <h4>{msg.content}</h4>
+           
+            {editingMessage === msg._id ? (
+  <input
+    type="text"
+    value={editedText}
+    onChange={(e) => setEditedText(e.target.value)}
+    onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        saveEditedMessage(msg._id);
+      }
+    }}
+    onBlur={() => setEditingMessage(null)}
+    autoFocus
+  />
+) : (
+  <>
+    <h4>{msg.content}</h4>
+    {/* 👇 Bouton affiché uniquement si msg.sender === userId */}
+    {msg.sender._id === userId && (
+      <button
+        onClick={() => {
+          setEditingMessage(msg._id);
+          setEditedText(msg.content);
+        }}
+        className="edit-icon-btn"
+      >
+        <FiEdit2 size={12} />
+      </button>
+    )}
+  </>
+)}
+
             {msg.sender._id === userId && (
                 <span className={msg.read ? "read" : "unread"}>
                     {msg.read ? "seen ✔✔" : "✔"}
@@ -369,6 +458,16 @@ const Messenger = () => {
 
 
                         <div className="message-input">
+                        {suggestions.length > 0 && (
+  <ul className="suggestion-list">
+    {suggestions.map((sug, i) => (
+      <li key={i} onClick={() => setMessageText(sug)}>
+        💬 {sug}
+      </li>
+    ))}
+  </ul>
+)}
+
                             <textarea
                                 value={messageText}
                                 onChange={(e) => {
@@ -404,6 +503,8 @@ const Messenger = () => {
 
                             <button onClick={sendMessage}>Send</button>
                         </div>
+                      
+
                     </>
                 ) : (
                     <div className="no-chat-selected">Select a user to start chatting</div>
