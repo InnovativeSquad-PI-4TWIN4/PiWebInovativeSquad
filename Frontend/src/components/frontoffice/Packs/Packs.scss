@@ -1,3 +1,157 @@
+.packs-container {
+  min-height: 100vh;
+  padding: 60px 20px;
+  background: radial-gradient(ellipse at top, #0a0a0a, #121122);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.section-title {
+  font-size: 38px;
+  font-weight: 700;
+  color: #00f9ff;
+  margin-bottom: 40px;
+  text-shadow: 0 0 10px rgba(0, 249, 255, 0.5);
+}
+
+.packs-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+}
+
+.pack-card {
+  width: 320px;
+  min-height: 340px;
+  background: #0f172a;
+  border-radius: 20px;
+  padding: 25px 20px;
+  color: #ffffff;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+  }
+
+  .discount-badge {
+    background: crimson;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+  }
+
+  .pack-icon {
+    font-size: 30px;
+    margin-bottom: 10px;
+  }
+
+  .pack-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #000000;
+  }
+
+  .pack-content {
+    font-size: 15px;
+    color: #000000;
+    margin: 10px 0 15px;
+    line-height: 1.5;
+  }
+
+  .pack-price {
+    font-size: 14px;
+    color: #ffffff;
+
+    .discounted-price {
+      font-size: 18px;
+      font-weight: bold;
+      color: #ff6b6b;
+    }
+  }
+}
+
+.custom-modal {
+  background: rgba(255, 255, 255, 0.97);
+  padding: 30px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 550px;
+  margin: auto;
+  text-align: center;
+  color: #111;
+
+  .modal-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  .modal-content {
+    text-align: left;
+
+    p {
+      font-size: 16px;
+      margin: 10px 0;
+      color: #333;
+    }
+  }
+
+  .buy-button {
+    background: #00d3c4;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #00b7ad;
+      transform: scale(1.05);
+    }
+
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+
+  .close-button {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: #888;
+    cursor: pointer;
+
+    &:hover {
+      color: #000;
+    }
+  }
+}
+
+.custom-overlay {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(5px);
+}
+
 .custom-modal {
   position: fixed;
   top: 50%;
@@ -56,93 +210,93 @@
   }
 }
 
-.discounted-price {
-  color: red;
-  font-weight: bold;
-  font-size: 20px;
-}
+// .discounted-price {
+//   color: red;
+//   font-weight: bold;
+//   font-size: 20px;
+// }
 
-.close-button {
-  background: #b0182700;
-  color: rgb(249, 0, 0);
-  border: none;
-  padding: 5px 8px;
-  margin-top: -7px;
-  cursor: pointer;
-  border-radius: 70%;
-  font-size: 12px;
-  transition: all 0.3s ease;
+// .close-button {
+//   background: #b0182700;
+//   color: rgb(249, 0, 0);
+//   border: none;
+//   padding: 5px 8px;
+//   margin-top: -7px;
+//   cursor: pointer;
+//   border-radius: 70%;
+//   font-size: 12px;
+//   transition: all 0.3s ease;
 
-  &:hover {
-    background: #e03b4e4e;
-    transform: scale(1.1);
-  }
-}
+//   &:hover {
+//     background: #e03b4e4e;
+//     transform: scale(1.1);
+//   }
+// }
 
-.custom-overlay {
-  background: rgba(0, 0, 0, 0.6);
-}
+// .custom-overlay {
+//   background: rgba(0, 0, 0, 0.6);
+// }
 
-// Packs container
-.packs-container {
-  text-align: center;
-  padding: 80px;
-  background: linear-gradient(135deg, #1a1a1a, #2c3e50);
-  color: white;
+// // Packs container
+// .packs-container {
+//   text-align: center;
+//   padding: 80px;
+//   background: linear-gradient(135deg, #1a1a1a, #2c3e50);
+//   color: white;
 
-  .section-title {
-    font-size: 34px;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
+//   .section-title {
+//     font-size: 34px;
+//     font-weight: bold;
+//     margin-bottom: 20px;
+//   }
 
-  .packs-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 50px;
-  }
+//   .packs-grid {
+//     display: flex;
+//     flex-wrap: wrap;
+//     justify-content: center;
+//     gap: 50px;
+//   }
 
-  .pack-card {
-    position: relative;
-    width: 280px;
-    padding: 20px;
-    border-radius: 10px;
-    color: #000000;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.9); // Semi-transparent white
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+//   .pack-card {
+//     position: relative;
+//     width: 280px;
+//     padding: 20px;
+//     border-radius: 10px;
+//     color: #000000;
+//     text-align: center;
+//     background: rgba(255, 255, 255, 0.9); // Semi-transparent white
+//     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+//     transition: transform 0.3s ease, box-shadow 0.3s ease;
 
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
-    }
+//     &:hover {
+//       transform: translateY(-5px);
+//       box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+//     }
 
-    .discount-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: red;
-      color: white;
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-weight: bold;
-    }
+//     .discount-badge {
+//       position: absolute;
+//       top: 10px;
+//       left: 10px;
+//       background: red;
+//       color: white;
+//       padding: 5px 10px;
+//       border-radius: 5px;
+//       font-weight: bold;
+//     }
 
-    .pack-icon img {
-      width: 50px;
-    }
+//     .pack-icon img {
+//       width: 50px;
+//     }
 
-    .pack-title {
-      font-size: 20px;
-      margin-top: 10px;
-      font-weight: bold;
-    }
+//     .pack-title {
+//       font-size: 20px;
+//       margin-top: 10px;
+//       font-weight: bold;
+//     }
 
-    .pack-content {
-      font-size: 14px;
-      margin-top: 5px;
-    }
-  }
-}
+//     .pack-content {
+//       font-size: 14px;
+//       margin-top: 5px;
+//     }
+//   }
+// }
