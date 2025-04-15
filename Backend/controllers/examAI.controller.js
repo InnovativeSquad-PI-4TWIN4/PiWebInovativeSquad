@@ -3,6 +3,8 @@ const { Groq } = require("groq-sdk");
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const ExamResult = require("../models/ExamResult"); // ✅ bien importé ?
 const User = require("../models/User");
+const { sendSuccessCertificateEmail } = require("./email.controller"); // ✅ obligatoire pour envoyer le certificat
+
 
 
 exports.generateExam = async (req, res) => {
@@ -76,32 +78,53 @@ exports.generateExam = async (req, res) => {
       });
   
       const success = score >= 3;
-      const certificatUrl = success ? `http://localhost:3000/certificates/${category}_${userId}.pdf` : null;
+      const safeCategory = category.toLowerCase().replace(/\s+/g, "_");
+      const fileName = `${safeCategory}_${userId}.pdf`;
+      const fileUrl = `http://localhost:3000/certificates/${fileName}`;
   
+      // ✅ Enregistrement du résultat dans ExamResult
       const result = new ExamResult({
         userId,
         category,
         score,
         total: 5,
-        certificatUrl,
+        certificatUrl: success ? fileUrl : null,
       });
   
       await result.save();
       console.log("✅ Résultat d'examen sauvegardé :", result);
   
+      // ✅ MAJ examResults[] dans le modèle User (si tu veux le garder)
+      await User.findByIdAndUpdate(userId, {
+        $push: {
+          examResults: {
+            packId: null, // ou ton vrai packId
+            score: score.toString(),
+          },
+        },
+      });
+  
       if (success) {
         const user = await User.findById(userId);
         if (user) {
-          if (!Array.isArray(user.certificates)) user.certificates = [];
+          // Vérifie s’il a déjà un certificat dans cette catégorie
+          const alreadyExists = user.certificates?.some(
+            (c) => c.category.toLowerCase() === category.toLowerCase()
+          );
   
-          const alreadyHasCert = user.certificates.some(c => c.category === category);
-          if (!alreadyHasCert) {
-            user.certificates.push({ category, url: certificatUrl, date: new Date() });
+          if (!alreadyExists) {
+            user.certificates.push({
+              category,
+              url: fileUrl,
+              date: new Date(),
+            });
+  
             user.hasCertificate = true;
-            await user.save();
-            console.log("🏅 Utilisateur mis à jour avec certificat.");
+            await user.save(); // 💾
   
-            // ✅ Envoi automatique par mail du certificat PDF
+            console.log("✅ Certificat enregistré dans la base de données");
+  
+            // Envoi de l’email avec PDF
             await sendSuccessCertificateEmail({
               to: user.email,
               name: user.name || "Candidat",
@@ -109,14 +132,12 @@ exports.generateExam = async (req, res) => {
               score,
             });
           } else {
-            console.log("ℹ️ Certificat déjà existant.");
+            console.log("ℹ️ L'utilisateur a déjà un certificat pour cette catégorie.");
           }
-        } else {
-          console.warn("⚠️ Utilisateur introuvable :", userId);
         }
       }
   
-      res.status(200).json({
+      return res.status(200).json({
         success,
         score,
         message: success
@@ -125,7 +146,7 @@ exports.generateExam = async (req, res) => {
       });
     } catch (err) {
       console.error("❌ Erreur globale :", err);
-      res.status(500).json({ error: "Erreur de validation de l'examen." });
+      return res.status(500).json({ error: "Erreur de validation de l'examen." });
     }
   };
   
@@ -137,20 +158,11 @@ exports.generateExam = async (req, res) => {
         return res.status(400).json({ error: "Invalid user ID format" });
       }
   
-      const exams = await ExamResult.find({
-        userId: new mongoose.Types.ObjectId(userId),
-      });
-  
-      console.log("✅ Exams found in DB for user:", exams);
-  
+      const exams = await ExamResult.find({ userId });
       res.status(200).json(exams);
     } catch (error) {
-      console.error("❌ Erreur lors de la récupération des examens IA:", error);
-      res
-        .status(500)
-        .json({ message: "Erreur lors de la récupération des examens IA" });
+      res.status(500).json({ message: "Erreur récupération examens", error });
     }
   };
-  
   
   

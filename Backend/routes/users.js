@@ -46,16 +46,12 @@ router.post("/mark-certified", userController.markAsCertified);
 
 router.get('/email/:email', userController.getUserByEmail);
 router.get("/certificates/:userId", async (req, res) => {
-    try {
-      const user = await User.findById(req.params.userId);
-      if (!user || !user.certificates || user.certificates.length === 0) {
-        return res.status(200).json([]);
-      }
-  
-      res.status(200).json(user.certificates);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur récupération certificats", error });
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user || !user.certificates || user.certificates.length === 0) {
+      return res.status(200).json([]); // ✅ même si vide, la route renvoie un tableau
     }
+
   });
   router.get("/test-email", async (req, res) => {
     const { sendEmail } = require("../controllers/userController");
@@ -67,6 +63,15 @@ router.get("/certificates/:userId", async (req, res) => {
     res.send(success ? "Email envoyé ✅" : "Échec ❌");
   });
   
+
+
+    res.status(200).json(user.certificates);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur récupération certificats", error });
+  }
+});
+
+
   
   
 

@@ -152,6 +152,13 @@
     padding: 10px;
     border-right: 1px solid #ffffff;
 }
+.message-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
 
 .search-bar {
     width: 100%;
@@ -206,8 +213,32 @@
 }
 
 .chat-header {
-    background: linear-gradient(135deg, #20452b, #4e8f61) !important;
+    background: linear-gradient(135deg, #03381a, #161716); // 🌿 Vert intense et élégant
+    color: white;
+    padding: 16px 24px;
+    border-bottom: 2px solid #e0e0e0;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-top-left-radius: 29px;
+    border-top-right-radius: 25px;
+  
+    h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+    }
+  
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: #d0f0e1;
+    }
   }
+  
   
 
 .messages {
