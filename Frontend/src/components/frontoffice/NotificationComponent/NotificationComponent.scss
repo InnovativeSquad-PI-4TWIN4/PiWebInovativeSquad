@@ -5,12 +5,12 @@
   .notification-icon {
     position: relative;
     cursor: pointer;
-    padding: 8px;
+    padding: 10px;
     border-radius: 50%;
-    transition: background-color 0.2s;
+    transition: background-color 0.3s ease;
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: rgba(0, 0, 0, 0.1);
     }
 
     svg {
@@ -20,44 +20,54 @@
 
   .notification-badge {
     position: absolute;
-    top: 0;
-    right: 0;
-    background-color: #e74c3c;
+    top: 5px;
+    right: 5px;
+    background-color: #ff4d4f;
     color: white;
     border-radius: 50%;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   }
 
   .notification-dropdown {
     position: absolute;
     top: 100%;
     right: 0;
-    width: 350px;
-    max-height: 400px;
+    width: 360px;
+    max-height: 450px;
     overflow-y: auto;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     z-index: 1000;
-    padding: 12px;
+    padding: 16px;
+    animation: fadeIn 0.2s ease-in-out;
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     h3 {
-      margin-top: 0;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #eee;
-      font-size: 16px;
+      margin: 0 0 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
     }
 
     .no-notifications {
       text-align: center;
-      color: #777;
-      padding: 20px 0;
+      color: #888;
+      padding: 24px 0;
+      font-size: 14px;
     }
 
     .notification-list {
@@ -66,49 +76,80 @@
       margin: 0;
 
       .notification-item {
+        display: flex;
+        align-items: flex-start;
         padding: 12px;
-        border-radius: 6px;
+        border-radius: 8px;
         cursor: pointer;
-        transition: background-color 0.2s;
+        transition: background-color 0.3s ease;
         margin-bottom: 8px;
-        border-left: 3px solid transparent;
+        border-left: 4px solid transparent;
 
         &:hover {
-          background-color: #f5f5f5;
+          background-color: #fafafa;
         }
 
         &.unread {
-          background-color: #e8f4fd;
-          border-left-color: #3498db;
+          background-color: #e6f3ff;
+          border-left-color: #1890ff;
+        }
+
+        .notification-avatar {
+          margin-right: 12px;
+
+          .avatar-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+
+          .avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #1890ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 500;
+          }
         }
 
         .notification-content {
+          flex: 1;
+
           .notification-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 4px;
+            align-items: center;
+            margin-bottom: 6px;
 
             .sender-name {
-              font-weight: bold;
-              font-size: 14px;
+              font-weight: 600;
+              font-size: 15px;
+              color: #333;
             }
 
             .notification-time {
               font-size: 12px;
-              color: #777;
+              color: #999;
             }
           }
 
           .notification-message {
-            margin: 0;
-            font-size: 13px;
-            color: #555;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
 
             .message-icon {
-              color: #3498db;
+              color: #888;
+              flex-shrink: 0;
             }
           }
         }

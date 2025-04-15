@@ -202,7 +202,7 @@ const ChatComponent = ({ publication, currentUser, selectedSender, onClose }) =>
   return (
     <div className="chat-overlay">
       <div className="chat-container">
-        <div className="chat-header">
+        <div className="chat-headerr">
           <h3>
             Chat avec{" "}
             {selectedSender
