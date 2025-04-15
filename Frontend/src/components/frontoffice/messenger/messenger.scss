@@ -265,3 +265,43 @@ button {
     border-radius: 5px;
     cursor: pointer;
 }
+.mic-button {
+    background-color: #177e36;
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45px;
+    width: 45px;
+    margin-right: 0.5rem;
+  
+    &:hover {
+      background-color: darken(#14ce6a, 10%);
+      transform: scale(1.1);
+      box-shadow: 0 4px 10px rgba(10, 81, 4, 0.3);
+    }
+  
+    &.recording {
+      background-color: #dc3545; // rouge si actif
+      animation: pulse 1.2s infinite;
+    }
+  }
+  
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.6);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+  }
+  
