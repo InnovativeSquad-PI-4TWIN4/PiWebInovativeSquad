@@ -169,3 +169,22 @@ exports.deleteMessageBySender = async (req, res) => {
         res.status(500).json({ message: "Erreur serveur." });
     }
 };
+exports.updateMessage = async (req, res) => {
+    const { id } = req.params;
+    const { content } = req.body;
+  
+    try {
+      const message = await Message.findById(id);
+      if (!message) {
+        return res.status(404).json({ error: "Message non trouvé" });
+      }
+  
+      message.content = content;
+      await message.save();
+  
+      res.status(200).json({ message: "Message mis à jour avec succès", updatedMessage: message });
+    } catch (error) {
+      console.error("Erreur de mise à jour :", error);
+      res.status(500).json({ error: "Erreur serveur lors de la mise à jour du message" });
+    }
+  };

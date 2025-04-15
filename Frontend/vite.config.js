@@ -7,12 +7,23 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      stream: 'stream-browserify',
+      buffer: 'buffer',
+      util: 'util',
+    }
+  },
+  define: {
+    global: 'window',
+    process: {
+      env: {},
     },
+  },
+  optimizeDeps: {
+    include: ['process', 'buffer']
   },
   server: {
     port: 5173,
     open: true,
-    // 👇 C'est ÇA qui te manque !
     historyApiFallback: true
   }
 })
