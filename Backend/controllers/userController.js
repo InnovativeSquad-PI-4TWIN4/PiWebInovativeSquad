@@ -144,7 +144,8 @@ exports.signup = [
 
       await newUser.save();
 
-      const confirmLink = `${process.env.CLIENT_URL}/verify-email/${emailToken}`;
+      const confirmLink = `http://localhost:3000/users/verify-email/${emailToken}`;
+
 
       await sendEmail(
         email,
@@ -179,12 +180,14 @@ exports.verifyEmail = async (req, res) => {
     user.verified = true;
     await user.save();
 
+    // ✅ Redirection directe vers page de connexion
     return res.redirect(`${process.env.CLIENT_URL}/signin`);
   } catch (error) {
     console.error("Verification Error:", error);
     return res.status(500).send("Erreur lors de la vérification.");
   }
 };
+
 
 exports.addClient = async (req, res) => {
   try {
@@ -633,29 +636,35 @@ exports.deactivateUser = async (req, res) => {
 // ✅ Fonction pour envoyer un email
 const sendEmail = async (to, subject, html) => {
   try {
+    console.log("📤 Tentative d'envoi d'email à :", to);
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.AUTH_EMAIL, // ⚡ Utilisation des bonnes variables d'env
-        pass: process.env.AUTH_PASS,  // ⚡ Mot de passe d'application Gmail
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
     const mailOptions = {
-      from: `"SkillBridge" <${process.env.AUTH_EMAIL}>`,
+      from: `"SkillBridge" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       html,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`📧 Email envoyé à ${to}: ${info.response}`);
+    console.log("✅ Email envoyé :", info.response);
+
     return true;
   } catch (error) {
-    console.error("❌ Erreur d'envoi d'email", error);
+    console.error("❌ Erreur d'envoi d'e-mail :", error);
     return false;
   }
 };
+
+module.exports.sendEmail = sendEmail;
+
 
 exports.addAdmin = async (req, res) => {
   try {

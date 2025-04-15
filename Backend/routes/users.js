@@ -57,6 +57,16 @@ router.get("/certificates/:userId", async (req, res) => {
       res.status(500).json({ message: "Erreur récupération certificats", error });
     }
   });
+  router.get("/test-email", async (req, res) => {
+    const { sendEmail } = require("../controllers/userController");
+    const success = await sendEmail(
+      "ton.email@gmail.com",
+      "Test depuis SkillBridge",
+      "<p>🎉 Ceci est un test d'email envoyé depuis la nouvelle configuration !</p>"
+    );
+    res.send(success ? "Email envoyé ✅" : "Échec ❌");
+  });
+  
   
   
 
