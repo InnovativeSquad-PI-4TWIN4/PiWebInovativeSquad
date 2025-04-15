@@ -84,8 +84,15 @@ io.on("connection", (socket) => {
     console.log("🔴 Client déconnecté:", socket.id);
 
   });
- 
+  socket.on("callUser", ({ userToCall, signalData, from, name }) => {
+  io.to(userToCall).emit("callIncoming", { signal: signalData, from, name });
 });
+
+
+});
+
+ 
+
 
 // ✅ Middleware et configuration Express
  
