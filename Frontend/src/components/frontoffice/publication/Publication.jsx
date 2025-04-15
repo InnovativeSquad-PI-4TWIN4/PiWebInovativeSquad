@@ -1,4 +1,3 @@
-// src/components/publication/Publication.jsx
 "use client"
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -7,9 +6,10 @@ import { FaPaperPlane, FaEllipsisH } from "react-icons/fa";
 import ChatComponent from "../chatcomponent/chatcomponent";
 import { useLocation, useNavigate } from "react-router-dom";
 import GoogleTranslate from "./GoogleTranslate";
+
 const Publication = () => {
   const [publications, setPublications] = useState([]);
-  const [archivedPublications, setArchivedPublications] = useState([]); // Nouvel état pour les publications archivées
+  const [archivedPublications, setArchivedPublications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [toastMessage, setToastMessage] = useState("");
@@ -18,7 +18,7 @@ const Publication = () => {
     description: "",
   });
   const [currentUser, setCurrentUser] = useState(null);
-  const [viewMode, setViewMode] = useState("all"); // Ajout du mode "archived"
+  const [viewMode, setViewMode] = useState("all");
   const [filterType, setFilterType] = useState("all");
   const [newComments, setNewComments] = useState({});
   const [newReplies, setNewReplies] = useState({});
@@ -117,6 +117,39 @@ const Publication = () => {
       fetchArchivedPublications();
     }
   }, [viewMode]);
+
+  // Handle scrolling to publication based on URL params
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const publicationId = params.get("id");
+    const scrollToPublication = params.get("scrollToPublication") === "true";
+
+    if (publicationId && scrollToPublication && !loading && publications.length > 0) {
+      const attemptScroll = () => {
+        const publicationElement = document.querySelector(`.publication-card[data-id="${publicationId}"]`);
+        if (publicationElement) {
+          console.log(`Scrolling to publication with ID: ${publicationId}`);
+          publicationElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          console.warn(`Publication with ID ${publicationId} not found in the current view`);
+          // Reset filters to ensure the publication is visible
+          if (viewMode !== "all" || filterType !== "all") {
+            setViewMode("all");
+            setFilterType("all");
+          }
+        }
+      };
+
+      // Attempt to scroll immediately
+      attemptScroll();
+
+      // If the publication isn't found, try again after a short delay to account for state updates
+      if (!(document.querySelector(`.publication-card[data-id="${publicationId}"]`))) {
+        const timer = setTimeout(attemptScroll, 500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [location.search, loading, publications, viewMode, filterType]);
 
   // Vérifier les paramètres d'URL pour ouvrir le chat
   useEffect(() => {
@@ -549,7 +582,6 @@ const Publication = () => {
   if (loading) return <div>Chargement des publications...</div>;
   if (error) return <div>{error}</div>;
 
-  // Sélectionner les publications à afficher en fonction du mode
   const displayedPublications = viewMode === "archived"
     ? archivedPublications
     : publications
@@ -559,7 +591,7 @@ const Publication = () => {
   return (
     <div className="publications-container">
       <div className="create-publication">
-      <GoogleTranslate/>
+        <GoogleTranslate />
         <form onSubmit={handleSubmit}>
           <div className="create-publication-header">
             <img
@@ -657,7 +689,7 @@ const Publication = () => {
         </p>
       ) : (
         displayedPublications.map((pub) => (
-          <div key={pub._id} className={`publication-card ${viewMode === "archived" ? "archived" : ""}`}>
+          <div key={pub._id} className={`publication-card ${viewMode === "archived" ? "archived" : ""}`} data-id={pub._id}>
             <div className="publication-header">
               <img
                 src={getImageUrl(pub.user?.image) || "/placeholder.svg"}
@@ -900,55 +932,55 @@ const Publication = () => {
         </div>
       )}
 
-{editModal && (
-  <div className="modal-overlay">
-    <div className="modal modal-edit-publication">
-      <div className="modal-header">
-        <h2>Modifier la publication</h2>
-      </div>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleUpdatePublication(editModal._id, {
-            type: editModal.type,
-            description: editModal.description,
-          });
-        }}
-      >
-        <div className="publication-type-switch">
-          <div
-            className={`switch-option ${editModal.type === "offer" ? "active" : ""}`}
-            onClick={() => setEditModal((prev) => ({ ...prev, type: "offer" }))}
-          >
-            Offre
+      {editModal && (
+        <div className="modal-overlay">
+          <div className="modal modal-edit-publication">
+            <div className="modal-header">
+              <h2>Modifier la publication</h2>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleUpdatePublication(editModal._id, {
+                  type: editModal.type,
+                  description: editModal.description,
+                });
+              }}
+            >
+              <div className="publication-type-switch">
+                <div
+                  className={`switch-option ${editModal.type === "offer" ? "active" : ""}`}
+                  onClick={() => setEditModal((prev) => ({ ...prev, type: "offer" }))}
+                >
+                  Offre
+                </div>
+                <div
+                  className={`switch-option ${editModal.type === "request" ? "active" : ""}`}
+                  onClick={() => setEditModal((prev) => ({ ...prev, type: "request" }))}
+                >
+                  Demande
+                </div>
+                <div className={`switch-indicator ${editModal.type}`}></div>
+              </div>
+              <textarea
+                value={editModal.description}
+                onChange={(e) => setEditModal((prev) => ({ ...prev, description: e.target.value }))}
+                className="publication-textarea"
+                placeholder="Description"
+                autoFocus
+              />
+              <div className="modal-actions">
+                <button type="button" className="cancel-btn" onClick={() => setEditModal(null)}>
+                  Annuler
+                </button>
+                <button type="submit" className="submit-btn">
+                  Enregistrer
+                </button>
+              </div>
+            </form>
           </div>
-          <div
-            className={`switch-option ${editModal.type === "request" ? "active" : ""}`}
-            onClick={() => setEditModal((prev) => ({ ...prev, type: "request" }))}
-          >
-            Demande
-          </div>
-          <div className={`switch-indicator ${editModal.type}`}></div>
         </div>
-        <textarea
-          value={editModal.description}
-          onChange={(e) => setEditModal((prev) => ({ ...prev, description: e.target.value }))}
-          className="publication-textarea"
-          placeholder="Description"
-          autoFocus
-        />
-        <div className="modal-actions">
-          <button type="button" className="cancel-btn" onClick={() => setEditModal(null)}>
-            Annuler
-          </button>
-          <button type="submit" className="submit-btn">
-            Enregistrer
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 };
