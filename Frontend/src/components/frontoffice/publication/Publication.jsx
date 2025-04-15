@@ -6,7 +6,7 @@ import "./Publication.scss";
 import { FaPaperPlane, FaEllipsisH } from "react-icons/fa";
 import ChatComponent from "../chatcomponent/chatcomponent";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import GoogleTranslate from "./GoogleTranslate";
 const Publication = () => {
   const [publications, setPublications] = useState([]);
   const [archivedPublications, setArchivedPublications] = useState([]); // Nouvel état pour les publications archivées
@@ -559,6 +559,7 @@ const Publication = () => {
   return (
     <div className="publications-container">
       <div className="create-publication">
+      <GoogleTranslate/>
         <form onSubmit={handleSubmit}>
           <div className="create-publication-header">
             <img
@@ -899,52 +900,55 @@ const Publication = () => {
         </div>
       )}
 
-      {editModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h2>Modifier la publication</h2>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleUpdatePublication(editModal._id, {
-                  type: editModal.type,
-                  description: editModal.description,
-                });
-              }}
-            >
-              <div className="publication-type-switch">
-                <div
-                  className={`switch-option ${editModal.type === "offer" ? "active" : ""}`}
-                  onClick={() => setEditModal((prev) => ({ ...prev, type: "offer" }))}
-                >
-                  Offre
-                </div>
-                <div
-                  className={`switch-option ${editModal.type === "request" ? "active" : ""}`}
-                  onClick={() => setEditModal((prev) => ({ ...prev, type: "request" }))}
-                >
-                  Demande
-                </div>
-                <div className={`switch-indicator ${editModal.type}`}></div>
-              </div>
-              <textarea
-                value={editModal.description}
-                onChange={(e) => setEditModal((prev) => ({ ...prev, description: e.target.value }))}
-                placeholder="Description"
-                className="publication-textarea"
-              />
-              <div className="modal-actions">
-                <button type="submit" className="submit-btn">
-                  Enregistrer
-                </button>
-                <button type="button" className="cancel-btn" onClick={() => setEditModal(null)}>
-                  Annuler
-                </button>
-              </div>
-            </form>
+{editModal && (
+  <div className="modal-overlay">
+    <div className="modal modal-edit-publication">
+      <div className="modal-header">
+        <h2>Modifier la publication</h2>
+      </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleUpdatePublication(editModal._id, {
+            type: editModal.type,
+            description: editModal.description,
+          });
+        }}
+      >
+        <div className="publication-type-switch">
+          <div
+            className={`switch-option ${editModal.type === "offer" ? "active" : ""}`}
+            onClick={() => setEditModal((prev) => ({ ...prev, type: "offer" }))}
+          >
+            Offre
           </div>
+          <div
+            className={`switch-option ${editModal.type === "request" ? "active" : ""}`}
+            onClick={() => setEditModal((prev) => ({ ...prev, type: "request" }))}
+          >
+            Demande
+          </div>
+          <div className={`switch-indicator ${editModal.type}`}></div>
         </div>
-      )}
+        <textarea
+          value={editModal.description}
+          onChange={(e) => setEditModal((prev) => ({ ...prev, description: e.target.value }))}
+          className="publication-textarea"
+          placeholder="Description"
+          autoFocus
+        />
+        <div className="modal-actions">
+          <button type="button" className="cancel-btn" onClick={() => setEditModal(null)}>
+            Annuler
+          </button>
+          <button type="submit" className="submit-btn">
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
     </div>
   );
 };
