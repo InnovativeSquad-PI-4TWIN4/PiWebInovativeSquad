@@ -2,13 +2,14 @@
   background: white;
   border-radius: 12px;
   padding: 2rem;
-  max-width: 500px;
-  width: 90%;
   max-height: 90vh;         // ✅ limite la hauteur
   overflow-y: auto;         // ✅ active le scroll vertical
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
   position: relative;
   z-index: 1001;
+  width: 90vw;
+  max-width: 1000px;
+  
 }
 .exam-question-block {
   margin-bottom: 1rem;
