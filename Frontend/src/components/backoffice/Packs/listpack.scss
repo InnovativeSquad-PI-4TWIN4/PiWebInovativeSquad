@@ -1,152 +1,221 @@
 $primary-color: #007bff;
-$secondary-color: #f8f9fa;
-$dark-color: #343a40;
-$card-shadow: rgba(0, 0, 0, 0.15);
-$hover-shadow: rgba(0, 0, 0, 0.25);
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$success-color: #28a745;
+$light-gray: #f8f9fa;
+$dark: #343a40;
+$shadow: rgba(0, 0, 0, 0.1);
 
-.packs-container {
+.pack-admin-container {
   padding: 2rem;
-  background-color: #f4f4f4;
 
-  .section-title {
-    text-align: center;
-    font-size: 2rem;
+  .header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 2rem;
-    color: $dark-color;
-  }
 
-  .add-pack-button {
-    display: block;
-    margin: 0 auto 2rem auto;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    background-color: $primary-color;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    h2 {
+      font-size: 1.8rem;
+      color: $dark;
+    }
 
-    &:hover {
-      background-color: darken($primary-color, 10%);
-      transform: scale(1.05);
+    .btn-add {
+      background-color: $primary-color;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.3rem;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: darken($primary-color, 10%);
+        transform: scale(1.03);
+      }
     }
   }
 
-  .packs-grid {
+  .pack-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
   }
 
   .pack-card {
-    background-color: #fff;
+    background-color: white;
     border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px $card-shadow;
+    padding: 1.2rem;
+    box-shadow: 0 4px 8px $shadow;
     position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.3s ease;
 
     &:hover {
       transform: translateY(-5px);
-      box-shadow: 0 6px 15px $hover-shadow;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     }
 
-    .discount-badge {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: #ff4757;
-      color: white;
-      padding: 0.25rem 0.75rem;
-      border-radius: 5px;
-      font-weight: bold;
-      font-size: 0.85rem;
-    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
 
-    .pack-icon {
-      text-align: center;
-      img {
-        width: 40px;
-        height: 40px;
-        margin-top: 0.5rem;
+      .category-badge {
+        background: $light-gray;
+        color: $dark;
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        font-weight: bold;
+      }
+
+      .label-premium {
+        background-color: orange;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: bold;
+        padding: 0.3rem 0.6rem;
+        border-radius: 5px;
       }
     }
 
     .pack-title {
-      margin: 1rem 0 0.5rem;
-      font-size: 1.3rem;
-      color: $dark-color;
+      font-size: 1.2rem;
       font-weight: bold;
-      text-align: center;
+      margin: 0.5rem 0;
     }
 
-    .pack-content {
+    .author {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .pack-desc {
       font-size: 0.95rem;
       color: #555;
-      margin: 0.5rem 0;
-      line-height: 1.4;
+      margin-bottom: 1rem;
     }
 
-    .pack-price {
-      font-size: 0.95rem;
-      margin-top: 1rem;
-      p {
-        margin: 0.25rem 0;
+    .price-box {
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+
+      .original {
+        text-decoration: line-through;
+        color: #888;
+      }
+
+      .discounted {
+        color: $success-color;
+        font-weight: bold;
       }
     }
 
-    .pack-actions {
+    .card-actions {
       display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 1rem;
+      gap: 0.5rem;
 
-      .action-icon {
-        font-size: 1.2rem;
+      button {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.6rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.9rem;
         cursor: pointer;
-        color: $primary-color;
-        transition: color 0.2s, transform 0.2s;
+        transition: all 0.3s ease;
+      }
+
+      .btn-edit {
+        background-color: $warning-color;
+        color: #000;
 
         &:hover {
-          color: darken($primary-color, 10%);
-          transform: scale(1.1);
+          background-color: darken($warning-color, 10%);
         }
+      }
 
-        &:nth-child(2) {
-          color: #dc3545;
+      .btn-delete {
+        background-color: $danger-color;
+        color: #fff;
 
-          &:hover {
-            color: darken(#dc3545, 10%);
-          }
+        &:hover {
+          background-color: darken($danger-color, 10%);
         }
       }
     }
   }
+}
+.pack-card {
+  border-radius: 10px;
+  padding: 1.5rem;
+  color: #333;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: 0.3s ease;
+  position: relative;
 
-  .add-pack-modal,
-  .update-pack-modal {
-    background: white;
-    border-radius: 12px;
-    padding: 2rem;
-    max-width: 500px;
-    margin: auto;
+  &.category-premium {
+    border-left: 5px solid #a3f958;
+    background-color: #fff7e6;
   }
 
-  .modal-overlay {
-    background-color: rgba(0, 0, 0, 0.5);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
+  &.category-gold {
+    border-left: 5px solid #ffd000;
+    background-color: #fffde7;
   }
+
+  &.category-silver {
+    border-left: 5px solid #9e9e9e;
+    background-color: #f5f5f5;
+  }
+
+  &.category-basic {
+    border-left: 5px solid #007bff;
+    background-color: #e7f1ff;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// .badge-premium {
+//   border: 2px dashed orange;
+//   box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+// }
+
+// .badge-gold {
+//   border: 2px dashed gold;
+// }
+
+// .badge-silver {
+//   border: 2px dashed silver;
+// }
+.add-pack-modal {
+  max-height: 90vh;
+  overflow-y: auto;
+  padding-right: 1rem; // espace pour le scroll
+
+  
+}
+.add-pack-form {
+  max-height: 75vh;
+  overflow-y: auto;
+  padding-right: 1rem;
+
 }

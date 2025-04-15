@@ -1,144 +1,110 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import AddPacks from "./packs"; // Importez le formulaire AddPacks
-import { FaEdit, FaTrash } from "react-icons/fa"; // Importation des icônes pour modifier et supprimer
-import Modal from "react-modal"; // Importation de react-modal
-import UpdatePackForm from "./updatepack"; // Importer le formulaire de mise à jour
+import AddPacks from "./packs";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import Modal from "react-modal";
+import UpdatePackForm from "./updatepack";
+import "./listpack.scss";
 
-Modal.setAppElement("#root"); // Nécessaire pour le bon fonctionnement de react-modal
+Modal.setAppElement("#root");
 
 const PackAdmin = () => {
   const [packs, setPacks] = useState([]);
   const [isAddPackOpen, setIsAddPackOpen] = useState(false);
-  const [isUpdatePackOpen, setIsUpdatePackOpen] = useState(false); // Gestion de l'ouverture du formulaire de mise à jour
-  const [selectedPack, setSelectedPack] = useState(null); // Le pack sélectionné à modifier
+  const [isUpdatePackOpen, setIsUpdatePackOpen] = useState(false);
+  const [selectedPack, setSelectedPack] = useState(null);
 
   useEffect(() => {
-    // Récupérer les packs depuis l'API
     axios
       .get("http://localhost:3000/packs/getAllPacks")
-      .then((response) => {
-        setPacks(response.data);
-      })
-      .catch((error) => console.error("Erreur lors du chargement des packs:", error));
+      .then((response) => setPacks(response.data))
+      .catch((error) => console.error("Erreur chargement packs:", error));
   }, []);
 
-  const getBackgroundColor = (category) => {
-    switch (category) {
-      case "premium":
-        return "#f8d7da"; // Rose clair
-      case "gold":
-        return "#84e8d1"; // Vert
-      case "silver":
-        return "#cce5ff"; // Bleu clair
-      default:
-        return "#ffffff";
-    }
-  };
-
-  const openAddPackForm = () => {
-    setIsAddPackOpen(true); // Ouvre le formulaire d'ajout de pack
-  };
-
-  const closeAddPackForm = () => {
-    setIsAddPackOpen(false); // Ferme le formulaire d'ajout de pack
-  };
-
+  const openAddPackForm = () => setIsAddPackOpen(true);
+  const closeAddPackForm = () => setIsAddPackOpen(false);
   const openUpdatePackForm = (pack) => {
-    setSelectedPack(pack); // Définir le pack à modifier
-    setIsUpdatePackOpen(true); // Ouvre le formulaire de mise à jour
+    setSelectedPack(pack);
+    setIsUpdatePackOpen(true);
   };
-
   const closeUpdatePackForm = () => {
-    setSelectedPack(null); // Réinitialiser le pack sélectionné
-    setIsUpdatePackOpen(false); // Ferme le formulaire de mise à jour
+    setSelectedPack(null);
+    setIsUpdatePackOpen(false);
   };
 
-  const calculateDiscountedPrice = (price, discount) => {
-    return price - (price * discount) / 100;
-  };
+  const calculateDiscountedPrice = (price, discount) => price - (price * discount) / 100;
 
   const handleDeletePack = (id) => {
     axios
       .delete(`http://localhost:3000/packs/deletePack/${id}`)
-      .then((response) => {
+      .then(() => {
         setPacks(packs.filter((pack) => pack.id !== id));
-        console.log("Pack supprimé avec succès");
+        console.log("Pack supprimé");
       })
-      .catch((error) => console.error("Erreur lors de la suppression du pack:", error));
+      .catch((error) => console.error("Erreur suppression:", error));
+  };
+
+  const getBadgeColor = (category) => {
+    switch (category) {
+      case "premium": return "badge-premium";
+      case "gold": return "badge-gold";
+      case "silver": return "badge-silver";
+      default: return "badge-default";
+    }
   };
 
   return (
-    <div className="packs-container">
-      <h2 className="section-title">Liste des Packs</h2>
+    <div className="pack-admin-container">
+      <div className="header-actions">
+        <h2>Packs Management</h2>
+        <button className="btn-add" onClick={openAddPackForm}>+ ADD pack</button>
+      </div>
 
-      {/* Bouton pour ouvrir le formulaire d'ajout */}
-      <button className="add-pack-button" onClick={openAddPackForm}>
-        Ajouter un nouveau pack
-      </button>
-
-      {/* Affiche le formulaire AddPacks dans un modal */}
       <Modal
         isOpen={isAddPackOpen}
         onRequestClose={closeAddPackForm}
-        contentLabel="Ajouter un nouveau pack"
-        className="add-pack-modal"
+        className="modal-form"
         overlayClassName="modal-overlay"
       >
         <AddPacks onClose={closeAddPackForm} />
       </Modal>
 
-      <div className="packs-grid">
+      <div className="pack-grid">
         {packs.map((pack) => {
-          const discountedPrice = calculateDiscountedPrice(pack.price, pack.discount);
-
+          const discounted = calculateDiscountedPrice(pack.price, pack.discount);
           return (
-            <div key={pack.id} className="pack-card" style={{ backgroundColor: getBackgroundColor(pack.category) }}>
-              <div className="discount-badge">-{pack.discount}%</div>
-              <div className="pack-icon">
-                <h3 className="pack-title">{pack.category}</h3>
-                <img src={`/assets/icons/${pack.icon}`} alt="Pack Icon" />
+<div key={pack.id} className={`pack-card category-${pack.category}`}>
+<div className="card-header">
+                <span className="category-badge">{pack.category}</span>
+                {pack.category === "premium" && <span className="label-premium">PREMIUM</span>}
               </div>
               <h3 className="pack-title">{pack.title}</h3>
-
-              <p className="pack-content">
-                <strong>Contenu :</strong> {pack.description}
-              </p>
-
-              <div className="pack-price">
-                <p>
-                  <strong>Prix initial :</strong> {pack.price}DT
-                </p>
-                <p>
-                  <strong>Prix après réduction :</strong> {discountedPrice.toFixed(2)}DT
-                </p>
+              <p className="author">Ajouté par : <strong>{pack.addedBy || "Inconnu"}</strong></p>
+              <p className="pack-desc">{pack.description}</p>
+              <div className="price-box">
+                <p className="original">{pack.price} DT</p>
+                <p className="discounted">{discounted.toFixed(2)} DT</p>
               </div>
-
-              <div className="pack-actions">
-                {/* Icône pour modifier */}
-                <FaEdit className="action-icon" onClick={() => openUpdatePackForm(pack)} />
-
-                {/* Icône pour supprimer */}
-                <FaTrash className="action-icon" onClick={() => handleDeletePack(pack.id)} />
+              <div className="card-actions">
+                <button className="btn-edit" onClick={() => openUpdatePackForm(pack)}>
+                  <FaEdit /> Modifier
+                </button>
+                <button className="btn-delete" onClick={() => handleDeletePack(pack.id)}>
+                  <FaTrash /> Supprimer
+                </button>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Formulaire de mise à jour dans un modal */}
       <Modal
         isOpen={isUpdatePackOpen}
         onRequestClose={closeUpdatePackForm}
-        contentLabel="Mise à jour du pack"
-        className="update-pack-modal"
+        className="modal-form"
         overlayClassName="modal-overlay"
       >
-        <UpdatePackForm
-          pack={selectedPack}
-          onClose={closeUpdatePackForm}
-          onUpdatePack={setPacks}
-        />
+        <UpdatePackForm pack={selectedPack} onClose={closeUpdatePackForm} onUpdatePack={setPacks} />
       </Modal>
     </div>
   );

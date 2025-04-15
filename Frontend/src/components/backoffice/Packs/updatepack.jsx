@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import "./updatepack.scss";
 const UpdatePackForm = ({ pack, onClose, onUpdatePack }) => {
   const [formData, setFormData] = useState({
     title: "",
@@ -44,8 +44,8 @@ const UpdatePackForm = ({ pack, onClose, onUpdatePack }) => {
   };
 
   return (
-    <div>
-      <h2>Mise à jour du pack</h2>
+<div className="update-pack-container">
+<h2>Mise à jour du pack</h2>
       <form onSubmit={handleSubmit}>
         <label>Titre :</label>
         <input
