@@ -152,6 +152,13 @@
     padding: 10px;
     border-right: 1px solid #ffffff;
 }
+.message-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
 
 .search-bar {
     width: 100%;

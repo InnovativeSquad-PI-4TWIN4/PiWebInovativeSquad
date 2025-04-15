@@ -393,66 +393,71 @@ const Messenger = () => {
                             {messages.map((msg) => (
                                 
                                 <div key={msg._id} className={msg.sender._id === userId ? "message sent" : "message received"}>
-  
-   <small className="timestamp">
-        {formatDistanceToNow(new Date(msg.timestamp), { addSuffix: true })}
-      </small>
-    <div className="message-row">
-    
-        {msg.sender._id === userId && (
-            <button className="delete-float-btn" onClick={() => handleDeleteMessage(msg._id)}>
-                <MdDeleteForever size={22} />
-            </button>
-        )}
-       <div className={`message-content ${msg.sender._id === userId ? "sent" : "received"}`}>
-            <p>{msg.sender._id === userId ? "You" : msg.sender.name}</p>
-           
-            {editingMessage === msg._id ? (
-  <input
-    type="text"
-    value={editedText}
-    onChange={(e) => setEditedText(e.target.value)}
-    onKeyDown={(e) => {
-      if (e.key === "Enter") {
-        saveEditedMessage(msg._id);
-      }
-    }}
-    onBlur={() => setEditingMessage(null)}
-    autoFocus
-  />
-) : (
-  <>
-    <h4>{msg.content}</h4>
-    {/* 👇 Bouton affiché uniquement si msg.sender === userId */}
-    {msg.sender._id === userId && (
-      <button
-        onClick={() => {
-          setEditingMessage(msg._id);
-          setEditedText(msg.content);
-        }}
-        className="edit-icon-btn"
-      >
-        <FiEdit2 size={12} />
-      </button>
-    )}
-  </>
-)}
-
-            {msg.sender._id === userId && (
-                <span className={msg.read ? "read" : "unread"}>
-                    {msg.read ? "seen ✔✔" : "✔"}
-                </span>
-            )}
-        </div>
-    </div>
-</div>
+                                <small className="timestamp">{formatDistanceToNow(new Date(msg.timestamp), { addSuffix: true })}</small>
+                              
+                                <div className="message-row">
+                                  {msg.sender._id !== userId && (
+                                    <img
+                                      src={msg.sender.image ? `http://localhost:3000${msg.sender.image}` : "/default-profile.png"}
+                                      alt="sender"
+                                      className="message-avatar"
+                                    />
+                                  )}
+                              
+                                  <div className={`message-content ${msg.sender._id === userId ? "sent" : "received"}`}>
+                                    <p>{msg.sender._id === userId ? "You" : msg.sender.name}</p>
+                              
+                                    {editingMessage === msg._id ? (
+                                      <input
+                                        type="text"
+                                        value={editedText}
+                                        onChange={(e) => setEditedText(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && saveEditedMessage(msg._id)}
+                                        onBlur={() => setEditingMessage(null)}
+                                        autoFocus
+                                      />
+                                    ) : (
+                                      <>
+                                        <h4>{msg.content}</h4>
+                                        {msg.sender._id === userId && (
+                                          <button
+                                            onClick={() => {
+                                              setEditingMessage(msg._id);
+                                              setEditedText(msg.content);
+                                            }}
+                                            className="edit-icon-btn"
+                                          >
+                                            <FiEdit2 size={12} />
+                                          </button>
+                                        )}
+                                      </>
+                                    )}
+                              
+                                    {msg.sender._id === userId && (
+                                      <span className={msg.read ? "read" : "unread"}>
+                                        {msg.read ? "seen ✔✔" : "✔"}
+                                      </span>
+                                    )}
+                                  </div>
+                              
+                                  {msg.sender._id === userId && (
+                                    <img
+                                      src={msg.sender.image ? `http://localhost:3000${msg.sender.image}` : "/default-profile.png"}
+                                      alt="sender"
+                                      className="message-avatar"
+                                    />
+                                  )}
+                                </div>
+                              </div>
+                              
+                              
 
                                 
                             ))}
                         </div>
                         {isTyping && typingUser && (
   <div className="typing-indicator">
-    {typingUser} est en train d’écrire...
+    {typingUser} is writing...
   </div>
 )}
 
