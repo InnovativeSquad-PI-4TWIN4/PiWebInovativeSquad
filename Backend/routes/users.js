@@ -52,25 +52,22 @@ router.get("/certificates/:userId", async (req, res) => {
       return res.status(200).json([]); // ✅ même si vide, la route renvoie un tableau
     }
 
-  });
-  router.get("/test-email", async (req, res) => {
-    const { sendEmail } = require("../controllers/userController");
-    const success = await sendEmail(
-      "ton.email@gmail.com",
-      "Test depuis SkillBridge",
-      "<p>🎉 Ceci est un test d'email envoyé depuis la nouvelle configuration !</p>"
-    );
-    res.send(success ? "Email envoyé ✅" : "Échec ❌");
-  });
-  
-
-
-    res.status(200).json(user.certificates);
+    res.status(200).json(user.certificates); // ✅ Ceci doit être à l’intérieur du try
   } catch (error) {
     res.status(500).json({ message: "Erreur récupération certificats", error });
   }
 });
 
+// ✅ Route de test email déplacée hors du bloc précédent
+router.get("/test-email", async (req, res) => {
+  const { sendEmail } = require("../controllers/userController");
+  const success = await sendEmail(
+    "ton.email@gmail.com",
+    "Test depuis SkillBridge",
+    "<p>🎉 Ceci est un test d'email envoyé depuis la nouvelle configuration !</p>"
+  );
+  res.send(success ? "Email envoyé ✅" : "Échec ❌");
+});
 
   
   
