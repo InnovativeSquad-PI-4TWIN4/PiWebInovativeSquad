@@ -7,6 +7,11 @@ import { formatDistanceToNow } from 'date-fns';
 import { io } from "socket.io-client";
 
 const Messenger = () => {
+    const recognitionRef = useRef(null);
+    const [isRecording, setIsRecording] = useState(false);
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = SpeechRecognition ? new SpeechRecognition() : null;
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -15,7 +20,7 @@ const Messenger = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [typingUser, setTypingUser] = useState(null); // ✅ Ajout de typingUser
     const [onlineUsers, setOnlineUsers] = useState([]);
-
+   
     const token = localStorage.getItem("token");
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const userId = storedUser?.id || localStorage.getItem("userId");
@@ -28,6 +33,32 @@ const Messenger = () => {
 
     
     useEffect(() => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert("La reconnaissance vocale n'est pas prise en charge par ce navigateur.");
+    return;
+  }
+
+  recognitionRef.current = new SpeechRecognition();
+  recognitionRef.current.continuous = false;
+  recognitionRef.current.interimResults = false;
+  recognitionRef.current.lang = "fr-FR";
+
+  recognitionRef.current.onresult = (event) => {
+    const speechToText = event.results[0][0].transcript;
+    console.log("📝 Texte dicté :", speechToText);
+    setMessageText(prev => prev + " " + speechToText); // ✅ cette ligne ajoute bien le texte
+  };
+
+  recognitionRef.current.onend = () => {
+    setIsRecording(false);
+    console.log("🎤 Reconnaissance terminée.");
+  };
+
+  recognitionRef.current.onerror = (event) => {
+    console.error("❌ Erreur de reconnaissance vocale :", event.error);
+    setIsRecording(false);
+  };
         socket.current = io("http://localhost:3000");
 
         if (!socket.current) return;
@@ -50,7 +81,10 @@ const Messenger = () => {
             console.log("Utilisateurs en ligne :", onlineUserIds);
             setOnlineUsers(onlineUserIds.map(id => id.toString()));
         });
-
+        
+              
+           
+          
         const fetchUsers = async () => {
             try {
                 const response = await fetch("http://localhost:3000/users/getAllUsers", {
@@ -86,7 +120,27 @@ const Messenger = () => {
     const isUserOnline = (userIdToCheck) => {
         return onlineUsers.includes(userIdToCheck.toString());
     };
-
+    const startListening = () => {
+        if (!recognitionRef.current) return;
+      
+        if (isRecording) {
+          console.warn("Reconnaissance déjà en cours...");
+          return;
+        }
+      
+        try {
+          setIsRecording(true);
+          recognitionRef.current.start();
+          console.log("🎙️ Démarrage de la reconnaissance vocale...");
+        } catch (err) {
+          console.warn("Erreur lors du démarrage :", err.message);
+          setIsRecording(false);
+        }
+      };
+      
+      
+      
+      
     // ✅ Fetch unread message counts
     const fetchUnreadCounts = async () => {
         if (!userId) return;
@@ -335,6 +389,19 @@ const Messenger = () => {
                                                                   
                                 placeholder="Write a message..."
                             />
+{/* <button onClick={startListening} className="mic-button">
+  {isRecording ? "🎤 Enregistrement..." : "🎙️"}
+</button> */}
+<button
+  onClick={startListening}
+  className={`mic-button ${isRecording ? "recording" : ""}`}
+  title={isRecording ? "Enregistrement en cours..." : "Démarrer la dictée vocale"}
+>
+  {isRecording ? "🎤" : "🎙️"}
+</button>
+
+
+
                             <button onClick={sendMessage}>Send</button>
                         </div>
                     </>
