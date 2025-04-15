@@ -40,7 +40,10 @@ exports.getConversationMessages = async (req, res) => {
     try {
         const messages = await Message.find({ conversationId })
             .sort({ createdAt: 1 })
-            .populate("sender receiver", "username profilePicture");
+            .populate("sender receiver", "username profilePicture")
+            .populate('sender', 'name surname image') // 👈 ajoute image ici
+      .populate('receiver', 'name surname image'); // 👈 facultatif mais conseillé
+
 
  // ✅ Mettre les messages reçus comme "lus"
         await Message.updateMany(
