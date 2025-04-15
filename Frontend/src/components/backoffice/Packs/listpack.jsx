@@ -76,7 +76,6 @@ const PackAdmin = () => {
 <div key={pack.id} className={`pack-card category-${pack.category}`}>
 <div className="card-header">
                 <span className="category-badge">{pack.category}</span>
-                {pack.category === "premium" && <span className="label-premium">PREMIUM</span>}
               </div>
               <h3 className="pack-title">{pack.title}</h3>
               <p className="author">Ajouté par : <strong>{pack.addedBy || "Inconnu"}</strong></p>
