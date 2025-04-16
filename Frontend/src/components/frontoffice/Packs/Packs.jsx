@@ -10,33 +10,32 @@ const Packs = () => {
   const [selectedPack, setSelectedPack] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [abonnements, setAbonnements] = useState([]);
-
+  const [subscriptions, setSubscriptions] = useState([]);
 
   useEffect(() => {
-    const fetchUserAbonnement = async () => {
+    const fetchUserSubscription = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
-  
+
       try {
         const response = await axios.get("http://localhost:3000/users/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
-  
-        setAbonnements(response.data.user.abonnement || []);
+
+        setSubscriptions(response.data.user.abonnement || []);
       } catch (error) {
-        console.error("Erreur lors du chargement du profil :", error);
+        console.error("Error loading profile:", error);
       }
     };
-  
-    fetchUserAbonnement();
+
+    fetchUserSubscription();
+
     axios
       .get("http://localhost:3000/packs/getAllPacks")
       .then((response) => setPacks(response.data))
-      .catch((error) => console.error("Erreur lors du chargement des packs:", error));
+      .catch((error) => console.error("Error loading packs:", error));
   }, []);
 
-  
   const getBackgroundColor = (category) => {
     switch (category) {
       case "premium":
@@ -63,20 +62,19 @@ const Packs = () => {
     setModalIsOpen(false);
     setSelectedPack(null);
   };
-const isPackPurchased = (packId) => {
-  return abonnements.some((id) => id === packId || id._id === packId);
-};
+
+  const isPackPurchased = (packId) => {
+    return subscriptions.some((id) => id === packId || id._id === packId);
+  };
 
   const handleBuyPack = async () => {
     if (!selectedPack) return;
-
     setLoading(true);
 
     try {
       const token = localStorage.getItem("token");
-
       if (!token) {
-        alert("Utilisateur non authentifié !");
+        alert("User not authenticated!");
         setLoading(false);
         return;
       }
@@ -92,10 +90,10 @@ const isPackPurchased = (packId) => {
         }
       );
 
-      alert(response.data.message || "Achat réussi !");
+      alert(response.data.message || "Purchase successful!");
       closeModal();
     } catch (error) {
-      alert(error.response?.data?.message || "Erreur lors de l'achat !");
+      alert(error.response?.data?.message || "Error during purchase!");
     } finally {
       setLoading(false);
     }
@@ -103,7 +101,7 @@ const isPackPurchased = (packId) => {
 
   return (
     <div className="packs-container">
-      <h1 className="section-title">Explorez Nos Offres</h1>
+      <h1 className="section-title">Explore Our Offers</h1>
       <div className="packs-grid">
         {packs.map((pack) => (
           <div
@@ -116,15 +114,13 @@ const isPackPurchased = (packId) => {
             <div className="pack-icon">📚</div>
             <h3 className="pack-title">{pack.title}</h3>
             <p className="pack-content">
-              <strong>Contenu :</strong> {pack.description}
+              <strong>Content:</strong> {pack.description}
             </p>
             <div className="pack-price">
-              <p><strong>Prix initial :</strong> {pack.price}DT</p>
+              <p><strong>Original price:</strong> {pack.price} DT</p>
               <p className="discounted-price">
-                <strong>Prix après réduction :</strong> {getDiscountedPrice(pack.price, pack.discount).toFixed(2)}DT
+                <strong>After discount:</strong> {getDiscountedPrice(pack.price, pack.discount).toFixed(2)} DT
               </p>
-   
-
             </div>
           </div>
         ))}
@@ -139,41 +135,36 @@ const isPackPurchased = (packId) => {
       >
         {selectedPack && (
           <>
-                        <button onClick={closeModal} className="close-button">X</button>
+            <button onClick={closeModal} className="close-button">X</button>
 
             <h2 className="modal-title">{selectedPack.title}</h2>
             <div className="modal-content">
-              <p><strong>Description :</strong> {selectedPack.description}</p>
-              <p><strong>Catégorie :</strong> {selectedPack.category}</p>
-              <p><strong>Prix initial :</strong> {selectedPack.price}DT</p>
-              <p><strong>Réduction :</strong> {selectedPack.discount}%</p>
-              <p><strong>Prix après réduction :</strong> {getDiscountedPrice(selectedPack.price, selectedPack.discount).toFixed(2)}DT</p>
+              <p><strong>Description:</strong> {selectedPack.description}</p>
+              <p><strong>Category:</strong> {selectedPack.category}</p>
+              <p><strong>Original price:</strong> {selectedPack.price} DT</p>
+              <p><strong>Discount:</strong> {selectedPack.discount}%</p>
+              <p><strong>Price after discount:</strong> {getDiscountedPrice(selectedPack.price, selectedPack.discount).toFixed(2)} DT</p>
 
               {isPackPurchased(selectedPack._id) ? (
-  <button 
-    className="buy-button"
-    onClick={() => window.location.href = `/pack/${selectedPack._id}`}
-  >
-    Voir le Pack
-  </button>
-) : (
-  <button 
-    className="buy-button"
-    onClick={handleBuyPack}
-    disabled={loading}
-  >
-    {loading ? "Wait secondes please..." : "Buy Now"}
-  </button>
-  
-)}
-              
-
+                <button 
+                  className="buy-button"
+                  onClick={() => window.location.href = `/pack/${selectedPack._id}`}
+                >
+                  View Pack
+                </button>
+              ) : (
+                <button 
+                  className="buy-button"
+                  onClick={handleBuyPack}
+                  disabled={loading}
+                >
+                  {loading ? "Please wait..." : "Buy Now"}
+                </button>
+              )}
             </div>
-            
           </>
         )}
       </Modal>
-
     </div>
   );
 };
