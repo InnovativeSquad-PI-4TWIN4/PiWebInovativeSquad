@@ -113,7 +113,7 @@ const PackProgress = ({ packId }) => {
       {allPdfsOpened && existingScore && (
         <div className="exam-score-display">
           <hr />
-          <p>🎓 Vous avez déjà passé l'examen. Score obtenu : <strong>{existingScore}</strong></p>
+          <p>🎓 You had already passed the exam. Mark  : <strong>{existingScore}</strong></p>
         </div>
       )}
 
@@ -121,7 +121,7 @@ const PackProgress = ({ packId }) => {
         <div className="exam-section">
           <hr />
           <button className="start-exam-btn" onClick={() => setShowExam(true)}>
-            🎓 Commencer l'examen
+            🎓 Start Exam
           </button>
         </div>
       )}
