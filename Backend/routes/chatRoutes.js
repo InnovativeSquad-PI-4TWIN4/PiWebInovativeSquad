@@ -14,11 +14,11 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-router.post('/create', authenticateUser, chatController.createChat);
-router.post('/send/:publicationId', authenticateUser, chatController.sendMessage);
-router.get('/getMessages/:publicationId', authenticateUser, chatController.getMessages);
-router.post('/upload', authenticateUser, upload.single('file'), chatController.uploadFile);
-router.get('/notifications', authenticateUser, chatController.getNotifications); // Nouvelle route
-router.post('/notifications/:notificationId/read', authenticateUser, chatController.markNotificationAsRead);
+router.post('/create', authenticateUser, chatController.createChat); //M
+router.post('/send/:publicationId', authenticateUser, chatController.sendMessage); //M
+router.get('/getMessages/:publicationId', authenticateUser, chatController.getMessages); //M
+router.post('/upload', authenticateUser, upload.single('file'), chatController.uploadFile); //M
+router.get('/notifications', authenticateUser, chatController.getNotifications); // M
+router.post('/notifications/:notificationId/read', authenticateUser, chatController.markNotificationAsRead); //M
 
 module.exports = router;
