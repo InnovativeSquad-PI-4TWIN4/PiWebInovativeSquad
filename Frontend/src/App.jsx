@@ -42,7 +42,6 @@ import ExchangeRoom from './components/frontoffice/Packs/ExchangeRoom';
 import PackDetails from "./components/frontoffice/Packs/PackDetails"; 
 import ExamCertification from './components/frontoffice/exam/ExamCertification';
 import EmailVerification from './components/frontoffice/signup/EmailVerification';
-
 const App = () => {
   const [user, setUser] = useState(null);
 
@@ -130,6 +129,7 @@ useEffect(() => {
 
   return (
     <ThemeProvider>
+       <ToastContainer />
       <Router>
         {user?.role === "admin" ? (
           <AdminNavbar user={user} onLogout={handleLogout} />
