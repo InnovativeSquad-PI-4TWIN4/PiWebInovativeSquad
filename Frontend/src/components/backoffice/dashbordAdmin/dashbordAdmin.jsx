@@ -19,6 +19,8 @@ import ManageUsers from "../ManageUsers/ManageUsers";
 import ManageAdmins from "../ManageAdmins/ManageAdmin";
 import Coursesadmin from "../Courses/coursesAdmin";
 import PackAdmin from "../Packs/listpack";
+import Publications from "../Publications/publications";
+
 
 const DashbordAdmin = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -107,6 +109,7 @@ const DashbordAdmin = () => {
           <li className={activeTab === "manageAdmins" ? "active" : ""} onClick={() => setActiveTab("manageAdmins")}><FaUsers /> Manage Admins</li>
           <li className={activeTab === "coursesadmin" ? "active" : ""} onClick={() => setActiveTab("coursesadmin")}><FaChartBar /> Courses</li>
           <li className={activeTab === "PackAdmin" ? "active" : ""} onClick={() => setActiveTab("PackAdmin")}><FaChartBar /> Packs</li>
+          <li className={activeTab === "publications" ? "active" : ""} onClick={() => setActiveTab("publications")}><FaChartBar /> Publications</li>
           <li className={activeTab === "settings" ? "active" : ""} onClick={() => setActiveTab("settings")}><FaCog /> Settings</li>
         </ul>
       </div>
@@ -189,6 +192,7 @@ const DashbordAdmin = () => {
         {activeTab === "manageAdmins" && <ManageAdmins />} 
         {activeTab === "coursesadmin" && <Coursesadmin />} 
         {activeTab === "PackAdmin" && <PackAdmin />} 
+        {activeTab === "publications" && <Publications />} 
         {activeTab === "settings" && <div>Paramètres à venir...</div>}
       </div>
     </div>
