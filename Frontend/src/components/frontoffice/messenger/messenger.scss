@@ -383,4 +383,11 @@ button {
     }
   }
   
+  .emoji-picker {
+    position: absolute;
+    bottom: 70px;
+    left: 10px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
   

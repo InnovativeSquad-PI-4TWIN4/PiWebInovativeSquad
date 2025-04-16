@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { io } from "socket.io-client";
 import VideoCallComponent from "./VideoCall.jsx"; // ajuste le chemin si besoin
 import { FiEdit2 } from "react-icons/fi"; // ✒️ Icône moderne pour l’édition
+import EmojiPicker from "emoji-picker-react"; // ← à ajouter avec les autres imports
 
 const Messenger = () => {
     const recognitionRef = useRef(null);
@@ -24,7 +25,8 @@ const Messenger = () => {
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [editingMessage, setEditingMessage] = useState(null);
     const [editedText, setEditedText] = useState("");
-    
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
     const token = localStorage.getItem("token");
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const userId = storedUser?.id || localStorage.getItem("userId");
@@ -160,6 +162,10 @@ const Messenger = () => {
           console.warn("Erreur lors du démarrage :", err.message);
           setIsRecording(false);
         }
+      };
+      const handleEmojiClick = (emojiData) => {
+        setMessageText((prev) => prev + emojiData.emoji);
+        setShowEmojiPicker(false);
       };
       
       
@@ -517,7 +523,18 @@ const Messenger = () => {
 >
   {isRecording ? "🎤" : "🎙️"}
 </button>
-
+<button
+    className="mic-button"
+    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+    title="Ajouter un emoji"
+  >
+    😊
+  </button>
+  {showEmojiPicker && (
+    <div className="emoji-picker">
+      <EmojiPicker onEmojiClick={handleEmojiClick} />
+    </div>
+  )}
 
 
                             <button onClick={sendMessage}>Send</button>
