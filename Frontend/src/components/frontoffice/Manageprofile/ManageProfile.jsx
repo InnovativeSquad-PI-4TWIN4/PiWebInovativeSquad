@@ -105,7 +105,12 @@ const ManageProfile = () => {
       </div>
 
       <div className="user-info">
-        <h1>{user.name} {user.surname}</h1>
+      <h1>
+  {user.name} {user.surname}
+  {user.role === "client_approuve" && (
+    <FaCheckCircle style={{ color: "#1DA1F2", marginLeft: "8px" }} title="Verified User" />
+  )}
+</h1>
         <p>@{user.username || user.email?.split("@")[0]}</p>
         <p className="wallet-btn" onClick={() => setIsWalletOpen(true)}>
           <FaWallet /> {user.wallet} points
