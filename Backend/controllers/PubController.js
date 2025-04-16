@@ -76,9 +76,25 @@ exports.createPub = async (req, res) => {
 };
 
 // ➤ Mettre à jour une publication
+// ➤ Mettre à jour une publication
 exports.updatePub = async (req, res) => {
   try {
+    const userId = req.user.userId; // ID de l'utilisateur connecté
     const { type, description } = req.body;
+
+    const publication = await Publication.findById(req.params.id);
+    if (!publication) {
+      return res.status(404).json({ error: 'Publication non trouvée' });
+    }
+
+    // Vérifier que l'utilisateur est l'auteur de la publication
+    if (publication.user.toString() !== userId) {
+      return res.status(403).json({ error: 'Seul l\'auteur peut modifier cette publication' });
+    }
+
+    if (publication.isArchived) {
+      return res.status(403).json({ error: 'Cette publication est archivée et ne peut pas être modifiée' });
+    }
 
     const updatedPublication = await Publication.findByIdAndUpdate(
       req.params.id,
@@ -90,10 +106,6 @@ exports.updatePub = async (req, res) => {
       { new: true, runValidators: true }
     ).populate('user', 'name surname image');
 
-    if (!updatedPublication) {
-      return res.status(404).json({ error: 'Publication non trouvée' });
-    }
-
     res.status(200).json({ 
       message: 'Publication mise à jour avec succès', 
       publication: updatedPublication 
@@ -104,14 +116,22 @@ exports.updatePub = async (req, res) => {
 };
 
 // ➤ Supprimer une publication
+// ➤ Supprimer une publication
 exports.deletePub = async (req, res) => {
   try {
-    const publication = await Publication.findByIdAndDelete(req.params.id);
+    const userId = req.user.userId; // ID de l'utilisateur connecté
+    const publication = await Publication.findById(req.params.id);
 
     if (!publication) {
       return res.status(404).json({ error: 'Publication non trouvée' });
     }
 
+    // Vérifier que l'utilisateur est l'auteur de la publication
+    if (publication.user.toString() !== userId) {
+      return res.status(403).json({ error: 'Seul l\'auteur peut supprimer cette publication' });
+    }
+
+    await Publication.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Publication supprimée avec succès' });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -229,36 +249,36 @@ exports.addReply = async (req, res) => {
   try {
     const publicationId = req.params.id;
     const commentId = req.params.commentId;
-    const userId = req.user.userId;
+    const userId = req.user.userId; // Utilisateur connecté qui répond
     const { content } = req.body;
 
+    // Vérifier que le contenu de la réponse est valide
     if (!content || content.trim().length === 0) {
       return res.status(400).json({ error: 'Le contenu de la réponse est requis' });
     }
 
+    // Récupérer la publication
     const publication = await Publication.findById(publicationId);
     if (!publication) {
       return res.status(404).json({ error: 'Publication non trouvée' });
     }
 
-    // Vérifier si l'utilisateur est le créateur de la publication
-    if (publication.user.toString() !== userId) {
-      return res.status(403).json({ error: 'Seul le créateur de la publication peut répondre aux commentaires' });
-    }
-
+    // Récupérer le commentaire
     const comment = publication.comments.id(commentId);
     if (!comment) {
       return res.status(404).json({ error: 'Commentaire non trouvé' });
     }
 
+    // Ajouter la réponse au commentaire
     comment.replies.push({
       user: userId,
       content,
     });
 
+    // Sauvegarder les modifications
     await publication.save();
 
-    // Créer une notification pour l'auteur du commentaire
+    // Créer une notification pour l'auteur du commentaire (sauf si c'est lui-même qui répond)
     const commentOwnerId = comment.user.toString();
     console.log('Auteur du commentaire:', commentOwnerId, 'Utilisateur qui répond:', userId);
 
@@ -285,6 +305,7 @@ exports.addReply = async (req, res) => {
       console.log('Pas de notification créée: L\'utilisateur répond à son propre commentaire');
     }
 
+    // Récupérer la publication mise à jour avec les populate nécessaires
     const updatedPublication = await Publication.findById(publicationId)
       .populate('user', 'name surname image')
       .populate('comments.user', 'name surname image')
@@ -295,9 +316,11 @@ exports.addReply = async (req, res) => {
       publication: updatedPublication,
     });
   } catch (err) {
+    console.error('Erreur dans addReply:', err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // ➤ Récupérer toutes les notifications d'un utilisateur
 exports.getUserNotifications = async (req, res) => {
@@ -340,6 +363,86 @@ exports.markNotificationAsRead = async (req, res) => {
     res.status(200).json({ message: 'Notification marquée comme lue' });
   } catch (error) {
     console.error('Erreur lors de la mise à jour de la notification:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+// ➤ Statistiques des publications par type (offre vs demande)
+exports.getPublicationStats = async (req, res) => {
+  try {
+    const stats = await Publication.aggregate([
+      {
+        $group: {
+          _id: "$type", // "offer" ou "request"
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          type: "$_id",
+          count: 1,
+        },
+      },
+    ])
+
+    res.status(200).json(stats)
+  } catch (error) {
+    console.error("Erreur lors de l'agrégation des statistiques des publications :", error)
+    res.status(500).json({ error: error.message })
+  }
+};
+exports.archivePub = async (req, res) => {
+  try {
+    const userId = req.user.userId; // ID de l'utilisateur connecté
+    const publication = await Publication.findById(req.params.id);
+
+    if (!publication) {
+      return res.status(404).json({ error: 'Publication non trouvée' });
+    }
+
+    // Vérifier que l'utilisateur est l'auteur de la publication
+    if (publication.user.toString() !== userId) {
+      return res.status(403).json({ error: 'Seul l\'auteur peut archiver cette publication' });
+    }
+
+    publication.isArchived = true;
+    publication.updatedAt = Date.now();
+    await publication.save();
+
+    res.status(200).json({ message: 'Publication archivée avec succès' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getArchivedPub = async (req, res) => {
+  try {
+    const userId = req.user.userId; // ID de l'utilisateur connecté
+
+    const archivedPublications = await Publication.find({
+      user: userId, // Uniquement les publications de l'utilisateur connecté
+      isArchived: true, // Uniquement les publications archivées
+    })
+      .populate('user', 'name surname image')
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'user',
+          select: 'name surname image',
+        },
+      })
+      .populate({
+        path: 'comments.replies',
+        populate: {
+          path: 'user',
+          select: 'name surname image',
+        },
+      })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(archivedPublications);
+  } catch (error) {
+    console.error('Erreur dans getArchivedPub :', error);
     res.status(500).json({ error: error.message });
   }
 };

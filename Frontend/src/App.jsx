@@ -42,6 +42,11 @@ import ExchangeRoom from './components/frontoffice/Packs/ExchangeRoom';
 import PackDetails from "./components/frontoffice/Packs/PackDetails"; 
 import ExamCertification from './components/frontoffice/exam/ExamCertification';
 import EmailVerification from './components/frontoffice/signup/EmailVerification';
+import MyCareer from './components/frontoffice/MyCareer/MyCareer';
+import VerifyPending from './components/frontoffice/signup/VerifyPending';
+
+
+
 const App = () => {
   const [user, setUser] = useState(null);
 
@@ -181,6 +186,10 @@ useEffect(() => {
               <Route path="/messenger" element={<Messenger />} />
               <Route path="/auth/success" element={<AuthSuccess />} />
               <Route path="/verify-email/:token" element={<EmailVerification />} />
+              <Route path="/verify-pending" element={<VerifyPending />} />
+              <Route path="/mycareer" element={<MyCareer />} />
+
+
             </>
           )}
           <Route path="*" element={<Home />} />

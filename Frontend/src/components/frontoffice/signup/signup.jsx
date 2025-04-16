@@ -62,8 +62,10 @@ const SignUp = () => {
 
     try {
       const res = await axios.post('http://localhost:3000/users/signup', formData);
-      localStorage.setItem("token", res.data.token);
-      navigate('/signin');
+      alert("Inscription réussie ! Un email de vérification vous a été envoyé.");
+      navigate('/verify-pending');
+      
+
     } catch (err) {
       setError(err.response?.data?.message || "Signup failed.");
     }
