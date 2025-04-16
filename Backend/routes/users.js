@@ -35,7 +35,7 @@ router.post("/addAdmin", authenticateUser, isAdmin, userController.addAdmin);
 router.post("/rechargeAdmin", userController.rechargeSolde);
 router.post("/updateAdminPassword", userController.updateAdminPassword);
 
-router.get('/verify-email/:token', userController.verifyEmail);
+router.get('/verify-email/:token', userController.verifyEmail); //M
 router.get("/pdf-progress/:packId", authenticateUser,userController.getPdfProgress);
 router.post("/pdf-progress/:packId",authenticateUser, userController.savePdfProgress);
 
@@ -58,8 +58,8 @@ router.get("/certificates/:userId", async (req, res) => {
   }
 });
 
-// ✅ Route de test email déplacée hors du bloc précédent
-router.get("/test-email", async (req, res) => {
+//M
+router.get("/test-email", async (req, res) => {  
   const { sendEmail } = require("../controllers/userController");
   const success = await sendEmail(
     "ton.email@gmail.com",

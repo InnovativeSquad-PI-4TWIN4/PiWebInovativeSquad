@@ -76,7 +76,6 @@ exports.createPub = async (req, res) => {
 };
 
 // ➤ Mettre à jour une publication
-// ➤ Mettre à jour une publication
 exports.updatePub = async (req, res) => {
   try {
     const userId = req.user.userId; // ID de l'utilisateur connecté
