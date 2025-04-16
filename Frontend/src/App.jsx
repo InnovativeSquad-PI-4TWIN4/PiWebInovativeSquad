@@ -134,6 +134,7 @@ useEffect(() => {
 
   return (
     <ThemeProvider>
+       <ToastContainer />
       <Router>
         {user?.role === "admin" ? (
           <AdminNavbar user={user} onLogout={handleLogout} />

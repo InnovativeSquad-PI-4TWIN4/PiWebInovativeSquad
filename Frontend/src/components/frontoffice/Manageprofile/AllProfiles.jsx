@@ -65,7 +65,7 @@ const Profiles = ({ currentUserId }) => {
 >
   More about
 </button>
-    <button className="delete-btn">Supprimer</button>
+    <button className="delete-btn">Exchange</button>
   </div>
 </div>
 
