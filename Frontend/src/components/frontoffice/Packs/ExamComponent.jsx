@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import "./ExamComponent.scss";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Confetti from "react-confetti";
+import { useWindowSize } from "@react-hook/window-size";
 
 const ExamComponent = ({ exam = [], packId, onFinish }) => {
   const [answers, setAnswers] = useState({});
   const [score, setScore] = useState(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [width, height] = useWindowSize();
 
   const handleAnswer = (index, value) => {
     setAnswers({ ...answers, [index]: value });
@@ -31,28 +37,48 @@ const ExamComponent = ({ exam = [], packId, onFinish }) => {
         body: JSON.stringify({ score: finalScore }),
       });
 
+      const scorePercentage = (correct / exam.length) * 100;
+
       if (!res.ok) {
         const err = await res.json();
-        console.error("Erreur API :", err);
+        console.error("API error:", err);
       } else {
-        console.log("✅ Score enregistré avec succès !");
+        if (scorePercentage >= 70) {
+          toast.success(`🎉 Congrats! You passed the exam with ${scorePercentage.toFixed(0)}%!`, {
+            position: "top-right",
+            autoClose: 5000,
+          });
+
+          const celebrationSound = new Audio("/congrat.mp3");
+          celebrationSound.play();
+
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 10000);
+        } else {
+          toast.info(`😕 You got ${scorePercentage.toFixed(0)}%. Try again to pass!`, {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        }
       }
     } catch (error) {
-      console.error("❌ Erreur lors de l'enregistrement du score :", error);
+      console.error("❌ Error saving score:", error);
+      toast.error("An error occurred while saving your score.");
     }
   };
 
   if (!exam.length) {
-    return <p>Aucun examen n’est disponible pour ce pack.</p>;
+    return <p>No exam is available for this pack.</p>;
   }
 
   return (
     <div className="exam-container">
-      <h3>📝 Examen final du pack</h3>
+      {showConfetti && <Confetti width={width} height={height} />}
+      <h3>📝 Final Exam for this Pack</h3>
 
       {exam.map((q, i) => (
         <div key={i} className="exam-question">
-          <p><strong>Q{i + 1} :</strong> {q.question}</p>
+          <p><strong>Q{i + 1}:</strong> {q.question}</p>
           {q.options.map((opt, j) => (
             <label key={j} className="exam-option">
               <input
@@ -69,10 +95,10 @@ const ExamComponent = ({ exam = [], packId, onFinish }) => {
       ))}
 
       {score ? (
-        <p className="exam-score">✅ Note obtenue : <strong>{score}</strong></p>
+        <p className="exam-score">✅ Your Score: <strong>{score}</strong></p>
       ) : (
         <button className="submit-exam-btn" onClick={handleSubmit}>
-          ✅ Valider l'examen
+          ✅ Submit Exam
         </button>
       )}
     </div>
