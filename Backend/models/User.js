@@ -7,7 +7,7 @@ const User = new Schema({
   email: String,
   password: String,
   dateOfBirth: Date,
-  Skill: String,
+  Skill: [String],
   image: String,
   verified: { type: Boolean, default: false },
   emailToken: { type: String },
