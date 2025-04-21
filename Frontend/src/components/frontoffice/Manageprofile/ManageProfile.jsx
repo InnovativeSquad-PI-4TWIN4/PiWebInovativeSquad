@@ -230,9 +230,9 @@ const ManageProfile = () => {
       <td className={`status-cell ${req.status}`}>
   {req.status === "pending" && req.receiverId._id === user._id ? (
     <div className="action-buttons-request">
-      <button className="accept-btn" onClick={() => respondToRequest(req._id, "accepted")}>
-        ✅ Accept
-      </button>
+
+      <button className="accept-btn" onClick={() => respondToRequest(req._id, "accepted")}>✅ Accept</button>
+
       <button className="reject-btn" onClick={() => respondToRequest(req._id, "rejected")}>
         ❌ Reject
       </button>
