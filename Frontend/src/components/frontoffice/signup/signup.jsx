@@ -49,7 +49,7 @@ const SignUp = () => {
       return setError("Please select or enter at least one skill.");
 
     const formData = new FormData();
-    formData.append("Skill", finalSkills.join(", "));
+    formData.append("Skill", finalSkills.join(","));
     formData.append("name", formState.name);
     formData.append("surname", formState.surname);
     formData.append("email", formState.email);

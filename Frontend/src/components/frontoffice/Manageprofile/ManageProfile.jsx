@@ -11,6 +11,7 @@ const ManageProfile = () => {
   const [loading, setLoading] = useState(true);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isWalletOpen, setIsWalletOpen] = useState(false);
+  const [exchangeRequests, setExchangeRequests] = useState([]);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -37,13 +38,55 @@ const ManageProfile = () => {
     };
 
     if (token) fetchUser();
-    else navigate("/signin");
-  }, [navigate, token]);
 
+    else navigate("/signin");
+    const fetchExchangeRequests = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/exchange-request/my-requests", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        console.log("📬 Exchange requests:", data);
+        setExchangeRequests(data);
+      } catch (error) {
+        console.error("Error fetching exchange requests:", error);
+      }
+    };
+  
+    fetchExchangeRequests(); 
+
+  }, [navigate, token]);
+  
+  
   const handleMessengerClick = () => {
     navigate("/messenger");
   };
-
+  const respondToRequest = async (requestId, status) => {
+    try {
+      const res = await fetch(`http://localhost:3000/exchange-request/${requestId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status })
+      });
+  
+      if (!res.ok) throw new Error("Request failed");
+  
+      const updatedRequest = await res.json();
+      alert(`Request ${status} successfully.`);
+  
+      // ✅ Actualise la liste
+      setExchangeRequests((prev) =>
+        prev.map((r) => (r._id === updatedRequest.request._id ? updatedRequest.request : r))
+      );
+    } catch (err) {
+      console.error("Error updating request:", err);
+      alert("Error updating request.");
+    }
+  };
+  
   const handleRequestApproval = async () => {
     try {
       const response = await fetch("http://localhost:3000/users/request-approval", {
@@ -163,6 +206,53 @@ const ManageProfile = () => {
               <ul>
                 {user.projects?.length ? user.projects.map((p, i) => <li key={i}>{p}</li>) : <p>No projects</p>}
               </ul>
+              <h3>Exchange Requests</h3>
+{exchangeRequests.length === 0 ? (
+  <p>No requests yet.</p>
+) : (
+  <table className="exchange-table">
+    <thead>
+      <tr>
+        <th>From</th>
+        <th>To</th>
+        <th>Offer</th>
+        <th>Request</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+  {exchangeRequests.map((req) => (
+    <tr key={req._id}>
+      <td>{req.senderId.name} {req.senderId.surname}</td>
+      <td>{req.receiverId.name} {req.receiverId.surname}</td>
+      <td>{req.skillOffered}</td>
+      <td>{req.skillRequested}</td>
+      <td className={`status-cell ${req.status}`}>
+  {req.status === "pending" && req.receiverId._id === user._id ? (
+    <div className="action-buttons-request">
+      <button className="accept-btn" onClick={() => respondToRequest(req._id, "accepted")}>
+        ✅ Accept
+      </button>
+      <button className="reject-btn" onClick={() => respondToRequest(req._id, "rejected")}>
+        ❌ Reject
+      </button>
+    </div>
+  ) : (
+    <span className={`status-label ${req.status}`}>
+      {req.status === "accepted" && "✅ Accepted"}
+      {req.status === "rejected" && "❌ Rejected"}
+      {req.status === "pending" && "⏳ Pending"}
+    </span>
+  )}
+</td>
+
+    </tr>
+  ))}
+</tbody>
+
+  </table>
+)}
+
             </div>
           </div>
         </div>

@@ -1,3 +1,66 @@
+.exchange-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1e1e1e;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.6);
+  z-index: 999;
+  width: 400px;
+  max-width: 90%;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+.exchange-modal h3 {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exchange-modal label {
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+  font-weight: bold;
+  color: #f1f1f1;
+  gap: 8px;
+}
+
+.exchange-modal select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 8px;
+  background: #111;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+.exchange-modal button {
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.exchange-modal .cancel-btn {
+  background: #444;
+  color: #fff;
+  margin-left: 10px;
+}
+
+.exchange-modal .submit-btn {
+  background: #007bff;
+  color: #fff;
+}
+
+
+
 .facebook-profile {
   background-color: #18191a;
   color: #e4e6eb;
