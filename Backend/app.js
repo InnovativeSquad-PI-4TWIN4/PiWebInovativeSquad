@@ -37,6 +37,8 @@ const favoritesRoutes = require("./routes/favorites");
 const quizResultRoutes = require("./routes/quizResult.routes");
 const emailRoutes = require("./routes/email.routes");
 const examAIRoutes = require("./routes/examAI.routes");
+const exchangeRoutes = require('./routes/exchangeRoutes');
+
 // ✅ Initialise app Express
 const app = express();
 
@@ -152,6 +154,7 @@ app.use("/api/email", emailRoutes);
 // Monter les routes de notification sur /chat
 app.use("/chat", publicationRouter);
 app.use("/api/exam-ai", examAIRoutes);
+app.use("/exchange-request", exchangeRoutes);
 
 // ✅ Gestion 404
 app.use((req, res, next) => {

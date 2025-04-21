@@ -106,9 +106,9 @@ exports.signup = [
   upload.single("image"),
   async (req, res) => {
     try {
-      let { name, surname, email, password, dateOfBirth, Skill, recaptchaToken } = req.body;
-
-      if (!name || !surname || !email || !password || !dateOfBirth || !Skill) {
+      let { name, surname, email, password, dateOfBirth, recaptchaToken } = req.body;
+      let Skill = req.body.Skill || "";
+      if (!name || !surname || !email || !password || !dateOfBirth ) {
         return res.status(400).json({ status: "FAILED", message: "Tous les champs sont requis !" });
       }
 
@@ -117,7 +117,7 @@ exports.signup = [
       email = email.trim();
       password = password.trim();
       dateOfBirth = dateOfBirth.trim();
-      Skill = Skill.trim();
+      Skill = Skill.split(",").map(s => s.trim());
 
       const existingUser = await User.findOne({ email });
       if (existingUser) {
