@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "./MyCareer.scss";
 
 const MyCareer = () => {
@@ -16,30 +17,23 @@ const MyCareer = () => {
       try {
         setUserData(user);
 
-        // ✅ Résultats de quiz
         const resQuiz = await fetch(`http://localhost:3000/api/quiz-result/user-populated/${user._id}`);
         const quizData = await resQuiz.json();
         setQuizHistory(Array.isArray(quizData) ? quizData : []);
 
-        // ✅ Examens IA
         const resExams = await fetch(`http://localhost:3000/api/exam-ai/results/${user._id}`);
         const examData = await resExams.json();
-        console.log("🧪 Résultat examen reçu côté frontend:", examData);
         setExamHistory(Array.isArray(examData) ? examData : []);
 
-        // ✅ Certificats
         const resCert = await fetch(`http://localhost:3000/users/certificates/${user._id}`);
         const certData = await resCert.json();
-        console.log("📜 Certificats reçus :", certData);
         setCertificates(Array.isArray(certData) ? certData : []);
 
-        // ✅ Invitations à des sessions
         const resAppointments = await fetch(`http://localhost:3000/api/appointments/user/${user._id}`);
         const appData = await resAppointments.json();
         setAppointments(Array.isArray(appData) ? appData : []);
-
       } catch (err) {
-        console.error("❌ Erreur lors du chargement des données :", err);
+        console.error("❌ Erreur chargement :", err);
       }
     };
 
@@ -50,6 +44,19 @@ const MyCareer = () => {
     const scores = quizHistory.map(q => q.score);
     if (scores.length === 0) return 0;
     return (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
+  };
+
+  const handleStatusChange = async (appointmentId, status) => {
+    try {
+      const res = await axios.patch(`http://localhost:3000/api/appointments/update-status/${appointmentId}`, { status });
+      const updated = res.data.appointment;
+
+      setAppointments(prev =>
+        prev.map(appt => (appt._id === appointmentId ? updated : appt))
+      );
+    } catch (err) {
+      console.error("❌ Erreur changement statut :", err);
+    }
   };
 
   return (
@@ -90,7 +97,7 @@ const MyCareer = () => {
           <ul className="history-list">
             {examHistory.map((exam, index) => (
               <li key={index}>
-                {exam.category} — {exam.score}/5 —{" "}
+                {exam.category} — {exam.score}/5 —
                 {exam.certificatUrl && (
                   <a href={exam.certificatUrl} target="_blank" rel="noreferrer" className="pdf-link">📎 Certificate</a>
                 )}
@@ -125,7 +132,25 @@ const MyCareer = () => {
             {appointments.map((appt, idx) => (
               <li key={idx}>
                 <strong>{appt.fromUser?.name} {appt.fromUser?.surname}</strong> wants to share <strong>{appt.skill}</strong> on <strong>{new Date(appt.date).toLocaleString()}</strong><br />
-                Link: <a href={appt.link} target="_blank" rel="noreferrer">{appt.link}</a>
+                
+                <strong>Status:</strong> {appt.status.toUpperCase()} <br />
+                
+                {appt.status === "pending" && userData?._id === appt.toUser?._id && (
+                  <>
+                    <button onClick={() => handleStatusChange(appt._id, "accepted")} style={{ marginRight: "10px" }}>
+                      ✅ Accept
+                    </button>
+                    <button onClick={() => handleStatusChange(appt._id, "rejected")} style={{ color: "red" }}>
+                      ❌ Reject
+                    </button>
+                  </>
+                )}
+
+                {appt.status === "accepted" && (
+                  <p>
+                    📎 Link: <a href={appt.link} target="_blank" rel="noreferrer">{appt.link}</a>
+                  </p>
+                )}
               </li>
             ))}
           </ul>
