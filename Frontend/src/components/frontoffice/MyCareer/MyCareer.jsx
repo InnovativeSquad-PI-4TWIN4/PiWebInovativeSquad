@@ -4,42 +4,47 @@ import "./MyCareer.scss";
 const MyCareer = () => {
   const [userData, setUserData] = useState(null);
   const [quizHistory, setQuizHistory] = useState([]);
-  const [examHistory, setExamHistory] = useState([]); // Tu pourras l'activer quand tu ajoutes la route
-  const [certificates, setCertificates] = useState([]); // Pareil pour les certificats
+  const [examHistory, setExamHistory] = useState([]);
+  const [certificates, setCertificates] = useState([]);
+  const [appointments, setAppointments] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       const user = JSON.parse(localStorage.getItem("user"));
       if (!user) return;
-  
+
       try {
         setUserData(user);
-  
-        // ✅ Obtenir les résultats de quiz validés
+
+        // ✅ Résultats de quiz
         const resQuiz = await fetch(`http://localhost:3000/api/quiz-result/user-populated/${user._id}`);
         const quizData = await resQuiz.json();
         setQuizHistory(Array.isArray(quizData) ? quizData : []);
-  
-        // ✅ Obtenir les résultats d'examen IA
+
+        // ✅ Examens IA
         const resExams = await fetch(`http://localhost:3000/api/exam-ai/results/${user._id}`);
         const examData = await resExams.json();
         console.log("🧪 Résultat examen reçu côté frontend:", examData);
         setExamHistory(Array.isArray(examData) ? examData : []);
-  
-        // ✅ Obtenir les certificats utilisateur
+
+        // ✅ Certificats
         const resCert = await fetch(`http://localhost:3000/users/certificates/${user._id}`);
         const certData = await resCert.json();
         console.log("📜 Certificats reçus :", certData);
         setCertificates(Array.isArray(certData) ? certData : []);
-  
+
+        // ✅ Invitations à des sessions
+        const resAppointments = await fetch(`http://localhost:3000/api/appointments/user/${user._id}`);
+        const appData = await resAppointments.json();
+        setAppointments(Array.isArray(appData) ? appData : []);
+
       } catch (err) {
         console.error("❌ Erreur lors du chargement des données :", err);
       }
     };
-  
+
     fetchData();
   }, []);
-  
 
   const getAverageScore = () => {
     const scores = quizHistory.map(q => q.score);
@@ -54,51 +59,28 @@ const MyCareer = () => {
       <section className="section">
         <h2>✅ Global Progress</h2>
         <div className="stats-grid">
-          <div className="stat-box">
-            <h3>Quiz Validated</h3>
-            <p>{quizHistory.length}</p>
-          </div>
-          <div className="stat-box">
-            <h3>Exams Passed</h3>
-            <p>
-  {examHistory && examHistory.length > 0
-    ? examHistory.filter(e => e.score >= 3).length
-    : 0}
-</p>
-
-          </div>
-          <div className="stat-box">
-            <h3>Certificates</h3>
-            <p>{certificates.length || 0}</p>
-          </div>
-          <div className="stat-box">
-            <h3>Average Score</h3>
-            <p>{getAverageScore()}</p>
-          </div>
+          <div className="stat-box"><h3>Quiz Validated</h3><p>{quizHistory.length}</p></div>
+          <div className="stat-box"><h3>Exams Passed</h3><p>{examHistory.filter(e => e.score >= 3).length}</p></div>
+          <div className="stat-box"><h3>Certificates</h3><p>{certificates.length}</p></div>
+          <div className="stat-box"><h3>Average Score</h3><p>{getAverageScore()}</p></div>
         </div>
       </section>
 
       <section className="section">
-  <h2>📚 Quiz History</h2>
-  {quizHistory.length === 0 ? (
-    <p>No quizzes completed yet.</p>
-  ) : (
-    <ul className="history-list">
-      {quizHistory.map((quiz, index) => (
-        <li key={index}><strong>Course:</strong>{" "}
-        {quiz.courseId?.title ? (
-          quiz.courseId.title
+        <h2>📚 Quiz History</h2>
+        {quizHistory.length === 0 ? (
+          <p>No quizzes completed yet.</p>
         ) : (
-          <span style={{ color: "red" }}>⚠️ Course Deleted</span>
-        )} —
-          
-          <strong>Score:</strong> {quiz.score}/{quiz.total}
-        </li>
-      ))}
-    </ul>
-  )}
-</section>
-
+          <ul className="history-list">
+            {quizHistory.map((quiz, index) => (
+              <li key={index}>
+                <strong>Course:</strong> {quiz.courseId?.title || <span style={{ color: "red" }}>⚠️ Course Deleted</span>} —
+                <strong> Score:</strong> {quiz.score}/{quiz.total}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section className="section">
         <h2>🧪 Exams</h2>
@@ -108,7 +90,7 @@ const MyCareer = () => {
           <ul className="history-list">
             {examHistory.map((exam, index) => (
               <li key={index}>
-                {exam.category} — {exam.score}/5 —
+                {exam.category} — {exam.score}/5 —{" "}
                 {exam.certificatUrl && (
                   <a href={exam.certificatUrl} target="_blank" rel="noreferrer" className="pdf-link">📎 Certificate</a>
                 )}
@@ -131,6 +113,22 @@ const MyCareer = () => {
               </div>
             ))}
           </div>
+        )}
+      </section>
+
+      <section className="section">
+        <h2>📅 Exchange Invitations</h2>
+        {appointments.length === 0 ? (
+          <p>No upcoming skill exchange sessions.</p>
+        ) : (
+          <ul className="history-list">
+            {appointments.map((appt, idx) => (
+              <li key={idx}>
+                <strong>{appt.fromUser?.name} {appt.fromUser?.surname}</strong> wants to share <strong>{appt.skill}</strong> on <strong>{new Date(appt.date).toLocaleString()}</strong><br />
+                Link: <a href={appt.link} target="_blank" rel="noreferrer">{appt.link}</a>
+              </li>
+            ))}
+          </ul>
         )}
       </section>
     </div>

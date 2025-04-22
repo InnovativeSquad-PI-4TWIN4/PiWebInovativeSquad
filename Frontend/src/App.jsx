@@ -44,6 +44,8 @@ import ExamCertification from './components/frontoffice/exam/ExamCertification';
 import EmailVerification from './components/frontoffice/signup/EmailVerification';
 import MyCareer from './components/frontoffice/MyCareer/MyCareer';
 import VerifyPending from './components/frontoffice/signup/VerifyPending';
+import PlanifySession from './components/frontoffice/Marketplace/PlanifySession';
+
 
 
 
@@ -188,6 +190,8 @@ useEffect(() => {
               <Route path="/verify-email/:token" element={<EmailVerification />} />
               <Route path="/verify-pending" element={<VerifyPending />} />
               <Route path="/mycareer" element={<MyCareer />} />
+              <Route path="/planify-session" element={<PlanifySession />} />
+
 
 
             </>
