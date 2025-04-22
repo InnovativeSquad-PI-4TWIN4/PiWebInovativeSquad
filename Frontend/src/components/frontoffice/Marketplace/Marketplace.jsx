@@ -163,12 +163,16 @@ const Marketplace = () => {
 
     return (
       <div className="marketplace-cards">
-      <motion.div className="select-card" onClick={() => navigate('/marketplace/free')} whileHover={{ scale: 1.05 }}>
-  📘 <h3>Courses</h3>
-      </motion.div>
+        <motion.div className="select-card" onClick={() => navigate('/marketplace/free')} whileHover={{ scale: 1.05 }}>
+          📘 <h3>Courses</h3>
+        </motion.div>
         <motion.div className="select-card" onClick={() => navigate('/marketplace/premium')} whileHover={{ scale: 1.05 }}>
           🔥 <h3>Premium Courses</h3>
         </motion.div>
+        <motion.div className="select-card" onClick={() => navigate('/planify-session')} whileHover={{ scale: 1.05 }}>
+  🤝 <h3>Planifier une session</h3>
+</motion.div>
+
       </div>
     );
   };
