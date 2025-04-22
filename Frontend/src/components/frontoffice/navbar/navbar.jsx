@@ -9,12 +9,12 @@ import './Navbar.scss';
 import AdminNavbar from '../../backoffice/Adminnavbar/adminnavbar';
 import { MdWorkspacePremium } from "react-icons/md";
 
-
 const Navbar = ({ user, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const [hasNewAppointment, setHasNewAppointment] = useState(false);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -38,6 +38,23 @@ const Navbar = ({ user, onLogout }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      const userStored = JSON.parse(localStorage.getItem("user"));
+      if (!userStored) return;
+      try {
+        const res = await fetch(`http://localhost:3000/api/appointments/user/${userStored._id}`);
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setHasNewAppointment(true);
+        }
+      } catch (err) {
+        console.error("Erreur récupération des rendez-vous:", err);
+      }
+    };
+    if (user) fetchAppointments();
+  }, [user]);
 
   if (user && user.role === 'admin') {
     return <AdminNavbar user={user} onLogout={onLogout} />;
@@ -102,10 +119,10 @@ const Navbar = ({ user, onLogout }) => {
                         Manage Profile
                       </div>
 
-                      {/* 👉 NOUVEAU : lien vers le parcours utilisateur */}
                       <div className="menu-item" onClick={() => navigate('/mycareer')}>
-                      <MdWorkspacePremium className="menu-icon" />
-                         My Career
+                        <MdWorkspacePremium className="menu-icon" />
+                        My Career
+                        {hasNewAppointment && <span className="notification-dot">🔔</span>}
                       </div>
 
                       <div className="menu-item" onClick={handleLogout}>
