@@ -157,6 +157,8 @@ app.use("/chat", publicationRouter);
 app.use("/api/exam-ai", examAIRoutes);
 app.use("/exchange-request", exchangeRoutes);
 app.use("/api/appointments", appointmentRoutes);
+app.use("/api/recommendation", require("./routes/recommendation.routes"));
+
 
 
 // ✅ Gestion 404
