@@ -20,13 +20,13 @@ const User = new Schema({
     default: 'client'
   },
   status: { type: String, enum: ['unapproved', 'pending', 'approved'], default: 'unapproved' },
-  
+
   resetPasswordToken: String,
   resetPasswordExpires: Date,
   solde: { type: Number, default: 0 },
   hasCertificate: { type: Boolean, default: false },
 
-  // ✅ Ajoute cette section :
+  // ✅ Certificats obtenus
   certificates: [
     {
       category: String,
@@ -34,7 +34,12 @@ const User = new Schema({
       date: { type: Date, default: Date.now }
     }
   ],
-  
+
+  // ✅ Disponibilités hebdomadaires pour les échanges
+  availability: {
+    type: [String], // ex: ["lundi matin", "mardi après-midi", "samedi soir"]
+    default: []
+  },
 
   abonnement: [{ type: Schema.Types.ObjectId, ref: "Pack" }],
   pdfProgress: [
@@ -49,12 +54,11 @@ const User = new Schema({
       score: { type: String }
     }
   ],
-  favorites: [{ type: Schema.Types.ObjectId, ref: "courses" }],
+  favorites: [{ type: Schema.Types.ObjectId, ref: "courses" }]
 }, {
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
-
 
 User.virtual('wallet').get(function () {
   return Math.floor(this.solde * 1.3) + ' pts';
@@ -64,24 +68,20 @@ User.methods.buyPack = async function (pack) {
   const packId = pack._id.toString();
   const priceAfterDiscount = pack.price - (pack.price * pack.discount) / 100;
 
-  // 🚫 Vérifier si l'utilisateur possède déjà le pack
   const alreadyHasPack = this.abonnement.some(p => p.toString() === packId);
   if (alreadyHasPack) {
     throw new Error("Vous avez déjà acheté ce pack.");
   }
 
-  // 💸 Vérifier le solde
   if (this.wallet < priceAfterDiscount) {
     throw new Error("Points insuffisants pour acheter ce pack.");
   }
 
-  // ✅ Ajouter le pack
   this.wallet -= priceAfterDiscount;
   this.abonnement.push(pack._id);
 
   await this.save();
   return this;
 };
-
 
 module.exports = mongo.model('users', User);
