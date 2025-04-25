@@ -22,7 +22,10 @@ export default defineConfig({
     include: ['process', 'buffer']
   },
   server: {
+    host:'0.0.0.0',
     port: 5173,
+    strictPort: true, 
+    cors: true ,
     open: true,
     historyApiFallback: true
   }
