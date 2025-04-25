@@ -82,7 +82,17 @@ io.on("connection", (socket) => {
   socket.on("stopTyping", ({ toUserId }) => {
     socket.to(toUserId).emit("userStopTyping");
   });
+  socket.on("make-call", ({ offer, roomId }) => {
+    socket.to(roomId).emit("call-made", { offer, socket: socket.id });
+  });
 
+  socket.on("make-answer", ({ answer, to }) => {
+    socket.to(to).emit("answer-made", { answer });
+  });
+
+  socket.on("ice-candidate", ({ candidate, roomId }) => {
+    socket.to(roomId).emit("ice-candidate", { candidate });
+  });
   socket.on("join-room", (roomId) => {
     socket.join(roomId);
     console.log(`✅ ${socket.id} joined room ${roomId}`);
