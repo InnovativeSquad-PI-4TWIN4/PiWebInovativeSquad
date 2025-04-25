@@ -77,15 +77,23 @@ const ManageProfile = () => {
       const updatedRequest = await res.json();
       alert(`Request ${status} successfully.`);
   
-      // ✅ Actualise la liste
+      // ✅ Actualise la liste des demandes
       setExchangeRequests((prev) =>
         prev.map((r) => (r._id === updatedRequest.request._id ? updatedRequest.request : r))
       );
+  
+      // ✅ Si accepté, et qu'un roomId est retourné dans la réponse => redirige directement
+      if (status === "accepted" && updatedRequest.roomId) {
+        const roomId = updatedRequest.roomId;
+        window.location.href = `http://localhost:5173/code-room/${roomId}`; // redirection immédiate vers la room privée
+      }
+  
     } catch (err) {
       console.error("Error updating request:", err);
       alert("Error updating request.");
     }
   };
+  
   
   const handleRequestApproval = async () => {
     try {
@@ -218,6 +226,8 @@ const ManageProfile = () => {
         <th>Offer</th>
         <th>Request</th>
         <th>Status</th>
+        <th>Room</th>  
+
       </tr>
     </thead>
     <tbody>
@@ -245,7 +255,21 @@ const ManageProfile = () => {
     </span>
   )}
 </td>
-
+  {/* ✅ Nouvelle cellule Room */}
+  <td>
+        {req.status === "accepted" && req.roomId ? (
+          <a 
+            href={`http://localhost:5173/code-room/${req.roomId}`} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="go-to-room-link"
+          >
+            🚀 Go to Room
+          </a>
+        ) : (
+          <span style={{ color: "#aaa", fontStyle: "italic" }}>N/A</span>
+        )}
+      </td>
     </tr>
   ))}
 </tbody>
