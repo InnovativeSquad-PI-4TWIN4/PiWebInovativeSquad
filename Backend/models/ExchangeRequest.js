@@ -22,7 +22,12 @@
       type: Date,
       default: Date.now,
     },
+    roomId: {
+      type: String,
+      default: null
+    }
+    
   });
-  
+ 
 
   module.exports = mongoose.model("ExchangeRequest", exchangeRequestSchema);
