@@ -11,7 +11,8 @@ const { Server } = require("socket.io"); // 👈 import de socket.io
 
 require("dotenv").config();
 const mongoConn = require("./config/DataBase.json");
-
+let currentCode = "// shared editor content";
+const codeRooms = {};
 // Charger les modèles
 require("./models/User");
 require("./models/publication");
@@ -46,7 +47,7 @@ const app = express();
 // ✅ Création du serveur HTTP pour intégrer Socket.io
 const server = http.createServer(app);
 
- 
+
 // ✅ Intégration de Socket.io
 const io = new Server(server, {
   cors: {
@@ -82,6 +83,27 @@ io.on("connection", (socket) => {
     socket.to(toUserId).emit("userStopTyping");
   });
 
+  socket.on("join-room", (roomId) => {
+    socket.join(roomId);
+    console.log(`✅ ${socket.id} joined room ${roomId}`);
+
+    if (codeRooms[roomId]) {
+      socket.emit("init", codeRooms[roomId]);
+    } else {
+      codeRooms[roomId] = "// Start collaborating!";
+      socket.emit("init", codeRooms[roomId]);
+    }
+  });
+
+  socket.on("code-change", ({ roomId, code }) => {
+    codeRooms[roomId] = code;
+    socket.to(roomId).emit("code-change", code); // ✅ Only to others in same room
+  });
+
+  socket.on("leave-room", (roomId) => {
+    socket.leave(roomId);
+    console.log(`❌ ${socket.id} left room ${roomId}`);
+  });
   socket.on("disconnect", () => {
     onlineUsers.delete(socket.userId);
     io.emit("onlineUsers", Array.from(onlineUsers)); // ✅ met à jour

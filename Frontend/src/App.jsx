@@ -44,6 +44,10 @@ import ExamCertification from './components/frontoffice/exam/ExamCertification';
 import EmailVerification from './components/frontoffice/signup/EmailVerification';
 import MyCareer from './components/frontoffice/MyCareer/MyCareer';
 import VerifyPending from './components/frontoffice/signup/VerifyPending';
+import CodeEditor from './components/frontoffice/ExchangePages/Code_editor'
+import DesignCollab from './components/frontoffice/ExchangePages/design-collab';
+import CodeRoom from './components/frontoffice/ExchangePages/CodeRoom'
+
 import PlanifySession from './components/frontoffice/Marketplace/PlanifySession';
 import IARecommendation from './components/frontoffice/IARecommendation/IARecommendation';
 
@@ -191,6 +195,10 @@ useEffect(() => {
               <Route path="/verify-email/:token" element={<EmailVerification />} />
               <Route path="/verify-pending" element={<VerifyPending />} />
               <Route path="/mycareer" element={<MyCareer />} />
+              <Route path="/code-editor" element={<CodeEditor />} />
+              <Route path="/design-collab" element={<DesignCollab />} />
+              <Route path="/code-room/:roomId" element={<CodeRoom />} />
+
               <Route path="/planify-session" element={<PlanifySession />} />
               <Route path="/recommendations" element={<IARecommendation />} />
 
