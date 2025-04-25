@@ -39,6 +39,7 @@ const quizResultRoutes = require("./routes/quizResult.routes");
 const emailRoutes = require("./routes/email.routes");
 const examAIRoutes = require("./routes/examAI.routes");
 const exchangeRoutes = require('./routes/exchangeRoutes');
+const appointmentRoutes = require("./routes/appointments");
 
 // ✅ Initialise app Express
 const app = express();
@@ -187,6 +188,10 @@ app.use("/api/email", emailRoutes);
 app.use("/chat", publicationRouter);
 app.use("/api/exam-ai", examAIRoutes);
 app.use("/exchange-request", exchangeRoutes);
+app.use("/api/appointments", appointmentRoutes);
+app.use("/api/recommendation", require("./routes/recommendation.routes"));
+
+
 
 // ✅ Gestion 404
 app.use((req, res, next) => {
