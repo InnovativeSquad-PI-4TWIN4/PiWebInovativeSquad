@@ -48,6 +48,11 @@ import CodeEditor from './components/frontoffice/ExchangePages/Code_editor'
 import DesignCollab from './components/frontoffice/ExchangePages/design-collab';
 import CodeRoom from './components/frontoffice/ExchangePages/CodeRoom'
 
+import PlanifySession from './components/frontoffice/Marketplace/PlanifySession';
+import IARecommendation from './components/frontoffice/IARecommendation/IARecommendation';
+
+
+
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -193,6 +198,11 @@ useEffect(() => {
               <Route path="/code-editor" element={<CodeEditor />} />
               <Route path="/design-collab" element={<DesignCollab />} />
               <Route path="/code-room/:roomId" element={<CodeRoom />} />
+
+              <Route path="/planify-session" element={<PlanifySession />} />
+              <Route path="/recommendations" element={<IARecommendation />} />
+
+
 
             </>
           )}
