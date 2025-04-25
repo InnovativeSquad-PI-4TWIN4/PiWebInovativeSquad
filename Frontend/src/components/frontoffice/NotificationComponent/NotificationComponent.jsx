@@ -78,7 +78,7 @@ const NotificationComponent = () => {
       )
 
       // Check notification type and redirect
-      if (notification.message && (notification.message.includes('Nouveau commentaire') || notification.message.includes('a répondu à votre commentaire'))) {
+      if (notification.message && (notification.message.includes('Nouveau commentaire') || notification.message.includes('replied to your comment'))) {
         if (notification.publicationId && notification.publicationId._id) {
           console.log(`Navigating to publication with ID: ${notification.publicationId._id}`);
           navigate(`/publication?id=${notification.publicationId._id}&scrollToPublication=true`)
@@ -127,11 +127,11 @@ const NotificationComponent = () => {
 
   const getNotificationMessage = (notification) => {
     if (notification.message.includes('Nouveau commentaire')) {
-      return `${notification.senderId.name} a commenté une publication`
-    } else if (notification.message.includes('a répondu à votre commentaire')) {
-      return `${notification.senderId.name} a répondu à votre commentaire`
+      return `${notification.senderId.name} commented on a post`
+    } else if (notification.message.includes('replied to your comment')) {
+      return `${notification.senderId.name} replied to your comment`
     } else {
-      return `${notification.senderId.name} vous a envoyé un message`
+      return `${notification.senderId.name} sent you a message`
     }
   }
 
@@ -148,7 +148,7 @@ const NotificationComponent = () => {
         <div className="notification-dropdown">
           <h3>Notifications</h3>
           {notifications.length === 0 ? (
-            <p className="no-notifications">Aucune notification</p>
+            <p className="no-notifications"> Any notification</p>
           ) : (
             <ul className="notification-list">
               {notifications.map((notification) => (

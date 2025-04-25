@@ -611,21 +611,21 @@ const Publication = () => {
                   className={viewMode === "all" ? "active" : ""}
                   onClick={() => setViewMode("all")}
                 >
-                  Tous
+                  All
                 </button>
                 <button
                   type="button"
                   className={viewMode === "my" ? "active" : ""}
                   onClick={() => setViewMode("my")}
                 >
-                  Mes publications
+                  My Posts
                 </button>
                 <button
                   type="button"
                   className={viewMode === "archived" ? "active" : ""}
                   onClick={() => setViewMode("archived")}
                 >
-                  Archivées
+                  Archived
                 </button>
               </div>
 
@@ -634,13 +634,13 @@ const Publication = () => {
                   className={`switch-option ${newPublication.type === "offer" ? "active" : ""}`}
                   onClick={() => setNewPublication((prev) => ({ ...prev, type: "offer" }))}
                 >
-                  Offre
+                  Offer
                 </div>
                 <div
                   className={`switch-option ${newPublication.type === "request" ? "active" : ""}`}
                   onClick={() => setNewPublication((prev) => ({ ...prev, type: "request" }))}
                 >
-                  Demande
+                  Request
                 </div>
                 <div className={`switch-indicator ${newPublication.type}`}></div>
               </div>
@@ -651,12 +651,12 @@ const Publication = () => {
             name="description"
             value={newPublication.description}
             onChange={handleInputChange}
-            placeholder="Quoi de neuf ?"
+            placeholder="What's new ?"
             className="publication-textarea"
           />
           <div className="create-publication-actions">
             <button type="submit" className="submit-btn">
-              Publier
+              Post
             </button>
           </div>
         </form>
@@ -667,19 +667,19 @@ const Publication = () => {
           className={filterType === "all" ? "active" : ""}
           onClick={() => setFilterType("all")}
         >
-          Tout
+          All
         </button>
         <button
           className={filterType === "offer" ? "active" : ""}
           onClick={() => setFilterType("offer")}
         >
-          Offres
+          Offers
         </button>
         <button
           className={filterType === "request" ? "active" : ""}
           onClick={() => setFilterType("request")}
         >
-          Demandes
+          Requests
         </button>
       </div>
 
@@ -724,9 +724,9 @@ const Publication = () => {
                   </button>
                   {contextMenu === pub._id && (
                     <div className="context-menu">
-                      <button onClick={() => handleEdit(pub)}>Modifier</button>
-                      <button onClick={() => handleDelete(pub._id)}>Supprimer</button>
-                      <button onClick={() => handleArchive(pub._id)}>Archiver</button>
+                      <button onClick={() => handleEdit(pub)}>Modify</button>
+                      <button onClick={() => handleDelete(pub._id)}>Delete</button>
+                      <button onClick={() => handleArchive(pub._id)}>Archive</button>
                     </div>
                   )}
                 </div>
@@ -734,7 +734,7 @@ const Publication = () => {
             </div>
             <div className="publication-content">
               <span className={`publication-type ${pub.type}`}>
-                {pub.type === "offer" ? "Offre" : "Demande"}
+                {pub.type === "offer" ? "Offer" : "Request"}
               </span>
               <p className="publication-description">{pub.description}</p>
             </div>
@@ -761,7 +761,7 @@ const Publication = () => {
                 <div className="comments-section">
                   {pub.comments && pub.comments.length > 0 && (
                     <div className="comments-header">
-                      <span className="comments-sort">Les plus pertinents ▼</span>
+                      <span className="comments-sort">The most relevant ▼</span>
                     </div>
                   )}
                   <div className="comments-list">
@@ -867,7 +867,7 @@ const Publication = () => {
                         </div>
                       ))
                     ) : (
-                      <p className="no-comments">Aucun commentaire pour le moment.</p>
+                      <p className="no-comments">No comments yet.</p>
                     )}
                   </div>
 
@@ -932,55 +932,131 @@ const Publication = () => {
         </div>
       )}
 
-      {editModal && (
-        <div className="modal-overlay">
-          <div className="modal modal-edit-publication">
-            <div className="modal-header">
-              <h2>Modifier la publication</h2>
-            </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleUpdatePublication(editModal._id, {
-                  type: editModal.type,
-                  description: editModal.description,
-                });
-              }}
-            >
-              <div className="publication-type-switch">
-                <div
-                  className={`switch-option ${editModal.type === "offer" ? "active" : ""}`}
-                  onClick={() => setEditModal((prev) => ({ ...prev, type: "offer" }))}
-                >
-                  Offre
-                </div>
-                <div
-                  className={`switch-option ${editModal.type === "request" ? "active" : ""}`}
-                  onClick={() => setEditModal((prev) => ({ ...prev, type: "request" }))}
-                >
-                  Demande
-                </div>
-                <div className={`switch-indicator ${editModal.type}`}></div>
-              </div>
-              <textarea
-                value={editModal.description}
-                onChange={(e) => setEditModal((prev) => ({ ...prev, description: e.target.value }))}
-                className="publication-textarea"
-                placeholder="Description"
-                autoFocus
-              />
-              <div className="modal-actions">
-                <button type="button" className="cancel-btn" onClick={() => setEditModal(null)}>
-                  Annuler
-                </button>
-                <button type="submit" className="submit-btn">
-                  Enregistrer
-                </button>
-              </div>
-            </form>
+     
+{editModal && (
+  <div style={{
+    position: "fixed",
+    top: 0, left: 0, width: "100vw", height: "100vh",
+    backgroundColor: "rgba(0,0,0,0.75)",
+    zIndex: 9999,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center"
+  }}>
+    <div style={{
+      backgroundColor: "#1c1e21",
+      width: "500px",
+      borderRadius: "12px",
+      overflow: "hidden",
+      color: "#e4e6eb",
+      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5)",
+      animation: "fadeIn 0.3s ease-in-out"
+    }}>
+      <div style={{
+        backgroundColor: "#242526",
+        padding: "16px",
+        fontSize: "20px",
+        fontWeight: "bold",
+        textAlign: "center",
+        borderBottom: "1px solid #3a3b3c"
+      }}>
+        Modify Post
+      </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleUpdatePublication(editModal._id, {
+            type: editModal.type,
+            description: editModal.description,
+          });
+        }}
+        style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "15px" }}
+      >
+        {/* Type Switch */}
+        <div style={{ display: "flex", justifyContent: "center", gap: "12px" }}>
+          <div
+            onClick={() => setEditModal((prev) => ({ ...prev, type: "offer" }))}
+            style={{
+              backgroundColor: editModal.type === "offer" ? "#0866ff" : "#3a3b3c",
+              color: editModal.type === "offer" ? "white" : "#e4e6eb",
+              padding: "8px 14px",
+              borderRadius: "20px",
+              cursor: "pointer",
+              fontWeight: 500
+            }}
+          >
+            Offer
+          </div>
+          <div
+            onClick={() => setEditModal((prev) => ({ ...prev, type: "request" }))}
+            style={{
+              backgroundColor: editModal.type === "request" ? "#0866ff" : "#3a3b3c",
+              color: editModal.type === "request" ? "white" : "#e4e6eb",
+              padding: "8px 14px",
+              borderRadius: "20px",
+              cursor: "pointer",
+              fontWeight: 500
+            }}
+          >
+            Request
           </div>
         </div>
-      )}
+
+        {/* Textarea */}
+        <textarea
+          value={editModal.description}
+          onChange={(e) => setEditModal((prev) => ({ ...prev, description: e.target.value }))}
+          placeholder="Description"
+          autoFocus
+          style={{
+            backgroundColor: "#3a3b3c",
+            color: "#e4e6eb",
+            border: "none",
+            borderRadius: "10px",
+            padding: "12px",
+            fontSize: "16px",
+            resize: "vertical",
+            minHeight: "100px"
+          }}
+        />
+
+        {/* Buttons */}
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <button
+            type="button"
+            onClick={() => setEditModal(null)}
+            style={{
+              backgroundColor: "#3a3b3c",
+              color: "#e4e6eb",
+              padding: "10px 20px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer"
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            style={{
+              backgroundColor: "#0866ff",
+              color: "white",
+              padding: "10px 20px",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: "bold",
+              cursor: "pointer"
+            }}
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
