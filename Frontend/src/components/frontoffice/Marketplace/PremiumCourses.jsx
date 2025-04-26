@@ -1,5 +1,3 @@
-// PremiumCourses.jsx
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
@@ -17,6 +15,7 @@ const PremiumCourses = () => {
   const [courses, setCourses] = useState([]);
   const [paidCourses, setPaidCourses] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [userSkillsRecommended, setUserSkillsRecommended] = useState([]);
   const [showRechargeModal, setShowRechargeModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [highlightedCourseId, setHighlightedCourseId] = useState(null);
@@ -38,11 +37,16 @@ const PremiumCourses = () => {
       setTimeout(() => localStorage.removeItem("highlightedCourseId"), 8000);
     }
 
-    loadCourses();
     const paid = JSON.parse(localStorage.getItem(paidKey)) || [];
     setPaidCourses(paid);
 
     if (userId) {
+      axios.get(`http://localhost:3000/users/${userId}`)
+        .then(res => {
+          setUserSkillsRecommended(res.data.skillsRecommended || []);
+        })
+        .catch(console.error);
+
       axios.get(`http://localhost:3000/favorites/${userId}`)
         .then(res => setFavorites(res.data.map(c => c._id)))
         .catch(console.error);
@@ -81,13 +85,37 @@ const PremiumCourses = () => {
     });
 
     return () => socket.off("newPremiumCourse");
+
   }, [userId]);
+
+  useEffect(() => {
+    if (userSkillsRecommended.length >= 0) {
+      loadCourses();
+    }
+  }, [userSkillsRecommended]);
+
+  const normalize = (text) =>
+    text.toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\w\s]/gi, "")
+      .trim();
 
   const loadCourses = () => {
     axios.get("http://localhost:3000/courses/getallcourses")
       .then(res => {
         const premium = res.data.filter(c => c.isPremium);
-        setCourses(premium);
+        const normalizedSkills = userSkillsRecommended.map(skill => normalize(skill));
+
+        const updatedPremium = premium.map(course => {
+          const normalizedTitle = normalize(course.title);
+          const isRecommended = normalizedSkills.some(skill =>
+            normalizedTitle.includes(skill) || skill.includes(normalizedTitle)
+          );
+          return { ...course, isRecommended };
+        });
+
+        setCourses(updatedPremium);
       })
       .catch(console.error);
   };
@@ -165,14 +193,19 @@ const PremiumCourses = () => {
     <section className="courses">
       <button className="back-btn" onClick={() => navigate('/marketplace')}>⬅</button>
       <h2>🔥 Premium Courses</h2>
+
       <div className="courses-grid">
         {courses.map(course => (
           <motion.div
             key={course._id}
-            className={`course-card premium ${highlightedCourseId === course._id ? "highlighted" : ""}`}
+            className={`course-card premium ${highlightedCourseId === course._id ? "highlighted" : ""} ${course.isRecommended ? "recommended" : ""}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
+            {course.isRecommended && (
+              <div className="badge-banner">⭐ RECOMMANDÉ</div>
+            )}
+
             <FaHeart
               className={`heart-icon ${favorites.includes(course._id) ? "active" : ""}`}
               onClick={() => toggleFavorite(course._id)}
@@ -182,7 +215,6 @@ const PremiumCourses = () => {
             <p>{course.category}</p>
             <p><strong>Instructeur :</strong> {course.instructor?.name || "Inconnu"}</p>
             <p>💰 Prix : {course.price} DT</p>
-            
 
             {paidCourses.includes(course._id) ? (
               course.isMeetEnded ? (
@@ -204,22 +236,21 @@ const PremiumCourses = () => {
               </button>
             )}
 
-{course.courseSummary && (
-  quizResults[course._id] !== undefined ? (
-    <button
-      className="quiz-btn"
-      onClick={() => handleGenerateQuiz(course._id)}
-      style={{ backgroundColor: "#4caf50", color: "white" }}
-    >
-      ✅ Quiz Validé
-    </button>
-  ) : (
-    <button className="quiz-btn" onClick={() => handleGenerateQuiz(course._id)}>
-      🧠 Générer le quiz IA
-    </button>
-  )
-)}
-
+            {course.courseSummary && (
+              quizResults[course._id] !== undefined ? (
+                <button
+                  className="quiz-btn"
+                  onClick={() => handleGenerateQuiz(course._id)}
+                  style={{ backgroundColor: "#4caf50", color: "white" }}
+                >
+                  ✅ Quiz Validé
+                </button>
+              ) : (
+                <button className="quiz-btn" onClick={() => handleGenerateQuiz(course._id)}>
+                  🧠 Générer le quiz IA
+                </button>
+              )
+            )}
           </motion.div>
         ))}
       </div>
