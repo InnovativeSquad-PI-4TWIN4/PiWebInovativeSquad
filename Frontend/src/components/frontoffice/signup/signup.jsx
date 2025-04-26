@@ -1,61 +1,30 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ReCAPTCHA from "react-google-recaptcha";
 import './SignUp.scss';
 
-const availableSkills = ["JavaScript", "Java", "Python", "Git", "React", "Node.js", "Spring Boot", "SQL"];
+const recommendedSkills = ["JavaScript", "Java", "Python", "Git", "React", "Node.js", "Spring Boot", "SQL"];
 
 const SignUp = () => {
   const [formState, setFormState] = useState({
     name: '', surname: '', email: '', password: '', dateOfBirth: '',
-    skills: [], skillsRecommended: [], otherSkill: '', useOther: false,
+    skills: [], otherSkill: '', useOther: false,
   });
   const [image, setImage] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [error, setError] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState(null);
-  const [loadingRecommended, setLoadingRecommended] = useState(false);
 
   const navigate = useNavigate();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-
-  useEffect(() => {
-    generateRecommendedSkills();
-  }, []);
-
-  const generateRecommendedSkills = async () => {
-    setLoadingRecommended(true);
-    try {
-      const res = await axios.post('http://localhost:3000/api/recommend-skills', {
-        skills: []  // Vide pour demander à l'IA de proposer de base
-      });
-      if (res.data.skillsRecommended) {
-        setFormState(prev => ({
-          ...prev,
-          skillsRecommended: res.data.skillsRecommended
-        }));
-      }
-    } catch (err) {
-      console.error("Erreur recommandation IA :", err);
-    } finally {
-      setLoadingRecommended(false);
-    }
-  };
 
   const handleChange = (field) => (e) => {
     setFormState({ ...formState, [field]: e.target.value });
   };
 
   const toggleSkill = (skill) => {
-    const updatedSkills = formState.skills.includes(skill)
-      ? formState.skills.filter(s => s !== skill)
-      : [...formState.skills, skill];
-    setFormState({ ...formState, skills: updatedSkills });
-  };
-
-  const toggleRecommendedSkill = (skill) => {
     const updatedSkills = formState.skills.includes(skill)
       ? formState.skills.filter(s => s !== skill)
       : [...formState.skills, skill];
@@ -95,6 +64,8 @@ const SignUp = () => {
       const res = await axios.post('http://localhost:3000/users/signup', formData);
       alert("Inscription réussie ! Un email de vérification vous a été envoyé.");
       navigate('/verify-pending');
+      
+
     } catch (err) {
       setError(err.response?.data?.message || "Signup failed.");
     }
@@ -149,7 +120,7 @@ const SignUp = () => {
           <div className="skills-section">
             <p>Choose your skills:</p>
             <div className="skills-grid">
-              {availableSkills.map((skill) => (
+              {recommendedSkills.map((skill) => (
                 <label key={skill} className={`skill-option ${formState.skills.includes(skill) ? "selected" : ""}`}>
                   <input
                     type="checkbox"
@@ -165,64 +136,46 @@ const SignUp = () => {
                   checked={formState.useOther}
                   onChange={() => setFormState({ ...formState, useOther: !formState.useOther })}
                 />
-                Other
+                Autres
               </label>
             </div>
             {formState.useOther && (
-              <input
-                type="text"
-                placeholder="Enter your skill and press Enter"
-                value={formState.otherSkill}
-                onChange={(e) => setFormState((prev) => ({ ...prev, otherSkill: e.target.value }))}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    const trimmedSkill = formState.otherSkill.trim();
-                    if (trimmedSkill && !formState.skills.includes(trimmedSkill)) {
-                      setFormState((prev) => ({
-                        ...prev,
-                        skills: [...prev.skills, trimmedSkill],
-                        otherSkill: "",
-                      }));
-                    }
-                  }
-                }}
-                className="other-skill-input"
-              />
-            )}
-          </div>
+  <input
+    type="text"
+    placeholder="Enter your skill and press Enter"
+    value={formState.otherSkill}
+    onChange={(e) =>
+      setFormState((prev) => ({
+        ...prev,
+        otherSkill: e.target.value,
+      }))
+    }
+    onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const trimmedSkill = formState.otherSkill.trim();
+        if (trimmedSkill && !formState.skills.includes(trimmedSkill)) {
+          setFormState((prev) => ({
+            ...prev,
+            skills: [...prev.skills, trimmedSkill],
+            otherSkill: "",
+          }));
+        }
+      }
+    }}
+    className="other-skill-input"
+  />
+)}
 
-          {/* Skills Recommended */}
-          <div className="skills-section">
-            <p>Skills Recommended :</p>
-            {loadingRecommended ? (
-              <p>Chargement des recommandations...</p>
-            ) : (
-              <div className="skills-grid">
-                {formState.skillsRecommended.length > 0 ? (
-                  formState.skillsRecommended.map((skill) => (
-                    <label key={skill} className={`skill-option ${formState.skills.includes(skill) ? "selected" : ""}`}>
-                      <input
-                        type="checkbox"
-                        checked={formState.skills.includes(skill)}
-                        onChange={() => toggleRecommendedSkill(skill)}
-                      />
-                      {skill}
-                    </label>
-                  ))
-                ) : (
-                  <p>Pas de recommandations encore.</p>
-                )}
-              </div>
-            )}
+
           </div>
 
           <input id="fileInput" type="file" accept="image/*" onChange={handleImageUpload} />
           {(image || capturedImage) && <img src={URL.createObjectURL(image || capturedImage)} alt="preview" className="preview-image" />}
-          <button type="button" onClick={openCamera}>📷 Open Camera</button>
+          <button type="button" onClick={openCamera}>📷 Ouvrir la Caméra</button>
           <video ref={videoRef} autoPlay className="camera-view"></video>
           <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
-          <button type="button" onClick={capturePhoto}>📸 Capture Photo</button>
+          <button type="button" onClick={capturePhoto}>📸 Prendre une photo</button>
 
           <ReCAPTCHA sitekey="6LeiZ-QqAAAAAFjqeHfNgCeTBBzRVfwta1SgRx4v" onChange={handleRecaptchaChange} />
 
