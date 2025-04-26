@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import "./IARecommendation.scss";
+import "./Recommendation.scss"; // Renommez aussi le fichier SCSS si nécessaire
 
-const IARecommendation = () => {
+const Recommendation = () => {
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -10,7 +10,7 @@ const IARecommendation = () => {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        console.log("🧪 Fetching IA recommendations for user:", user?._id);
+        console.log("🧪 Fetching recommendations for user:", user?._id);
         const res = await fetch(`http://localhost:3000/api/recommendation/${user._id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -20,15 +20,14 @@ const IARecommendation = () => {
         const data = await res.json();
         console.log("🎯 Data received:", data);
 
-        // ✅ Sécurité : s'assurer que data est bien un tableau
         if (Array.isArray(data)) {
           setPartners(data);
         } else {
-          console.warn("⚠️ Résultat IA inattendu :", data);
+          console.warn("⚠️ Résultat inattendu :", data);
           setPartners([]);
         }
       } catch (error) {
-        console.error("❌ Erreur fetch recommandation :", error);
+        console.error("❌ Erreur lors de la récupération des recommandations :", error);
         setPartners([]);
       } finally {
         setLoading(false);
@@ -40,9 +39,9 @@ const IARecommendation = () => {
 
   return (
     <div className="recommendation-page">
-      <h1>🤝 Recommended Exchange Partners</h1>
+      <h1>🤝 Partenaires d'échange recommandés</h1>
       {loading ? (
-        <p>Chargement des suggestions...</p>
+        <p>Chargement des recommandations...</p>
       ) : partners.length === 0 ? (
         <p>Aucune recommandation disponible pour le moment. Veuillez réessayer plus tard.</p>
       ) : (
@@ -59,4 +58,4 @@ const IARecommendation = () => {
   );
 };
 
-export default IARecommendation;
+export default Recommendation;
