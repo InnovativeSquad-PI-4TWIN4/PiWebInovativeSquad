@@ -46,7 +46,6 @@
     box-shadow: 0 0 20px rgba(0, 255, 231, 0.2);
     transition: 0.3s ease;
     position: relative;
-    overflow: hidden;
 
     h2 {
       color: #00ffe7;
@@ -74,6 +73,7 @@
       }
     }
 
+    // ✅ Bouton "Générer le quiz IA"
     .quiz-btn {
       margin-top: 1rem;
       background-color: #ffc107;
@@ -90,6 +90,7 @@
       }
     }
 
+    // ✅ Bloc du quiz IA généré
     .quiz-container {
       margin-top: 1.5rem;
       padding: 1rem;
@@ -153,48 +154,14 @@
       animation: flash 1s ease-in-out 5;
       box-shadow: 0 0 25px #00ffcc;
     }
-
-    /* ✅ Nouvelle classe pour carte recommandée */
-    &.recommended {
-      border: 3px solid #00ff88;
-      background: linear-gradient(145deg, #002d2d, #004d3b);
-      box-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
-      animation: glow 1.5s infinite alternate;
-    }
-  }
-
-  /* ✅ Badge recommandé */
-  .badge-banner {
-    position: absolute;
-    top: 10px;
-    left: -40px;
-    background: #00ff88;
-    color: black;
-    font-weight: bold;
-    padding: 6px 50px;
-    transform: rotate(-45deg);
-    font-size: 0.9rem;
-    box-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
-    z-index: 10;
   }
 }
 
-/* ✅ Animation flash pour "highlighted" */
 @keyframes flash {
   0% {
     box-shadow: 0 0 15px #00ffcc;
   }
   100% {
     box-shadow: 0 0 30px #00ffcc;
-  }
-}
-
-/* ✅ Animation glow pour "recommended" */
-@keyframes glow {
-  0% {
-    box-shadow: 0 0 10px rgba(0, 255, 136, 0.7);
-  }
-  100% {
-    box-shadow: 0 0 30px rgba(0, 255, 136, 1);
   }
 }

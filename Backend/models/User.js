@@ -8,10 +8,6 @@ const User = new Schema({
   password: String,
   dateOfBirth: Date,
   Skill: [String],
-  skillsRecommended: { // 🔵 Nouvelles Skills générées par IA
-    type: [String],
-    default: []
-  },
   image: String,
   verified: { type: Boolean, default: false },
   emailToken: { type: String },
