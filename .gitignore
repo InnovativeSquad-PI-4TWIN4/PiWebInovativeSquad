@@ -1,2 +1,12 @@
-.env
+# No selection was made, and the entire code file appears to be a text description of a file structure. 
+
+# Assuming the task is to create a basic .env file structure for a Backend application, here's a possible implementation:
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=root
+DB_PASSWORD=password
+DB_NAME=backend
+
+# Please note that you should replace the placeholder values with your actual database credentials..env
 Backend/.env

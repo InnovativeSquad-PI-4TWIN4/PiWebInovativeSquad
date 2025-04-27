@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import './Marketplace.scss';
 import RechargeModal from '../RechargeModal/RechargeModal';
 import { motion } from 'framer-motion';
+import Recommendation from '../Recommendation/Recommendation'; // ✅ import correct
 
 const Marketplace = () => {
   const [view, setView] = useState(null);
@@ -133,7 +134,6 @@ const Marketplace = () => {
                 <p>{course.category}</p>
                 <p><strong>Instructeur :</strong> {course.instructor?.name || "Inconnu"}</p>
                 <p>💰 Prix : {course.price} DT</p>
-
                 {paidCourses.includes(course._id) ? (
                   course.isMeetEnded && course.videoReplayUrl ? (
                     <a
@@ -161,6 +161,16 @@ const Marketplace = () => {
       );
     }
 
+    if (view === 'recommendations') { // ✅ Nouveau view ajouté !
+      return (
+        <>
+          <button className="back-btn" onClick={() => setView(null)}>⬅</button>
+          <h2>🤖 Partenaires recommandés</h2>
+          <Recommendation />
+        </>
+      );
+    }
+
     return (
       <div className="marketplace-cards">
         <motion.div className="select-card" onClick={() => navigate('/marketplace/free')} whileHover={{ scale: 1.05 }}>
@@ -170,9 +180,11 @@ const Marketplace = () => {
           🔥 <h3>Premium Courses</h3>
         </motion.div>
         <motion.div className="select-card" onClick={() => navigate('/planify-session')} whileHover={{ scale: 1.05 }}>
-  🤝 <h3>Planifier une session</h3>
-</motion.div>
-
+          🤝 <h3>Schedule a session</h3>
+        </motion.div>
+        <motion.div className="select-card" onClick={() => setView('recommendations')} whileHover={{ scale: 1.05 }}>
+          🤖 <h3> Other Partners</h3>
+        </motion.div>
       </div>
     );
   };
