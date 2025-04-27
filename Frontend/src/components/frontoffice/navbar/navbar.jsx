@@ -80,9 +80,7 @@ const Navbar = ({ user, onLogout }) => {
             <li><Link to="/Full" className="overview">AI Tools</Link></li>
             <li><Link to="/Personal" className="overview">Personal Space</Link></li>
             <li><Link to="/contact">Contact</Link></li>
-            <li>
-  <Link to="/recommendations"> AI Partners</Link>
-</li>
+            
 
 
             <li>
