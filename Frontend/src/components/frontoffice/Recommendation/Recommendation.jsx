@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./Recommendation.scss"; // Renommez aussi le fichier SCSS si nécessaire
+import "./Recommendation.scss";
 
 const Recommendation = () => {
   const [partners, setPartners] = useState([]);
@@ -50,6 +50,24 @@ const Recommendation = () => {
             <div className="recommendation-card" key={index}>
               <h3>{partner.profile}</h3>
               <p>🧠 {partner.reason}</p>
+              <p>
+                📧 E-mail :{" "}
+                {partner.email !== "Non disponible" ? (
+                  <a href={`mailto:${partner.email}`} className="email-link">
+                    {partner.email}
+                  </a>
+                ) : (
+                  "Non disponible"
+                )}
+              </p>
+              <a
+                href={`https://github.com/${partner.profile.split(" ")[0]}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="github-link"
+              >
+                Voir le profil GitHub
+              </a>
             </div>
           ))}
         </div>

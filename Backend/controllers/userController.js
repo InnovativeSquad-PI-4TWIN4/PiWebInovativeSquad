@@ -155,7 +155,6 @@ exports.signup = [
       const image = req.file ? `/public/images/${req.file.filename}` : null;
       const emailToken = crypto.randomBytes(32).toString("hex");
 
-      // 🔥 Génération IA des skillsRecommended
       const skillsRecommended = await generateRecommendedSkills(Skill);
 
       const newUser = new User({
@@ -189,7 +188,6 @@ exports.signup = [
         status: "SUCCESS",
         message: "Inscription réussie. Un email de confirmation a été envoyé.",
       });
-
     } catch (err) {
       console.error("Signup Error:", err);
       return res.status(500).json({ status: "FAILED", message: "Erreur interne du serveur." });

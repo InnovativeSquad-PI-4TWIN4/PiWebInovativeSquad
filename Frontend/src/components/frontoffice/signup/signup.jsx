@@ -43,7 +43,6 @@ const SignUp = () => {
       setLoadingRecommended(false);
     }
   };
-
   const handleChange = (field) => (e) => {
     setFormState({ ...formState, [field]: e.target.value });
   };
@@ -66,19 +65,19 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!image && !capturedImage) return setError("Please upload or capture an image.");
-    if (!recaptchaToken) return setError("Please complete the reCAPTCHA.");
-
+    if (!image && !capturedImage) return setError("Veuillez télécharger ou capturer une image.");
+    if (!recaptchaToken) return setError("Veuillez compléter le reCAPTCHA.");
+  
     let finalSkills = [...formState.skills];
     if (formState.useOther && formState.otherSkill.trim() !== '') {
       if (!finalSkills.includes(formState.otherSkill.trim())) {
         finalSkills.push(formState.otherSkill.trim());
       }
     }
-
+  
     if (finalSkills.length === 0)
-      return setError("Please select or enter at least one skill.");
-
+      return setError("Veuillez sélectionner ou entrer au moins une compétence.");
+  
     const formData = new FormData();
     formData.append("Skill", finalSkills.join(","));
     formData.append("name", formState.name);
@@ -87,16 +86,16 @@ const SignUp = () => {
     formData.append("password", formState.password);
     formData.append("dateOfBirth", formState.dateOfBirth);
     formData.append("recaptchaToken", recaptchaToken);
-
+  
     if (image) formData.append("image", image);
     else if (capturedImage) formData.append("image", capturedImage);
-
+  
     try {
       const res = await axios.post('http://localhost:3000/users/signup', formData);
       alert("Inscription réussie ! Un email de vérification vous a été envoyé.");
       navigate('/verify-pending');
     } catch (err) {
-      setError(err.response?.data?.message || "Signup failed.");
+      setError(err.response?.data?.message || "Échec de l'inscription. Veuillez réessayer plus tard.");
     }
   };
 
