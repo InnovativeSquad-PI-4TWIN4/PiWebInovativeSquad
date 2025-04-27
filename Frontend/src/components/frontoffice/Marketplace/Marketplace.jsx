@@ -161,7 +161,7 @@ const Marketplace = () => {
       );
     }
 
-    if (view === 'recommendations') { // ✅ Nouveau view ajouté !
+    if (view === 'recommendations') {
       return (
         <>
           <button className="back-btn" onClick={() => setView(null)}>⬅</button>
@@ -183,7 +183,10 @@ const Marketplace = () => {
           🤝 <h3>Schedule a session</h3>
         </motion.div>
         <motion.div className="select-card" onClick={() => setView('recommendations')} whileHover={{ scale: 1.05 }}>
-          🤖 <h3> Other Partners</h3>
+          🤖 <h3>Other Partners</h3>
+        </motion.div>
+        <motion.div className="select-card" onClick={() => navigate('/wheel-fortune')} whileHover={{ rotate: 5, scale: 1.1 }}>
+          🎡 <h3>Wheel of Luck </h3>
         </motion.div>
       </div>
     );
