@@ -1,4 +1,3 @@
-// Backend/models/Publication.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -73,7 +72,11 @@ const PublicationSchema = new Schema({
   comments: [CommentSchema],
   isArchived: {
     type: Boolean,
-    default: false, // Par défaut, une publication n'est pas archivée
+    default: false,
+  },
+  commentSuggestions: {
+    type: [String], // Array of strings to store AI-generated comment suggestions
+    default: [], // Default to an empty array
   },
 });
 

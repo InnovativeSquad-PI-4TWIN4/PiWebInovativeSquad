@@ -39,17 +39,18 @@ const Publication = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const commentSuggestions = [
+  const showToast = (message) => {
+    setToastMessage(message);
+    setTimeout(() => setToastMessage(""), 3000);
+  };
+
+  // Fallback suggestions in case the backend fails to provide any
+  const fallbackSuggestions = [
     "Parfait",
     `Excellent travail ${currentUser?.name || ""}`,
     "Super !",
     "Bien joué",
   ];
-
-  const showToast = (message) => {
-    setToastMessage(message);
-    setTimeout(() => setToastMessage(""), 3000);
-  };
 
   // Récupérer l'utilisateur connecté
   useEffect(() => {
@@ -86,6 +87,7 @@ const Publication = () => {
     const fetchPublications = async () => {
       try {
         const response = await axios.get(`${API_URL}/getAllPub`);
+        console.log('Fetched publications:', JSON.stringify(response.data, null, 2));
         setPublications(response.data);
         setLoading(false);
       } catch (err) {
@@ -107,6 +109,7 @@ const Publication = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log('Fetched archived publications:', JSON.stringify(response.data, null, 2));
         setArchivedPublications(response.data);
       } catch (err) {
         setError("Erreur lors du chargement des publications archivées");
@@ -132,7 +135,6 @@ const Publication = () => {
           publicationElement.scrollIntoView({ behavior: "smooth", block: "start" });
         } else {
           console.warn(`Publication with ID ${publicationId} not found in the current view`);
-          // Reset filters to ensure the publication is visible
           if (viewMode !== "all" || filterType !== "all") {
             setViewMode("all");
             setFilterType("all");
@@ -140,10 +142,8 @@ const Publication = () => {
         }
       };
 
-      // Attempt to scroll immediately
       attemptScroll();
 
-      // If the publication isn't found, try again after a short delay to account for state updates
       if (!(document.querySelector(`.publication-card[data-id="${publicationId}"]`))) {
         const timer = setTimeout(attemptScroll, 500);
         return () => clearTimeout(timer);
@@ -836,7 +836,7 @@ const Publication = () => {
                               />
                               <div className="comment-input-wrapper">
                                 <div className="comment-suggestions">
-                                  {commentSuggestions.map((suggestion, index) => (
+                                  {(pub.commentSuggestions && pub.commentSuggestions.length > 0 ? pub.commentSuggestions : fallbackSuggestions).map((suggestion, index) => (
                                     <button
                                       key={index}
                                       type="button"
@@ -883,7 +883,7 @@ const Publication = () => {
                     />
                     <div className="comment-input-wrapper">
                       <div className="comment-suggestions">
-                        {commentSuggestions.map((suggestion, index) => (
+                        {(pub.commentSuggestions && pub.commentSuggestions.length > 0 ? pub.commentSuggestions : fallbackSuggestions).map((suggestion, index) => (
                           <button
                             key={index}
                             type="button"
@@ -932,131 +932,126 @@ const Publication = () => {
         </div>
       )}
 
-     
-{editModal && (
-  <div style={{
-    position: "fixed",
-    top: 0, left: 0, width: "100vw", height: "100vh",
-    backgroundColor: "rgba(0,0,0,0.75)",
-    zIndex: 9999,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center"
-  }}>
-    <div style={{
-      backgroundColor: "#1c1e21",
-      width: "500px",
-      borderRadius: "12px",
-      overflow: "hidden",
-      color: "#e4e6eb",
-      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5)",
-      animation: "fadeIn 0.3s ease-in-out"
-    }}>
-      <div style={{
-        backgroundColor: "#242526",
-        padding: "16px",
-        fontSize: "20px",
-        fontWeight: "bold",
-        textAlign: "center",
-        borderBottom: "1px solid #3a3b3c"
-      }}>
-        Modify Post
-      </div>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleUpdatePublication(editModal._id, {
-            type: editModal.type,
-            description: editModal.description,
-          });
-        }}
-        style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "15px" }}
-      >
-        {/* Type Switch */}
-        <div style={{ display: "flex", justifyContent: "center", gap: "12px" }}>
-          <div
-            onClick={() => setEditModal((prev) => ({ ...prev, type: "offer" }))}
-            style={{
-              backgroundColor: editModal.type === "offer" ? "#0866ff" : "#3a3b3c",
-              color: editModal.type === "offer" ? "white" : "#e4e6eb",
-              padding: "8px 14px",
-              borderRadius: "20px",
-              cursor: "pointer",
-              fontWeight: 500
-            }}
-          >
-            Offer
-          </div>
-          <div
-            onClick={() => setEditModal((prev) => ({ ...prev, type: "request" }))}
-            style={{
-              backgroundColor: editModal.type === "request" ? "#0866ff" : "#3a3b3c",
-              color: editModal.type === "request" ? "white" : "#e4e6eb",
-              padding: "8px 14px",
-              borderRadius: "20px",
-              cursor: "pointer",
-              fontWeight: 500
-            }}
-          >
-            Request
-          </div>
-        </div>
-
-        {/* Textarea */}
-        <textarea
-          value={editModal.description}
-          onChange={(e) => setEditModal((prev) => ({ ...prev, description: e.target.value }))}
-          placeholder="Description"
-          autoFocus
-          style={{
-            backgroundColor: "#3a3b3c",
+      {editModal && (
+        <div style={{
+          position: "fixed",
+          top: 0, left: 0, width: "100vw", height: "100vh",
+          backgroundColor: "rgba(0,0,0,0.75)",
+          zIndex: 9999,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center"
+        }}>
+          <div style={{
+            backgroundColor: "#1c1e21",
+            width: "500px",
+            borderRadius: "12px",
+            overflow: "hidden",
             color: "#e4e6eb",
-            border: "none",
-            borderRadius: "10px",
-            padding: "12px",
-            fontSize: "16px",
-            resize: "vertical",
-            minHeight: "100px"
-          }}
-        />
-
-        {/* Buttons */}
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <button
-            type="button"
-            onClick={() => setEditModal(null)}
-            style={{
-              backgroundColor: "#3a3b3c",
-              color: "#e4e6eb",
-              padding: "10px 20px",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer"
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            style={{
-              backgroundColor: "#0866ff",
-              color: "white",
-              padding: "10px 20px",
-              border: "none",
-              borderRadius: "8px",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5)",
+            animation: "fadeIn 0.3s ease-in-out"
+          }}>
+            <div style={{
+              backgroundColor: "#242526",
+              padding: "16px",
+              fontSize: "20px",
               fontWeight: "bold",
-              cursor: "pointer"
-            }}
-          >
-            Save
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+              textAlign: "center",
+              borderBottom: "1px solid #3a3b3c"
+            }}>
+              Modify Post
+            </div>
 
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleUpdatePublication(editModal._id, {
+                  type: editModal.type,
+                  description: editModal.description,
+                });
+              }}
+              style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "15px" }}
+            >
+              <div style={{ display: "flex", justifyContent: "center", gap: "12px" }}>
+                <div
+                  onClick={() => setEditModal((prev) => ({ ...prev, type: "offer" }))}
+                  style={{
+                    backgroundColor: editModal.type === "offer" ? "#0866ff" : "#3a3b3c",
+                    color: editModal.type === "offer" ? "white" : "#e4e6eb",
+                    padding: "8px 14px",
+                    borderRadius: "20px",
+                    cursor: "pointer",
+                    fontWeight: 500
+                  }}
+                >
+                  Offer
+                </div>
+                <div
+                  onClick={() => setEditModal((prev) => ({ ...prev, type: "request" }))}
+                  style={{
+                    backgroundColor: editModal.type === "request" ? "#0866ff" : "#3a3b3c",
+                    color: editModal.type === "request" ? "white" : "#e4e6eb",
+                    padding: "8px 14px",
+                    borderRadius: "20px",
+                    cursor: "pointer",
+                    fontWeight: 500
+                  }}
+                >
+                  Request
+                </div>
+              </div>
+
+              <textarea
+                value={editModal.description}
+                onChange={(e) => setEditModal((prev) => ({ ...prev, description: e.target.value }))}
+                placeholder="Description"
+                autoFocus
+                style={{
+                  backgroundColor: "#3a3b3c",
+                  color: "#e4e6eb",
+                  border: "none",
+                  borderRadius: "10px",
+                  padding: "12px",
+                  fontSize: "16px",
+                  resize: "vertical",
+                  minHeight: "100px"
+                }}
+              />
+
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <button
+                  type="button"
+                  onClick={() => setEditModal(null)}
+                  style={{
+                    backgroundColor: "#3a3b3c",
+                    color: "#e4e6eb",
+                    padding: "10px 20px",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer"
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    backgroundColor: "#0866ff",
+                    color: "white",
+                    padding: "10px 20px",
+                    border: "none",
+                    borderRadius: "8px",
+                    fontWeight: "bold",
+                    cursor: "pointer"
+                  }}
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
