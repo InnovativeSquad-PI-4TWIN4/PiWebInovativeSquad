@@ -6,7 +6,7 @@ const crypto = require("node:crypto");  // ✅ Utilisation du module natif
 const multer = require("multer");
 const path = require('path');
 const axios = require('axios');
-
+const { OpenAI } = require("openai");
 
 require("dotenv").config();
 
@@ -102,13 +102,62 @@ exports.rejectUser =[ async (req, res) => {
 
 
 // ✅ INSCRIPTION AVEC VÉRIFICATION PAR EMAIL
+// ✅ Génération IA SkillsRecommended
+const generateRecommendedSkills = async (skills) => {
+  const openai = new OpenAI({
+    apiKey: process.env.OPENROUTER_API_KEY,
+    baseURL: "https://openrouter.ai/api/v1"
+  });
+
+  const prompt = `
+Tu es un expert du développement logiciel et web.
+
+À partir de cette liste de compétences existantes :
+[${skills.join(', ')}]
+
+Génère une liste de 5 nouvelles compétences COMPLÉMENTAIRES qui sont uniquement des **technologies, frameworks, bibliothèques ou outils**.
+
+Exemples valides :
+["React", "Node.js", "Express", "Spring Boot", "MongoDB", "Docker", "GitLab", "Angular", "Vue.js", "AWS"]
+
+Exemples invalides :
+["Création d'applications", "Optimisation du code", "Gestion de projet"]
+
+**Réponds uniquement** sous forme d'un tableau JSON valide, sans texte autour.
+
+Format attendu :
+[
+  "Tech1",
+  "Tech2",
+  "Tech3",
+  "Tech4",
+  "Tech5"
+]
+`;
+
+  const response = await openai.chat.completions.create({
+    model: "openai/gpt-3.5-turbo",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.6
+  });
+
+  const aiContent = response.choices[0]?.message?.content;
+  const jsonStart = aiContent.indexOf("[");
+  const jsonEnd = aiContent.lastIndexOf("]") + 1;
+  const skillsList = JSON.parse(aiContent.substring(jsonStart, jsonEnd));
+
+  return skillsList;
+};
+
+
+// ✅ SIGNUP
 exports.signup = [
   upload.single("image"),
   async (req, res) => {
     try {
       let { name, surname, email, password, dateOfBirth, recaptchaToken } = req.body;
       let Skill = req.body.Skill || "";
-      if (!name || !surname || !email || !password || !dateOfBirth ) {
+      if (!name || !surname || !email || !password || !dateOfBirth) {
         return res.status(400).json({ status: "FAILED", message: "Tous les champs sont requis !" });
       }
 
@@ -128,6 +177,9 @@ exports.signup = [
       const image = req.file ? `/public/images/${req.file.filename}` : null;
       const emailToken = crypto.randomBytes(32).toString("hex");
 
+      // 🔥 Génération IA des skillsRecommended
+      const skillsRecommended = await generateRecommendedSkills(Skill);
+
       const newUser = new User({
         name,
         surname,
@@ -135,6 +187,7 @@ exports.signup = [
         password: hashedPassword,
         dateOfBirth: new Date(dateOfBirth),
         Skill,
+        skillsRecommended,
         image,
         role: "client",
         isActive: true,
@@ -146,28 +199,25 @@ exports.signup = [
 
       const confirmLink = `http://localhost:3000/users/verify-email/${emailToken}`;
 
-
       await sendEmail(
         email,
         "Vérifiez votre compte SkillBridge",
         `<h2>Bienvenue ${name},</h2>
-        <p>Merci de vous être inscrit ! Cliquez sur le bouton ci-dessous pour vérifier votre compte :</p>
-        <a href="${confirmLink}" style="padding: 10px 15px; background: #00b894; color: white; border-radius: 5px; text-decoration: none;">Confirmer mon compte</a>
-        <p>Si vous n'avez pas demandé cela, ignorez ce message.</p>`
+        <p>Merci de vous être inscrit ! Cliquez ci-dessous pour vérifier votre compte :</p>
+        <a href="${confirmLink}" style="padding: 10px 15px; background: #00b894; color: white; border-radius: 5px; text-decoration: none;">Confirmer mon compte</a>`
       );
 
       return res.status(201).json({
         status: "SUCCESS",
         message: "Inscription réussie. Un email de confirmation a été envoyé.",
       });
+
     } catch (err) {
       console.error("Signup Error:", err);
       return res.status(500).json({ status: "FAILED", message: "Erreur interne du serveur." });
     }
-  },
+  }
 ];
-
-
 // ✅ VÉRIFICATION EMAIL
 exports.verifyEmail = async (req, res) => {
   try {
