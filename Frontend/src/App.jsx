@@ -50,6 +50,8 @@ import CodeRoom from './components/frontoffice/ExchangePages/CodeRoom'
 
 import PlanifySession from './components/frontoffice/Marketplace/PlanifySession';
 import Recommendation from './components/frontoffice/Recommendation/Recommendation';
+import WheelOfFortune from './components/frontoffice/WheelOfFortune/WheelOfFortune';
+
 
 
 
@@ -201,6 +203,8 @@ useEffect(() => {
 
               <Route path="/planify-session" element={<PlanifySession />} />
               <Route path="/recommendations" element={<Recommendation />} />
+              <Route path="/wheel-fortune" element={<WheelOfFortune />} />
+
 
 
 
