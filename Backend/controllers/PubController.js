@@ -1,6 +1,7 @@
 const Publication = require('../models/publication');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
+const { generateCommentForPublication } = require('../services/aiCommentService');
 
 // ➤ Récupérer toutes les publications
 exports.getAllPub = async (req, res) => {
@@ -22,6 +23,7 @@ exports.getAllPub = async (req, res) => {
         },
       })
       .sort({ createdAt: -1 });
+
     console.log('Publications renvoyées :', JSON.stringify(publications, null, 2));
     res.status(200).json(publications);
   } catch (error) {
@@ -55,10 +57,15 @@ exports.createPub = async (req, res) => {
       return res.status(400).json({ error: 'Tous les champs requis doivent être remplis' });
     }
 
+    console.log("Creating publication with description:", description);
+    const commentSuggestions = await generateCommentForPublication(description);
+    console.log("Generated comment suggestions:", commentSuggestions);
+
     const newPublication = new Publication({
       user,
       type,
       description,
+      commentSuggestions,
     });
 
     await newPublication.save();
@@ -66,11 +73,14 @@ exports.createPub = async (req, res) => {
     const populatedPublication = await Publication.findById(newPublication._id)
       .populate('user', 'name surname image');
 
+    console.log("Saved publication:", populatedPublication);
+
     res.status(201).json({ 
       message: 'Publication créée avec succès', 
       publication: populatedPublication 
     });
   } catch (error) {
+    console.error("Error in createPub:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -78,7 +88,7 @@ exports.createPub = async (req, res) => {
 // ➤ Mettre à jour une publication
 exports.updatePub = async (req, res) => {
   try {
-    const userId = req.user.userId; // ID de l'utilisateur connecté
+    const userId = req.user.userId;
     const { type, description } = req.body;
 
     const publication = await Publication.findById(req.params.id);
@@ -86,7 +96,6 @@ exports.updatePub = async (req, res) => {
       return res.status(404).json({ error: 'Publication non trouvée' });
     }
 
-    // Vérifier que l'utilisateur est l'auteur de la publication
     if (publication.user.toString() !== userId) {
       return res.status(403).json({ error: 'Seul l\'auteur peut modifier cette publication' });
     }
@@ -95,12 +104,18 @@ exports.updatePub = async (req, res) => {
       return res.status(403).json({ error: 'Cette publication est archivée et ne peut pas être modifiée' });
     }
 
+    let commentSuggestions = publication.commentSuggestions;
+    if (description && description !== publication.description) {
+      commentSuggestions = await generateCommentForPublication(description);
+    }
+
     const updatedPublication = await Publication.findByIdAndUpdate(
       req.params.id,
       {
         type,
         description,
         updatedAt: Date.now(),
+        commentSuggestions,
       },
       { new: true, runValidators: true }
     ).populate('user', 'name surname image');
@@ -113,19 +128,16 @@ exports.updatePub = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-// ➤ Supprimer une publication
 // ➤ Supprimer une publication
 exports.deletePub = async (req, res) => {
   try {
-    const userId = req.user.userId; // ID de l'utilisateur connecté
+    const userId = req.user.userId;
     const publication = await Publication.findById(req.params.id);
 
     if (!publication) {
       return res.status(404).json({ error: 'Publication non trouvée' });
     }
 
-    // Vérifier que l'utilisateur est l'auteur de la publication
     if (publication.user.toString() !== userId) {
       return res.status(403).json({ error: 'Seul l\'auteur peut supprimer cette publication' });
     }
@@ -248,36 +260,30 @@ exports.addReply = async (req, res) => {
   try {
     const publicationId = req.params.id;
     const commentId = req.params.commentId;
-    const userId = req.user.userId; // Utilisateur connecté qui répond
+    const userId = req.user.userId;
     const { content } = req.body;
 
-    // Vérifier que le contenu de la réponse est valide
     if (!content || content.trim().length === 0) {
       return res.status(400).json({ error: 'Le contenu de la réponse est requis' });
     }
 
-    // Récupérer la publication
     const publication = await Publication.findById(publicationId);
     if (!publication) {
       return res.status(404).json({ error: 'Publication non trouvée' });
     }
 
-    // Récupérer le commentaire
     const comment = publication.comments.id(commentId);
     if (!comment) {
       return res.status(404).json({ error: 'Commentaire non trouvé' });
     }
 
-    // Ajouter la réponse au commentaire
     comment.replies.push({
       user: userId,
       content,
     });
 
-    // Sauvegarder les modifications
     await publication.save();
 
-    // Créer une notification pour l'auteur du commentaire (sauf si c'est lui-même qui répond)
     const commentOwnerId = comment.user.toString();
     console.log('Auteur du commentaire:', commentOwnerId, 'Utilisateur qui répond:', userId);
 
@@ -304,7 +310,6 @@ exports.addReply = async (req, res) => {
       console.log('Pas de notification créée: L\'utilisateur répond à son propre commentaire');
     }
 
-    // Récupérer la publication mise à jour avec les populate nécessaires
     const updatedPublication = await Publication.findById(publicationId)
       .populate('user', 'name surname image')
       .populate('comments.user', 'name surname image')
@@ -319,7 +324,6 @@ exports.addReply = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 
 // ➤ Récupérer toutes les notifications d'un utilisateur
 exports.getUserNotifications = async (req, res) => {
@@ -365,13 +369,14 @@ exports.markNotificationAsRead = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 // ➤ Statistiques des publications par type (offre vs demande)
 exports.getPublicationStats = async (req, res) => {
   try {
     const stats = await Publication.aggregate([
       {
         $group: {
-          _id: "$type", // "offer" ou "request"
+          _id: "$type",
           count: { $sum: 1 },
         },
       },
@@ -382,24 +387,25 @@ exports.getPublicationStats = async (req, res) => {
           count: 1,
         },
       },
-    ])
+    ]);
 
-    res.status(200).json(stats)
+    res.status(200).json(stats);
   } catch (error) {
-    console.error("Erreur lors de l'agrégation des statistiques des publications :", error)
-    res.status(500).json({ error: error.message })
+    console.error("Erreur lors de l'agrégation des statistiques des publications :", error);
+    res.status(500).json({ error: error.message });
   }
 };
+
+// ➤ Archiver une publication
 exports.archivePub = async (req, res) => {
   try {
-    const userId = req.user.userId; // ID de l'utilisateur connecté
+    const userId = req.user.userId;
     const publication = await Publication.findById(req.params.id);
 
     if (!publication) {
       return res.status(404).json({ error: 'Publication non trouvée' });
     }
 
-    // Vérifier que l'utilisateur est l'auteur de la publication
     if (publication.user.toString() !== userId) {
       return res.status(403).json({ error: 'Seul l\'auteur peut archiver cette publication' });
     }
@@ -414,13 +420,14 @@ exports.archivePub = async (req, res) => {
   }
 };
 
+// ➤ Récupérer les publications archivées
 exports.getArchivedPub = async (req, res) => {
   try {
-    const userId = req.user.userId; // ID de l'utilisateur connecté
+    const userId = req.user.userId;
 
     const archivedPublications = await Publication.find({
-      user: userId, // Uniquement les publications de l'utilisateur connecté
-      isArchived: true, // Uniquement les publications archivées
+      user: userId,
+      isArchived: true,
     })
       .populate('user', 'name surname image')
       .populate({
