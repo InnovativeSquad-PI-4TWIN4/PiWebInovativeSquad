@@ -49,7 +49,7 @@ import DesignCollab from './components/frontoffice/ExchangePages/design-collab';
 import CodeRoom from './components/frontoffice/ExchangePages/CodeRoom'
 
 import PlanifySession from './components/frontoffice/Marketplace/PlanifySession';
-import IARecommendation from './components/frontoffice/IARecommendation/IARecommendation';
+import Recommendation from './components/frontoffice/Recommendation/Recommendation';
 
 
 
@@ -200,7 +200,7 @@ useEffect(() => {
               <Route path="/code-room/:roomId" element={<CodeRoom />} />
 
               <Route path="/planify-session" element={<PlanifySession />} />
-              <Route path="/recommendations" element={<IARecommendation />} />
+              <Route path="/recommendations" element={<Recommendation />} />
 
 
 
