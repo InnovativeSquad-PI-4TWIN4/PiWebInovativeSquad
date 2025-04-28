@@ -75,7 +75,7 @@ const ManageProfile = () => {
       if (!res.ok) throw new Error("Request failed");
   
       const updatedRequest = await res.json();
-      alert(`Request ${status} successfully.`);
+      alert(`Request ${status} successfullyy.`);
   
       // ✅ Actualise la liste des demandes
       setExchangeRequests((prev) =>
