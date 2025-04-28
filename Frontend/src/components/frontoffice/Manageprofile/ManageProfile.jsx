@@ -126,7 +126,7 @@ const ManageProfile = () => {
 
         if (!response.ok) throw new Error("Delete error");
         localStorage.clear();
-        alert("Account deleted.");
+        alert("Account deleted Successfuly.");
         navigate("/signin");
       } catch (err) {
         alert("Error: " + err.message);
