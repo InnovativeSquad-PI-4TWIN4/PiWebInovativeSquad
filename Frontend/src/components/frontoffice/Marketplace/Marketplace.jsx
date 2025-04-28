@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom";
 import './Marketplace.scss';
 import RechargeModal from '../RechargeModal/RechargeModal';
 import { motion } from 'framer-motion';
-import Recommendation from '../Recommendation/Recommendation'; // ✅ import correct
+import Recommendation from '../Recommendation/Recommendation';
+import RobotButton from '../RobotAssistant/RobotButton'; // 🧠 On importe le bouton du robot
+import RobotAssistant from '../RobotAssistant/RobotAssistant'; // 🧠 On importe l'assistant du robot
 
 const Marketplace = () => {
   const [view, setView] = useState(null);
@@ -12,6 +14,7 @@ const Marketplace = () => {
   const [showRechargeModal, setShowRechargeModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [paidCourses, setPaidCourses] = useState([]);
+  const [showRobot, setShowRobot] = useState(false); // 🧠 Contrôle affichage Robot
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -186,7 +189,7 @@ const Marketplace = () => {
           🤖 <h3>Other Partners</h3>
         </motion.div>
         <motion.div className="select-card" onClick={() => navigate('/wheel-fortune')} whileHover={{ rotate: 5, scale: 1.1 }}>
-          🎡 <h3>Wheel of Luck </h3>
+          🎡 <h3>Wheel of Luck</h3>
         </motion.div>
       </div>
     );
@@ -196,6 +199,8 @@ const Marketplace = () => {
     <section className="courses">
       <h1>🎓 Welcome to the Marketplace</h1>
       {renderView()}
+      <RobotButton onClick={() => setShowRobot(true)} /> {/* 🧠 Affiche petit robot */}
+      {showRobot && <RobotAssistant onClose={() => setShowRobot(false)} />} {/* 🧠 Robot IA quand ouvert */}
       {showRechargeModal && (
         <RechargeModal
           isOpen={showRechargeModal}

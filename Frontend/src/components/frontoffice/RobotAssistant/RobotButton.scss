@@ -1,0 +1,21 @@
+.robot-button {
+    background-color: #00f5d4;
+    border: none;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    font-size: 2rem;
+    color: #111;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 245, 212, 0.5);
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    transition: background-color 0.3s;
+  
+    &:hover {
+      background-color: #00d3b9;
+    }
+  }
+  
