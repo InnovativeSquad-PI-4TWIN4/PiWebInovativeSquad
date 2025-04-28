@@ -70,7 +70,13 @@ io.on("connection", (socket) => {
   
   io.emit("onlineUsers", Array.from(onlineUsers).map(id => id.toString()));
 
-
+  io.emit("onlineUsers", Array.from(onlineUsers).map(id => id.toString()));
+  socket.on("join-room", (roomId) => {
+    socket.join(roomId);
+    socket.to(roomId).emit("user-joined", { username: "Another user" }); // 👈 notify others
+    console.log(`🔔 Someone joined room: ${roomId}`);
+  });
+  
   socket.on("join", (userId) => {
     socket.join(userId);
     console.log(`User ${userId} a rejoint sa room`);

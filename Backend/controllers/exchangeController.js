@@ -106,7 +106,7 @@ exports.respondToRequest = async (req, res) => {
     let redirectLink = "http://localhost:5173/messenger"; // valeur par défaut
     const skill = request.skillRequested.toLowerCase();
 
-    if (skill.includes("node.js") || skill.includes("sql") || skill.includes("java") || skill.includes("react")) {
+    if (skill.includes("node.js") || skill.includes("sql") || skill.includes("Java") || skill.includes("React")|| skill.includes("Python")) {
       redirectLink = `http://localhost:5173/code-room/${request.roomId}`; // Correct: utiliser `` au lieu de ""
     } else if (skill.includes("design") || skill.includes("figma") || skill.includes("photoshop")) {
       redirectLink = "http://localhost:5173/design-collab";
@@ -191,5 +191,61 @@ exports.respondToRequest = async (req, res) => {
   } catch (error) {
     console.error("❌ Error responding to request:", error);
     res.status(500).json({ message: "Server error." });
+  }
+};
+// ✅ Valider l'échange
+exports.validateExchange = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const { userId, result } = req.body;
+
+    const request = await ExchangeRequest.findOne({ roomId });
+    if (!request) {
+      return res.status(404).json({ message: "Exchange request not found." });
+    }
+
+    if (!request.validations) {
+      request.validations = [];
+    }
+
+    request.validations.push({
+      userId,
+      result,
+      validatedAt: new Date(),
+    });
+
+    await request.save();
+
+    const allValidated = request.validations.length >= 2 &&
+      request.validations.every(v => v.result === "success");
+
+    if (allValidated) {
+      const io = req.app.get("io");
+      if (io) {
+        io.to(request.roomId).emit("exchange-completed");
+      }
+
+      const sender = await User.findById(request.senderId);
+      const receiver = await User.findById(request.receiverId);
+
+      if (sender && receiver) {
+        if (!sender.Skill.includes(request.skillOffered)) {
+          sender.Skill.push(request.skillOffered);
+        }
+        if (!receiver.Skill.includes(request.skillRequested)) {
+          receiver.Skill.push(request.skillRequested);
+        }
+
+        await sender.save();
+        await receiver.save();
+      }
+
+      console.log("✅ Skills updated successfully for sender and receiver");
+    }
+
+    res.status(200).json({ message: "Validation recorded successfully ✅" });
+  } catch (error) {
+    console.error("❌ Error validating exchange:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

@@ -188,10 +188,27 @@ const ManageProfile = () => {
         <div className="right-section">
           <div className="left-section">
             <div className="intro">
-              <h3>Skills</h3>
-              <ul>
-                {user.skills?.length ? user.skills.map((s, i) => <li key={i}>{s}</li>) : <p>No skills</p>}
-              </ul>
+            <h3>Skills</h3>
+<ul style={{ listStyleType: "none", padding: 0 }}>
+  {user.Skill?.length ? (
+    user.Skill.map((s, i) => (
+      <li key={i} style={{ 
+        background: "#e0f7fa", 
+        padding: "8px 12px", 
+        marginBottom: "8px", 
+        borderRadius: "8px",
+        color: "#00796b",
+        fontWeight: "bold"
+      }}>
+        {s}
+      </li>
+    ))
+  ) : (
+    <p>No skills</p>
+  )}
+</ul>
+
+
 
               <h3>Subscriptions</h3>
               <ul>
@@ -210,10 +227,7 @@ const ManageProfile = () => {
                 }) : <p>No packs</p>}
               </ul>
 
-              <h3>Projects</h3>
-              <ul>
-                {user.projects?.length ? user.projects.map((p, i) => <li key={i}>{p}</li>) : <p>No projects</p>}
-              </ul>
+              
               <h3>Exchange Requests</h3>
 {exchangeRequests.length === 0 ? (
   <p>No requests yet.</p>
@@ -257,7 +271,11 @@ const ManageProfile = () => {
 </td>
   {/* ✅ Nouvelle cellule Room */}
   <td>
-        {req.status === "accepted" && req.roomId ? (
+  {req.validations && req.validations.length >= 2 ? (
+    <span style={{ color: "green", fontWeight: "bold" }}>
+      ✅ Exchange Success
+    </span>
+  ) : req.status === "accepted" && req.roomId ? (
           <a 
             href={`http://localhost:5173/code-room/${req.roomId}`} 
             target="_blank" 
