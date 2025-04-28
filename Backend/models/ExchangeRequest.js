@@ -25,7 +25,24 @@
     roomId: {
       type: String,
       default: null
-    }
+    },
+    senderValidation: {
+      type: String,
+      enum: ["pending", "success", "fail"],
+      default: "pending"
+    },
+    receiverValidation: {
+      type: String,
+      enum: ["pending", "success", "fail"],
+      default: "pending"
+    },
+    validations: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+        result: { type: String, enum: ['success', 'fail'] },
+        validatedAt: { type: Date, default: Date.now }
+      }
+    ]
     
   });
  
