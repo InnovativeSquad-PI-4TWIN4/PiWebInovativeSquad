@@ -41,6 +41,7 @@ const examAIRoutes = require("./routes/examAI.routes");
 const exchangeRoutes = require('./routes/exchangeRoutes');
 const appointmentRoutes = require("./routes/appointments");
 const wheelRoutes = require("./routes/wheel.routes");
+const robotRoutes = require('./routes/robot.routes');
 
 // ✅ Initialise app Express
 const app = express();
@@ -199,6 +200,7 @@ app.use("/api/appointments", appointmentRoutes);
 app.use("/api/recommendation", require("./routes/recommendation.routes"));
 app.use("/api", require("./routes/skillsRecommendation"));
 app.use("/api/wheel", wheelRoutes);
+app.use('/api/robot', robotRoutes);
 
 
 
