@@ -29,7 +29,15 @@ const User = new Schema({
   resetPasswordExpires: Date,
   solde: { type: Number, default: 0 },
   hasCertificate: { type: Boolean, default: false },
-
+  level: {
+    type: Number,
+    default: 1,
+  },
+  successfulExchanges: {
+    type: Number,
+    default: 0,
+  },
+  
   // ✅ Certificats obtenus
   certificates: [
     {

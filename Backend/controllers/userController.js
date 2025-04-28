@@ -155,7 +155,7 @@ exports.signup = [
       const image = req.file ? `/public/images/${req.file.filename}` : null;
       const emailToken = crypto.randomBytes(32).toString("hex");
 
-      const skillsRecommended = await generateRecommendedSkills(Skill);
+      // const skillsRecommended = await generateRecommendedSkills(Skill);
 
       const newUser = new User({
         name,
@@ -164,7 +164,6 @@ exports.signup = [
         password: hashedPassword,
         dateOfBirth: new Date(dateOfBirth),
         Skill,
-        skillsRecommended,
         image,
         role: "client",
         isActive: true,

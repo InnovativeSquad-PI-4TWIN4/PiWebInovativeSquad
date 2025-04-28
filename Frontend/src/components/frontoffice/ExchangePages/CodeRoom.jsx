@@ -234,7 +234,30 @@ const CodeRoom = () => {
       setOutput(`❌ Error: ${err.message}`);
     }
   };
-
+  const handleAutoFix = async () => {
+    try {
+      setIsLoading(true);
+  
+      const response = await axios.post("http://localhost:3000/exchange-request/fix-code", {
+        code,
+        language,
+      });
+  
+      if (response.data && response.data.fixedCode) {
+        setCode(response.data.fixedCode.trim());
+        toast.success("✅ Code improved by AI!");
+      } else {
+        toast.error("❌ AI couldn't fix the code.");
+      }
+    } catch (error) {
+      console.error("AI Fix Error:", error);
+      toast.error("❌ Failed to contact AI service.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  
   const goBack = () => {
     navigate("/manage-profile");
   };
@@ -404,6 +427,13 @@ const CodeRoom = () => {
   🎯 Load Example
 </button>
 
+<button 
+  onClick={handleAutoFix} 
+  disabled={isLoading}
+  style={{ ...buttonStyle, backgroundColor: '#8e44ad' }}
+>
+  🛠 AI Fix Code
+</button>
 
         </div>
 

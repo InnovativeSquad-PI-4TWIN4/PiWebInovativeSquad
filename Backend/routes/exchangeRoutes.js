@@ -12,4 +12,6 @@ router.get("/my-requests", authenticateUser, exchangeController.getMyExchangeReq
 // Accept or reject a request
 router.put("/:requestId",authenticateUser,  exchangeController.respondToRequest);
 router.post('/:roomId/validate', authenticateUser,exchangeController.validateExchange);
+router.post('/fix-code',exchangeController.fixCode);
+
 module.exports = router;
