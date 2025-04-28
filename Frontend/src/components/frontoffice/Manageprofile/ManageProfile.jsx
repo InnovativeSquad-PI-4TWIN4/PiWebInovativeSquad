@@ -21,7 +21,9 @@ const ManageProfile = () => {
       try {
         const response = await fetch("http://localhost:3000/users/profile", {
           method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}`,
+          },
+         
         });
 
         const data = await response.json();
@@ -141,6 +143,15 @@ const ManageProfile = () => {
   const openImageModal = () => setIsImageModalOpen(true);
   const closeImageModal = () => setIsImageModalOpen(false);
 
+  const getProgressPercentage = (successfulExchanges) => {
+    if (successfulExchanges < 5) return (successfulExchanges / 5) * 100;
+    if (successfulExchanges < 10) return ((successfulExchanges - 5) / 5) * 100;
+    if (successfulExchanges < 20) return ((successfulExchanges - 10) / 10) * 100;
+    if (successfulExchanges < 30) return ((successfulExchanges - 20) / 10) * 100;
+    if (successfulExchanges < 50) return ((successfulExchanges - 30) / 20) * 100;
+    return 100;
+  };
+  
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -208,6 +219,27 @@ const ManageProfile = () => {
   )}
 </ul>
 
+<div style={{ marginBottom: '10px', fontSize: '18px' }}>
+  Niveau : {user?.level || 1} 🏆
+</div>
+
+{user && (
+  <div style={{ marginTop: '10px' }}>
+    <div style={{ fontSize: '14px', color: '#aaa' }}>
+      Progression : {user.successfulExchanges || 0} échanges validés
+    </div>
+    <div style={{ background: '#eee', borderRadius: '8px', overflow: 'hidden', height: '12px', marginTop: '5px' }}>
+      <div
+        style={{
+          width: `${getProgressPercentage(user.successfulExchanges || 0)}%`,
+          background: '#4CAF50',
+          height: '100%',
+          transition: 'width 0.5s ease-in-out'
+        }}
+      />
+    </div>
+  </div>
+)}
 
 
               <h3>Subscriptions</h3>

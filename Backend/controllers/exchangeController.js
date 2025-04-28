@@ -1,15 +1,28 @@
+// controllers/exchangeRequestController.js
+
 const ExchangeRequest = require("../models/ExchangeRequest");
-const User = require("../models/User"); 
+const User = require("../models/User");
 const nodemailer = require("nodemailer");
 const { v4: uuidv4 } = require('uuid'); // npm install uuid
+const Groq = require("groq-sdk"); // ✅ Corrigé en require pour Node.js
+const dotenv = require("dotenv");
 
+dotenv.config();
+
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY
+});
+
+// ======================= //
+// 🔥 Utils
+// ======================= //
 const sendEmail = async (to, subject, htmlContent) => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.EMAIL_USER, // ex: "yourmail@gmail.com"
-        pass: process.env.EMAIL_PASS, // un mot de passe d'application si tu utilises Gmail
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
@@ -21,18 +34,17 @@ const sendEmail = async (to, subject, htmlContent) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Email envoyé à :", to, "| ID:", info.messageId);
+    console.log("✅ Email sent to:", to, "| ID:", info.messageId);
   } catch (error) {
-    console.error("❌ Échec de l'envoi d'e-mail à", to, "| Erreur:", error.message);
+    console.error("❌ Email sending failed:", error.message);
   }
 };
 
-// Create exchange request
+// ======================= //
+// 📥 Create Exchange Request
+// ======================= //
 exports.createExchangeRequest = async (req, res) => {
   try {
-    console.log("📥 exchange request body:", req.body);
-    console.log("👤 req.user:", req.user);
-
     const { receiverId, skillOffered, skillRequested } = req.body;
 
     if (!receiverId || !skillOffered || !skillRequested) {
@@ -40,14 +52,13 @@ exports.createExchangeRequest = async (req, res) => {
     }
 
     const newRequest = new ExchangeRequest({
-      senderId: req.user.userId, 
+      senderId: req.user.userId,
       receiverId,
       skillOffered,
       skillRequested,
       status: 'pending',
       createdAt: new Date()
     });
-    
 
     await newRequest.save();
     res.status(201).json({ message: 'Exchange request sent successfully!' });
@@ -57,14 +68,15 @@ exports.createExchangeRequest = async (req, res) => {
   }
 };
 
-
-// Get all requests for current user (incoming or sent)
+// ======================= //
+// 📄 Get My Exchange Requests
+// ======================= //
 exports.getMyExchangeRequests = async (req, res) => {
   try {
-    const userId = req.user.userId; // ✅ Correction ici
+    const userId = req.user.userId;
 
     const requests = await ExchangeRequest.find({
-      $or: [{ senderId: userId }, { receiverId: userId }],
+      $or: [{ senderId: userId }, { receiverId: userId }]
     })
       .populate("senderId", "name surname email")
       .populate("receiverId", "name surname email");
@@ -76,7 +88,9 @@ exports.getMyExchangeRequests = async (req, res) => {
   }
 };
 
-
+// ======================= //
+// ✅ Respond to Exchange Request
+// ======================= //
 exports.respondToRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
@@ -95,105 +109,51 @@ exports.respondToRequest = async (req, res) => {
     }
 
     if (status === "accepted") {
-      const roomId = uuidv4(); // ✅ Créer un roomId unique
-      request.roomId = roomId;
+      request.roomId = uuidv4();
     }
 
     request.status = status;
     await request.save();
 
-    // 🔥 🔥 🔥 Redirection dynamique en fonction du skill demandé
-    let redirectLink = "http://localhost:5173/messenger"; // valeur par défaut
+    // 🔥 Smart redirect link
+    let redirectLink = "http://localhost:5173/messenger";
     const skill = request.skillRequested.toLowerCase();
 
-    if (skill.includes("node.js") || skill.includes("sql") || skill.includes("Java") || skill.includes("React")|| skill.includes("Python")) {
-      redirectLink = `http://localhost:5173/code-room/${request.roomId}`; // Correct: utiliser `` au lieu de ""
+    if (skill.includes("node.js") || skill.includes("sql") || skill.includes("java") || skill.includes("react") || skill.includes("python")) {
+      redirectLink = `http://localhost:5173/code-room/${request.roomId}`;
     } else if (skill.includes("design") || skill.includes("figma") || skill.includes("photoshop")) {
       redirectLink = "http://localhost:5173/design-collab";
     } else if (skill.includes("communication") || skill.includes("soft skills")) {
       redirectLink = "http://localhost:5173/messenger";
     }
 
-    // ✉️ Contenu d'email différent selon accept/reject
+    // ✉️ Email depending on accept or reject
     if (status === "accepted") {
       const html = `
-        <div style="font-family: 'Segoe UI', sans-serif; padding: 20px; background-color: #f4f4f4;">
-          <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <div style="background-color: #1DA1F2; padding: 20px; color: white;">
-              <h2 style="margin: 0;">🎉 Skill Exchange Accepted!</h2>
-            </div>
-            <div style="padding: 20px; color: #333;">
-              <p>Hi <strong>${request.senderId.name}</strong>,</p>
-              <p>Your skill exchange request has been <strong style="color: green;">accepted</strong> by <strong>${request.receiverId.name} ${request.receiverId.surname}</strong>.</p>
-
-              <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #1DA1F2; margin: 20px 0;">
-                <p>💡 <strong>Skill You Offer:</strong> ${request.skillOffered}</p>
-                <p>🎯 <strong>Skill You Learn:</strong> ${request.skillRequested}</p>
-              </div>
-
-              <p>You're now connected. Click below to continue the exchange:</p>
-
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${redirectLink}" style="padding: 12px 24px; background-color: #1DA1F2; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                  🚀 Start Exchange
-                </a>
-              </div>    
-
-              <p style="font-size: 0.9em; color: #999;">If you did not request this, please ignore this message.</p>
-            </div>
-            <div style="background-color: #f1f1f1; padding: 15px; text-align: center; font-size: 0.8em; color: #888;">
-              © 2025 SkillBridge. All rights reserved.
-            </div>
-          </div>
-        </div>
+        <div>🎉 Your skill exchange request was accepted! <br>
+        Click here to continue: <a href="${redirectLink}">Start Exchange</a></div>
       `;
+      await sendEmail(request.senderId.email, "🎉 Skill Exchange Accepted!", html);
 
-      await sendEmail(
-        request.senderId.email,
-        "🎉 Your Skill Exchange Was Accepted!",
-        html
-      );
     } else if (status === "rejected") {
       const html = `
-        <div style="font-family: 'Segoe UI', sans-serif; padding: 20px; background-color: #fff6f6;">
-          <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <div style="background-color: #e74c3c; padding: 20px; color: white;">
-              <h2 style="margin: 0;">❌ Skill Exchange Rejected</h2>
-            </div>
-            <div style="padding: 20px; color: #333;">
-              <p>Hello <strong>${request.senderId.name}</strong>,</p>
-              <p>Unfortunately, your request for a skill exchange with <strong>${request.receiverId.name} ${request.receiverId.surname}</strong> was <strong style="color: red;">rejected</strong>.</p>
-
-              <div style="background-color: #fef2f2; padding: 15px; border-left: 4px solid #e74c3c; margin: 20px 0;">
-                <p>💡 <strong>Skill You Offered:</strong> ${request.skillOffered}</p>
-                <p>🎯 <strong>Skill You Wanted:</strong> ${request.skillRequested}</p>
-              </div>
-
-              <p style="font-size: 0.9em; color: #999;">Don't worry! You can explore other exchange opportunities on <a href="http://localhost:5173/publications" style="color: #e74c3c;">SkillBridge</a>.</p>
-            </div>
-            <div style="background-color: #f1f1f1; padding: 15px; text-align: center; font-size: 0.8em; color: #888;">
-              © 2025 SkillBridge. All rights reserved.
-            </div>
-          </div>
-        </div>
+        <div>❌ Unfortunately, your skill exchange request was rejected.<br>
+        Explore more on <a href="http://localhost:5173/publications">SkillBridge</a></div>
       `;
-
-      await sendEmail(
-        request.senderId.email,
-        "❌ Your Skill Exchange Was Rejected",
-        html
-      );
+      await sendEmail(request.senderId.email, "❌ Skill Exchange Rejected", html);
     }
 
-    // ✅ Response avec RoomId si status === accepted
     res.status(200).json({ message: `Request ${status}`, request, roomId: status === "accepted" ? request.roomId : null });
 
   } catch (error) {
-    console.error("❌ Error responding to request:", error);
-    res.status(500).json({ message: "Server error." });
+    console.error("❌ Error responding to request:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-// ✅ Valider l'échange
+
+// ======================= //
+// 🎯 Validate Exchange
+// ======================= //
 exports.validateExchange = async (req, res) => {
   try {
     const { roomId } = req.params;
@@ -216,6 +176,7 @@ exports.validateExchange = async (req, res) => {
 
     await request.save();
 
+    // ⚡ Check if both users validated successfully
     const allValidated = request.validations.length >= 2 &&
       request.validations.every(v => v.result === "success");
 
@@ -229,6 +190,7 @@ exports.validateExchange = async (req, res) => {
       const receiver = await User.findById(request.receiverId);
 
       if (sender && receiver) {
+        // 🧠 Ajout des compétences échangées
         if (!sender.Skill.includes(request.skillOffered)) {
           sender.Skill.push(request.skillOffered);
         }
@@ -236,16 +198,65 @@ exports.validateExchange = async (req, res) => {
           receiver.Skill.push(request.skillRequested);
         }
 
+        // 🏆 Incrémenter successfulExchanges
+        sender.successfulExchanges = (sender.successfulExchanges || 0) + 1;
+        receiver.successfulExchanges = (receiver.successfulExchanges || 0) + 1;
+
+        // 🚀 Mettre à jour le niveau automatiquement
+        sender.level = calculateLevel(sender.successfulExchanges);
+        receiver.level = calculateLevel(receiver.successfulExchanges);
+
         await sender.save();
         await receiver.save();
       }
 
-      console.log("✅ Skills updated successfully for sender and receiver");
+      console.log("✅ Skills and Levels updated successfully for sender and receiver");
     }
 
     res.status(200).json({ message: "Validation recorded successfully ✅" });
+
   } catch (error) {
-    console.error("❌ Error validating exchange:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ Error validating exchange:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// ✅ Fonction pour calculer le niveau
+function calculateLevel(successfulExchanges) {
+  if (successfulExchanges >= 50) return 6;
+  if (successfulExchanges >= 30) return 5;
+  if (successfulExchanges >= 20) return 4;
+  if (successfulExchanges >= 10) return 3;
+  if (successfulExchanges >= 5) return 2;
+  return 1;
+}
+
+
+// ======================= //
+// 🛠 Fix Code using AI (Groq)
+// ======================= //
+exports.fixCode = async (req, res) => {
+  try {
+    const { code, language } = req.body;
+
+    const prompt = `You are a code fixer. Strictly correct and optimize the following ${language} code.
+Respond ONLY with the corrected code, no explanation.
+
+Code to fix:
+${code}
+`;
+
+    const response = await groq.chat.completions.create({
+      model: "llama3-8b-8192",
+      messages: [{ role: "user", content: prompt }]
+    });
+
+    const fixedCode = response.choices[0].message.content.trim();
+
+    res.status(200).json({ fixedCode });
+
+  } catch (error) {
+    console.error("❌ Groq AI Error:", error.message);
+    res.status(500).json({ message: "AI error with Groq." });
   }
 };
