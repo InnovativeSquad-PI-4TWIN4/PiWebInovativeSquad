@@ -19,8 +19,8 @@ RUN npm run build
 # Étape de production avec Nginx
 FROM nginx:alpine
 
-# Copier le dossier de construction depuis l'étape précédente vers le répertoire Nginx
-COPY --from=build /app/dist /usr/share/nginx/html
+# Copy the build from the builder stage
+COPY --from=development /code/dist /usr/share/nginx/html
 
 # Exposer le port 80 pour Nginx
 EXPOSE 80
