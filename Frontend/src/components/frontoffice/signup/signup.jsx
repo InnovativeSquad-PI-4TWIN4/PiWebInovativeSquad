@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ReCAPTCHA from "react-google-recaptcha";
@@ -9,7 +9,7 @@ const availableSkills = ["JavaScript", "Java", "Python", "Git", "React", "Node.j
 const SignUp = () => {
   const [formState, setFormState] = useState({
     name: '', surname: '', email: '', password: '', dateOfBirth: '',
-    skills: [], skillsRecommended: [], otherSkill: '', useOther: false,
+    selectedSkills: [], skillsRecommended: [], otherSkill: '', useOther: false,
   });
   const [image, setImage] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
@@ -21,20 +21,17 @@ const SignUp = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  useEffect(() => {
-    generateRecommendedSkills();
-  }, []);
-
-  const generateRecommendedSkills = async () => {
+  const generateRecommendedSkills = async (skills) => {
+    if (!skills || skills.length === 0) return;
     setLoadingRecommended(true);
     try {
       const res = await axios.post('http://localhost:3000/api/recommend-skills', {
-        skills: []  // Vide pour demander à l'IA de proposer de base
+        selectedSkills: skills
       });
-      if (res.data.skillsRecommended) {
+      if (res.data.recommendedSkills) {
         setFormState(prev => ({
           ...prev,
-          skillsRecommended: res.data.skillsRecommended
+          skillsRecommended: res.data.recommendedSkills
         }));
       }
     } catch (err) {
@@ -43,41 +40,50 @@ const SignUp = () => {
       setLoadingRecommended(false);
     }
   };
+
   const handleChange = (field) => (e) => {
     setFormState({ ...formState, [field]: e.target.value });
   };
 
   const toggleSkill = (skill) => {
-    const updatedSkills = formState.skills.includes(skill)
-      ? formState.skills.filter(s => s !== skill)
-      : [...formState.skills, skill];
-    setFormState({ ...formState, skills: updatedSkills });
+    const updatedSkills = formState.selectedSkills.includes(skill)
+      ? formState.selectedSkills.filter(s => s !== skill)
+      : [...formState.selectedSkills, skill];
+
+    setFormState(prev => ({ ...prev, selectedSkills: updatedSkills }));
+
+    // ✅ Appelle generateRecommendedSkills uniquement si ajout
+    if (!formState.selectedSkills.includes(skill)) {
+      setTimeout(() => {
+        generateRecommendedSkills([...updatedSkills]);
+      }, 0);
+    }
   };
 
   const toggleRecommendedSkill = (skill) => {
-    const updatedSkills = formState.skills.includes(skill)
-      ? formState.skills.filter(s => s !== skill)
-      : [...formState.skills, skill];
-    setFormState({ ...formState, skills: updatedSkills });
+    const updatedSkills = formState.selectedSkills.includes(skill)
+      ? formState.selectedSkills.filter(s => s !== skill)
+      : [...formState.selectedSkills, skill];
+    setFormState({ ...formState, selectedSkills: updatedSkills });
   };
 
   const handleRecaptchaChange = (token) => setRecaptchaToken(token);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!image && !capturedImage) return setError("Veuillez télécharger ou capturer une image.");
-    if (!recaptchaToken) return setError("Veuillez compléter le reCAPTCHA.");
-  
-    let finalSkills = [...formState.skills];
+    if (!image && !capturedImage) return setError("Please upload or capture an image.");
+    if (!recaptchaToken) return setError("Please complete the reCAPTCHA.");
+
+    let finalSkills = [...formState.selectedSkills];
     if (formState.useOther && formState.otherSkill.trim() !== '') {
       if (!finalSkills.includes(formState.otherSkill.trim())) {
         finalSkills.push(formState.otherSkill.trim());
       }
     }
-  
+
     if (finalSkills.length === 0)
-      return setError("Veuillez sélectionner ou entrer au moins une compétence.");
-  
+      return setError("Please select or enter at least one skill.");
+
     const formData = new FormData();
     formData.append("Skill", finalSkills.join(","));
     formData.append("name", formState.name);
@@ -86,16 +92,16 @@ const SignUp = () => {
     formData.append("password", formState.password);
     formData.append("dateOfBirth", formState.dateOfBirth);
     formData.append("recaptchaToken", recaptchaToken);
-  
+
     if (image) formData.append("image", image);
     else if (capturedImage) formData.append("image", capturedImage);
-  
+
     try {
       const res = await axios.post('http://localhost:3000/users/signup', formData);
       alert("Inscription réussie ! Un email de vérification vous a été envoyé.");
       navigate('/verify-pending');
     } catch (err) {
-      setError(err.response?.data?.message || "Échec de l'inscription. Veuillez réessayer plus tard.");
+      setError(err.response?.data?.message || "Signup failed.");
     }
   };
 
@@ -149,10 +155,10 @@ const SignUp = () => {
             <p>Choose your skills:</p>
             <div className="skills-grid">
               {availableSkills.map((skill) => (
-                <label key={skill} className={`skill-option ${formState.skills.includes(skill) ? "selected" : ""}`}>
+                <label key={skill} className={`skill-option ${formState.selectedSkills.includes(skill) ? "selected" : ""}`}>
                   <input
                     type="checkbox"
-                    checked={formState.skills.includes(skill)}
+                    checked={formState.selectedSkills.includes(skill)}
                     onChange={() => toggleSkill(skill)}
                   />
                   {skill}
@@ -177,12 +183,13 @@ const SignUp = () => {
                   if (e.key === "Enter") {
                     e.preventDefault();
                     const trimmedSkill = formState.otherSkill.trim();
-                    if (trimmedSkill && !formState.skills.includes(trimmedSkill)) {
+                    if (trimmedSkill && !formState.selectedSkills.includes(trimmedSkill)) {
                       setFormState((prev) => ({
                         ...prev,
-                        skills: [...prev.skills, trimmedSkill],
+                        selectedSkills: [...prev.selectedSkills, trimmedSkill],
                         otherSkill: "",
                       }));
+                      generateRecommendedSkills([...formState.selectedSkills, trimmedSkill]);
                     }
                   }
                 }}
@@ -191,19 +198,18 @@ const SignUp = () => {
             )}
           </div>
 
-          {/* Skills Recommended */}
           <div className="skills-section">
-            <p>Skills Recommended :</p>
+            <p>Skills Recommended:</p>
             {loadingRecommended ? (
               <p>Chargement des recommandations...</p>
             ) : (
               <div className="skills-grid">
                 {formState.skillsRecommended.length > 0 ? (
                   formState.skillsRecommended.map((skill) => (
-                    <label key={skill} className={`skill-option ${formState.skills.includes(skill) ? "selected" : ""}`}>
+                    <label key={skill} className={`skill-option ${formState.selectedSkills.includes(skill) ? "selected" : ""}`}>
                       <input
                         type="checkbox"
-                        checked={formState.skills.includes(skill)}
+                        checked={formState.selectedSkills.includes(skill)}
                         onChange={() => toggleRecommendedSkill(skill)}
                       />
                       {skill}
