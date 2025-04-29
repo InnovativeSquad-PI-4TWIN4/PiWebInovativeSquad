@@ -5,7 +5,7 @@ import { MdManageAccounts } from 'react-icons/md';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../../../context/ThemeContext';
 import NotificationComponent from "../NotificationComponent/NotificationComponent";
-import './Navbar.scss';
+import './navbar.scss';
 import AdminNavbar from '../../backoffice/Adminnavbar/adminnavbar';
 import { MdWorkspacePremium } from "react-icons/md";
 
