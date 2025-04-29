@@ -12,7 +12,7 @@ export default defineConfig({
       util: 'util',
     }
   }, 
-build: {
+  build: {
     outDir: 'dist', // Assurez-vous que la sortie est dans le dossier 'dist'
   },
   define: {
