@@ -11,16 +11,19 @@ COPY Frontend/package*.json ./
 RUN npm install
 
 # Copier le code source
-COPY Frontend/ ./ 
+COPY Frontend/ ./
 
 # Exécuter la construction du projet avec Vite
 RUN npm run build
 
+# Vérifier le contenu du répertoire dist
+RUN ls -l /app/dist
+
 # Étape de production avec Nginx
 FROM nginx:alpine
 
-# Copy the build from the builder stage
-COPY --from=development /code/dist /usr/share/nginx/html
+# Copier le dossier de construction depuis l'étape précédente vers le répertoire Nginx
+COPY --from=build /app/dist /usr/share/nginx/html
 
 # Exposer le port 80 pour Nginx
 EXPOSE 80
