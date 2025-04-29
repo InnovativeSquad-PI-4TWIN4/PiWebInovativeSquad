@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ReCAPTCHA from "react-google-recaptcha";
-import './SignUp.scss';
+import './signup.scss';
 
 const availableSkills = ["JavaScript", "Java", "Python", "Git", "React", "Node.js", "Spring Boot", "SQL"];
 
