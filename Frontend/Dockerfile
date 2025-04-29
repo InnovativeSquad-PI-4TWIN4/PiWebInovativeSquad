@@ -1,29 +1,29 @@
-# Stage 1: Build the React app
+# Étape de construction avec Vite
 FROM node:18 AS build
 
-# Set the working directory
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copier les fichiers de configuration du frontend
 COPY Frontend/package*.json ./
 
-# Install dependencies
+# Installer les dépendances
 RUN npm install
 
-# Copy the rest of the application
-COPY Frontend/ ./
+# Copier le code source
+COPY Frontend/ ./ 
 
-# Build the app for production
+# Exécuter la construction du projet avec Vite
 RUN npm run build
 
-# Stage 2: Serve the app with Nginx
+# Étape de production avec Nginx
 FROM nginx:alpine
 
-# Copy the build output from the previous stage
-COPY --from=build /app/build /usr/share/nginx/html
+# Copier le dossier de construction depuis l'étape précédente vers le répertoire Nginx
+COPY --from=build /app/dist /usr/share/nginx/html
 
-# Expose port 80
+# Exposer le port 80 pour Nginx
 EXPOSE 80
 
-# Start Nginx
+# Démarrer Nginx
 CMD ["nginx", "-g", "daemon off;"]
