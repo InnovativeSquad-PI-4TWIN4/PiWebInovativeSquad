@@ -101,6 +101,7 @@ exports.rejectUser =[ async (req, res) => {
 
 
 
+// ✅ INSCRIPTION AVEC VÉRIFICATION PAR EMAIL
 // ✅ Génération IA SkillsRecommended
 const generateRecommendedSkills = async (skills) => {
   const openai = new OpenAI({
@@ -109,15 +110,35 @@ const generateRecommendedSkills = async (skills) => {
   });
 
   const prompt = `
-En te basant sur cette liste de compétences : [${skills.join(", ")}],
-génère une liste de 5 compétences complémentaires que l'utilisateur pourrait apprendre ensuite.
-Réponds uniquement en JSON valide ["skill1", "skill2", "skill3", "skill4", "skill5"]
+Tu es un expert du développement logiciel et web.
+
+À partir de cette liste de compétences existantes :
+[${skills.join(', ')}]
+
+Génère une liste de 5 nouvelles compétences COMPLÉMENTAIRES qui sont uniquement des **technologies, frameworks, bibliothèques ou outils**.
+
+Exemples valides :
+["React", "Node.js", "Express", "Spring Boot", "MongoDB", "Docker", "GitLab", "Angular", "Vue.js", "AWS"]
+
+Exemples invalides :
+["Création d'applications", "Optimisation du code", "Gestion de projet"]
+
+**Réponds uniquement** sous forme d'un tableau JSON valide, sans texte autour.
+
+Format attendu :
+[
+  "Tech1",
+  "Tech2",
+  "Tech3",
+  "Tech4",
+  "Tech5"
+]
 `;
 
   const response = await openai.chat.completions.create({
     model: "openai/gpt-3.5-turbo",
     messages: [{ role: "user", content: prompt }],
-    temperature: 0.7
+    temperature: 0.6
   });
 
   const aiContent = response.choices[0]?.message?.content;
@@ -127,6 +148,7 @@ Réponds uniquement en JSON valide ["skill1", "skill2", "skill3", "skill4", "ski
 
   return skillsList;
 };
+
 
 // ✅ SIGNUP
 exports.signup = [
@@ -155,7 +177,8 @@ exports.signup = [
       const image = req.file ? `/public/images/${req.file.filename}` : null;
       const emailToken = crypto.randomBytes(32).toString("hex");
 
-      // const skillsRecommended = await generateRecommendedSkills(Skill);
+      // 🔥 Génération IA des skillsRecommended
+      const skillsRecommended = await generateRecommendedSkills(Skill);
 
       const newUser = new User({
         name,
@@ -164,6 +187,7 @@ exports.signup = [
         password: hashedPassword,
         dateOfBirth: new Date(dateOfBirth),
         Skill,
+        skillsRecommended,
         image,
         role: "client",
         isActive: true,
@@ -187,6 +211,7 @@ exports.signup = [
         status: "SUCCESS",
         message: "Inscription réussie. Un email de confirmation a été envoyé.",
       });
+
     } catch (err) {
       console.error("Signup Error:", err);
       return res.status(500).json({ status: "FAILED", message: "Erreur interne du serveur." });
