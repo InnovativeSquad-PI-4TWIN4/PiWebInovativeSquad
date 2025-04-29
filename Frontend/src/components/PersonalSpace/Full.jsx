@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PersonalSpace from './PersonalSpace';
 import RoadmapGenerator from './RoadmapGenerator';
-import Schedule from './Schedule';
+import Schedule from './schedule';
 import CyberpunkTitle from './CyberpunkTitle';
 
 import './Full.scss';
