@@ -1,16 +1,29 @@
-# Stage 1: Build the React app
+# Étape 1 : Construction de l'application React
 FROM node:18 AS build
 
-# Set the working directory
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copy package.json and package-lock.json to install dependencies
+# Copier package.json et package-lock.json pour installer les dépendances
 COPY Frontend/package*.json ./
 
-# Install frontend dependencies
+# Installer les dépendances du frontend
 RUN npm install
 
-# Copy the rest of the application code
+# Copier le reste du code de l'application
 COPY Frontend/ ./
 
-# Build the React
+# Construire l'application React pour la production
+RUN npm run build
+
+# Étape 2 : Servir l'application avec Nginx
+FROM nginx:alpine
+
+# Copier l'application construite depuis l'étape précédente
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Exposer le port 80
+EXPOSE 80
+
+# Démarrer Nginx
+CMD ["nginx", "-g", "daemon off;"]
