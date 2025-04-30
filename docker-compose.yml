@@ -11,15 +11,15 @@ services:
     depends_on:
       - mongo
 
- frontend:
-  image: mouadhfersi/react-frontend:latest
-  container_name: frontend
-  ports:
-    - "5173:80"  # Map port 5173 on your host to port 80 on the container
-  networks:
-    - app-network
-  depends_on:
-    - backend
+  frontend:
+    image: mouadhfersi/react-frontend:latest
+    container_name: frontend
+    ports:
+      - "5173:80"  # Expose le frontend sur le port 5173
+    networks:
+      - app-network
+    depends_on:
+      - backend  # Le frontend dépend du backend
 
   mongo:
     image: mongo:latest  # Utilisation de MongoDB
