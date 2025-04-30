@@ -43,6 +43,7 @@ const appointmentRoutes = require("./routes/appointments");
 const wheelRoutes = require("./routes/wheel.routes");
 const robotRoutes = require('./routes/robot.routes');
 const matchRequestRoutes = require("./routes/matchRequest.routes");
+const learningCircleRoutes = require("./routes/LearningCircleRoutes");
 
 // ✅ Initialise app Express
 const app = express();
@@ -203,7 +204,7 @@ app.use("/api", require("./routes/skillsRecommendation"));
 app.use("/api/wheel", wheelRoutes);
 app.use('/api/robot', robotRoutes);
 app.use("/match-request", matchRequestRoutes);
-
+app.use("/api/circles", learningCircleRoutes);
 
 
 // ✅ Gestion 404
