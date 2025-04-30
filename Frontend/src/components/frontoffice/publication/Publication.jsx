@@ -301,16 +301,17 @@ const Publication = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     if (!newPublication.description.trim()) {
       showToast("Veuillez entrer une description.");
       return;
     }
-
+  
     if (!currentUser) {
       alert("Utilisateur non connecté");
       return;
     }
-
+  
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
@@ -324,15 +325,30 @@ const Publication = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
-
+  
+      // ✅ Met à jour les publications visibles
       setPublications((prev) => [response.data.publication, ...prev]);
+  
+      // ✅ Met à jour le lastPublicationId côté frontend
+      const updatedUser = {
+        ...currentUser,
+        lastPublicationId: response.data.publication._id,
+      };
+      setCurrentUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+  
+      // ✅ Déclenche un event "storage" pour prévenir d'autres composants (ex. TinderView.jsx)
+      window.dispatchEvent(new Event("storage"));
+  
+      // Réinitialise le formulaire
       setNewPublication({ type: "offer", description: "" });
     } catch (err) {
       alert("Erreur lors de la création de la publication.");
     }
   };
+  
 
   const handleLike = async (publicationId) => {
     try {

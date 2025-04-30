@@ -51,6 +51,10 @@ import CodeRoom from './components/frontoffice/ExchangePages/CodeRoom'
 import PlanifySession from './components/frontoffice/Marketplace/PlanifySession';
 import Recommendation from './components/frontoffice/Recommendation/Recommendation';
 import WheelOfFortune from './components/frontoffice/WheelOfFortune/WheelOfFortune';
+import ExchangeStart from "./components/frontoffice/publication/ExchangeStart";
+import TinderView from "./components/frontoffice/publication/TinderView";
+import MyMatches from './components/frontoffice/publication/MyMatches';
+
 
 
 
@@ -204,6 +208,10 @@ useEffect(() => {
               <Route path="/planify-session" element={<PlanifySession />} />
               <Route path="/recommendations" element={<Recommendation />} />
               <Route path="/wheel-fortune" element={<WheelOfFortune />} />
+              <Route path="/exchange-start" element={<ExchangeStart />} />
+              <Route path="/tinder-view" element={<TinderView />} />
+              <Route path="/my-matches" element={<MyMatches />} />
+
 
 
 

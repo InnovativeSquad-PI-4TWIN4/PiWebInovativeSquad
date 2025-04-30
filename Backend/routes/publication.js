@@ -18,4 +18,11 @@ router.post("/notifications/:id/read", authenticateUser, PubController.markNotif
 router.get("/stats", PubController.getPublicationStats); //M
 router.post("/archive/:id", authenticateUser, PubController.archivePub); // F
 router.get("/archived", authenticateUser, PubController.getArchivedPub); // F
+router.post("/swipe", authenticateUser, PubController.swipePublication);
+router.get("/match/:publicationId", authenticateUser, PubController.matchPublications);
+router.post("/check-compatibility", authenticateUser, PubController.checkCompatibility);
+router.get("/compatibilities/:pubId", authenticateUser, PubController.getCompatibilitiesForPublication);
+router.get("/compatibilities/all/:userId", authenticateUser, PubController.getAllCompatibilitiesForUser);
+
+
 module.exports = router;

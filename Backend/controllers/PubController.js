@@ -1,7 +1,20 @@
 const Publication = require('../models/publication');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
+const Compatibility = require("../models/Compatibility");
+const SkillSwipe = require("../models/SkillSwipe");
 const { generateCommentForPublication } = require('../services/aiCommentService');
+const { getSimilarityScore, getEmbeddingFromCohere } = require('../services/cohereService');
+const axios = require('axios');
+
+
+function cosineSimilarity(vecA, vecB) {
+  const dotProduct = vecA.reduce((sum, a, idx) => sum + a * vecB[idx], 0);
+  const magnitudeA = Math.sqrt(vecA.reduce((sum, a) => sum + a * a, 0));
+  const magnitudeB = Math.sqrt(vecB.reduce((sum, b) => sum + b * b, 0));
+  if (magnitudeA === 0 || magnitudeB === 0) return 0;
+  return dotProduct / (magnitudeA * magnitudeB);
+}
 
 // ➤ Récupérer toutes les publications
 exports.getAllPub = async (req, res) => {
@@ -52,35 +65,36 @@ exports.getPubById = async (req, res) => {
 exports.createPub = async (req, res) => {
   try {
     const { user, type, description } = req.body;
-
     if (!user || !type || !description) {
       return res.status(400).json({ error: 'Tous les champs requis doivent être remplis' });
     }
 
-    console.log("Creating publication with description:", description);
     const commentSuggestions = await generateCommentForPublication(description);
-    console.log("Generated comment suggestions:", commentSuggestions);
+    const embedding = await getEmbeddingFromCohere(description);
 
     const newPublication = new Publication({
       user,
       type,
       description,
       commentSuggestions,
+      embedding
     });
 
     await newPublication.save();
-    
+
+    // ✅ Mise à jour du champ lastPublicationId dans la collection users
+    await User.findByIdAndUpdate(user, {
+      lastPublicationId: newPublication._id
+    });
+
     const populatedPublication = await Publication.findById(newPublication._id)
       .populate('user', 'name surname image');
 
-    console.log("Saved publication:", populatedPublication);
-
-    res.status(201).json({ 
-      message: 'Publication créée avec succès', 
-      publication: populatedPublication 
+    res.status(201).json({
+      message: 'Publication créée avec succès',
+      publication: populatedPublication
     });
   } catch (error) {
-    console.error("Error in createPub:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -450,5 +464,166 @@ exports.getArchivedPub = async (req, res) => {
   } catch (error) {
     console.error('Erreur dans getArchivedPub :', error);
     res.status(500).json({ error: error.message });
+  }
+};
+exports.swipePublication = async (req, res) => {
+  try {
+    const { targetUserId, publicationId, direction } = req.body;
+    const swiperId = req.user.userId;
+
+    // Vérifie les champs
+    if (!targetUserId || !publicationId || !direction) {
+      return res.status(400).json({ error: "Champs requis manquants" });
+    }
+
+    // Enregistre le swipe
+    const swipe = new SkillSwipe({
+      swiper: swiperId,
+      target: targetUserId,
+      publication: publicationId,
+      direction,
+    });
+
+    await swipe.save();
+
+    // Si c'est un swipe à droite, vérifie s'il y a un match
+    if (direction === "right") {
+      const existingSwipe = await SkillSwipe.findOne({
+        swiper: targetUserId,
+        target: swiperId,
+        direction: "right",
+      });
+
+      if (existingSwipe) {
+        // Match trouvé
+        return res.status(200).json({
+          match: true,
+          message: "🎉 It's a match!",
+          matchedWith: targetUserId,
+        });
+      }
+    }
+
+    res.status(200).json({ match: false, message: "Swipe enregistré" });
+  } catch (err) {
+    console.error("Erreur dans swipePublication:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+exports.matchPublications = async (req, res) => {
+  try {
+    const { publicationId } = req.params;
+    const basePublication = await Publication.findById(publicationId);
+
+    if (!basePublication || !basePublication.embedding || basePublication.embedding.length === 0) {
+      return res.status(404).json({ error: "Publication de base introuvable ou embedding manquant." });
+    }
+
+    const allPublications = await Publication.find({
+      _id: { $ne: publicationId },
+      isArchived: false
+    }).populate('user', 'name surname image');
+
+    const results = allPublications.map(pub => {
+      const similarity = cosineSimilarity(basePublication.embedding, pub.embedding);
+      return {
+        publication: pub,
+        compatibilityScore: Math.round(similarity * 100)
+      };
+    });
+
+    results.sort((a, b) => b.compatibilityScore - a.compatibilityScore);
+    res.status(200).json(results);
+  } catch (error) {
+    console.error("Erreur dans matchPublications:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+exports.checkCompatibility = async (req, res) => {
+  try {
+    const { publicationId1, publicationId2 } = req.body;
+
+    const pub1 = await Publication.findById(publicationId1);
+    const pub2 = await Publication.findById(publicationId2);
+
+    if (!pub1 || !pub2) {
+      return res.status(404).json({ error: "Une des publications est introuvable." });
+    }
+
+    const score = await getSimilarityScore(pub1.description, pub2.description);
+
+    // 💾 Sauvegarder dans MongoDB
+    const compatibility = new Compatibility({
+      publication1: publicationId1,
+      publication2: publicationId2,
+      similarityScore: score
+    });
+    await compatibility.save();
+
+    res.status(200).json({
+      publication1: pub1._id,
+      publication2: pub2._id,
+      similarityScore: score,
+      matchLevel:
+        score >= 0.8 ? "🔥 Perfect match" :
+        score >= 0.6 ? "✅ Good match" :
+        score >= 0.4 ? "🤝 Potential match" :
+        "❌ Not compatible",
+    });
+  } catch (error) {
+    console.error("Erreur checkCompatibility:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getCompatibilitiesForPublication = async (req, res) => {
+  try {
+    const { pubId } = req.params;
+
+    const compatibilities = await Compatibility.find({
+      $or: [
+        { publication1: pubId },
+        { publication2: pubId }
+      ]
+    })
+    .populate('publication1', 'description')
+    .populate('publication2', 'description')
+    .sort({ similarityScore: -1 });
+
+    res.status(200).json({
+      status: 'SUCCESS',
+      compatibilities,
+    });
+  } catch (error) {
+    console.error("Erreur dans getCompatibilitiesForPublication:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+exports.getAllCompatibilitiesForUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // 1. Trouver toutes les publications REQUEST de cet utilisateur
+    const userRequests = await Publication.find({ user: userId, type: "request" });
+    if (!userRequests.length) {
+      return res.status(200).json({ recommendations: [] });
+    }
+
+    // 2. Trouver toutes les compatibilités liées à ses requests
+    const allCompatibilities = await Compatibility.find({
+      publication1: { $in: userRequests.map(req => req._id) },
+    }).populate({
+      path: "publication2",
+      populate: { path: "user" }, // pour voir nom et prénom de l’offre
+    });
+
+    // 3. Filtrer seulement les OFFRES et trier par score
+    const sorted = allCompatibilities
+      .filter(c => c.publication2 && c.publication2.type === "offer")
+      .sort((a, b) => b.similarityScore - a.similarityScore);
+
+    res.status(200).json({ recommendations: sorted });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };

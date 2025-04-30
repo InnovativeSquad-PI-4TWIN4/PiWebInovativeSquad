@@ -5,7 +5,7 @@ import { MdManageAccounts } from 'react-icons/md';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../../../context/ThemeContext';
 import NotificationComponent from "../NotificationComponent/NotificationComponent";
-import './navbar.scss';
+import './Navbar.scss';
 import AdminNavbar from '../../backoffice/Adminnavbar/adminnavbar';
 import { MdWorkspacePremium } from "react-icons/md";
 
@@ -74,7 +74,7 @@ const Navbar = ({ user, onLogout }) => {
           <>
             <li><Link to="/">Home</Link></li>
             <li><Link to="/marketplace">MarketPlace</Link></li>
-            <li><Link to="/publication">Forum</Link></li>
+            <li><Link to="/exchange-start">Forum</Link></li>
             <li><Link to="/OurPacks">Our Packs</Link></li>
             <li><Link to="/AvisWebsite">Feedback</Link></li>
             <li><Link to="/Full" className="overview">AI Tools</Link></li>
