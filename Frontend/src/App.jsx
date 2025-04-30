@@ -54,7 +54,9 @@ import WheelOfFortune from './components/frontoffice/WheelOfFortune/WheelOfFortu
 import ExchangeStart from "./components/frontoffice/publication/ExchangeStart";
 import TinderView from "./components/frontoffice/publication/TinderView";
 import MyMatches from './components/frontoffice/publication/MyMatches';
-
+import LearningCircles from './components/frontoffice/LearningCircles/LearningCircles';
+import CreateLearningCircle from "./components/frontoffice/LearningCircles/CreateLearningCircle";
+import VideoCall from './components/frontoffice/LearningCircles/VideoCall';
 
 
 
@@ -211,7 +213,10 @@ useEffect(() => {
               <Route path="/exchange-start" element={<ExchangeStart />} />
               <Route path="/tinder-view" element={<TinderView />} />
               <Route path="/my-matches" element={<MyMatches />} />
-
+              <Route path="/learning-circles" element={<LearningCircles />} />
+              <Route path="/create-circle" element={<CreateLearningCircle />} />
+              <Route path="/VideoCall" element={<VideoCall />} />
+              <Route path="/video-call/:roomId" element={<VideoCall />} /> 
 
 
 
