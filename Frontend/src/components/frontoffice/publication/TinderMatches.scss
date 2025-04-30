@@ -1,0 +1,30 @@
+.tinder-matches {
+    margin-top: 2rem;
+    text-align: center;
+  }
+  
+  .tinder-cards-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  
+  .match-card {
+    background-color: #1f1f2f;
+    color: white;
+    padding: 2rem;
+    border-radius: 20px;
+    width: 300px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  }
+  
+  .close-tinder {
+    margin-top: 1rem;
+    background-color: #dc3545;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  

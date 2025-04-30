@@ -37,6 +37,12 @@ const User = new Schema({
     type: Number,
     default: 0,
   },
+  lastPublicationId: {
+    type: Schema.Types.ObjectId,
+    ref: "Publication",
+    default: null
+  },
+  
   
   // ✅ Certificats obtenus
   certificates: [

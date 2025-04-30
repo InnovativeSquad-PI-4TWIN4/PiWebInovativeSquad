@@ -1,0 +1,72 @@
+.exchange-skills-page {
+    background: #0c0f1a;
+    color: #00f2fe;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 80px;
+  }
+  
+  .title {
+    font-size: 32px;
+    margin-bottom: 40px;
+    font-weight: 700;
+  }
+  
+  .card-container {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .exchange-card {
+    background-color: #141627;
+    border-radius: 20px;
+    padding: 40px 50px;
+    width: 350px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .exchange-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+  }
+  
+  .exchange-card h2 {
+    font-size: 24px;
+    margin-bottom: 12px;
+    color: #00f2fe;
+  }
+  
+  .exchange-card p {
+    font-size: 16px;
+    color: #b0b8d1;
+  }
+  .compatibility-section {
+    margin-top: 2rem;
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 10px;
+  
+    h2 {
+      margin-bottom: 1rem;
+    }
+  
+    .compatibility-list {
+      list-style: none;
+      padding: 0;
+  
+      .compatibility-item {
+        background: white;
+        border: 1px solid #ddd;
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+  
+  

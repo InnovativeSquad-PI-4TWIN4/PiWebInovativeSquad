@@ -78,6 +78,11 @@ const PublicationSchema = new Schema({
     type: [String], // Array of strings to store AI-generated comment suggestions
     default: [], // Default to an empty array
   },
+  embedding: {
+    type: [Number], // vecteur OpenAI
+    default: [],
+  },
+  
 });
 
 module.exports = mongoose.model('Publication', PublicationSchema);
