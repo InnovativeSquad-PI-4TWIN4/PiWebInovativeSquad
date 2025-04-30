@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  backend:
+    image: mouadhfersi/express-backend:latest
+    container_name: backend
+    ports:
+      - "3000:3000"  # Le backend écoute sur le port 3000
+    networks:
+      - app-network
+    depends_on:
+      - mongo  # Le backend dépend de MongoDB
+
+  frontend:
+    image: mouadhfersi/react-frontend:latest
+    container_name: frontend
+    ports:
+      - "80:80"  # Le frontend est accessible sur le port 80
+    networks:
+      - app-network
+    depends_on:
+      - backend  # Le frontend dépend du backend
+
+  mongo:
+    image: mongo:latest  # Utilisation de MongoDB
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root  # Nom d'utilisateur root pour MongoDB
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword  # Mot de passe root pour MongoDB
+    volumes:
+      - mongo-data:/data/db  # Volume pour persister les données MongoDB
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
