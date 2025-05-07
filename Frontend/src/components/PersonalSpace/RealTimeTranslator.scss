@@ -1,0 +1,283 @@
+
+// RealTimeTranslator.scss
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+$primary-color: #6e56cf;
+$secondary-color: #4cc9f0;
+$background-dark: #111827;
+$glass-bg: rgba(30, 41, 59, 0.4);
+$highlight-color: #fb7185;
+$text-color: #f9fafb;
+$text-secondary: #94a3b8;
+$transition-speed: 0.5s;
+
+.translator-container {
+  position: relative;
+  z-index: 20;
+  font-family: 'Space Grotesk', sans-serif;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+}
+
+.translator-bulb {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: $glass-bg;
+  backdrop-filter: blur(10px);
+  border-radius: 50px;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transition: all $transition-speed ease;
+  z-index: 1000;
+  
+  &:hover {
+    background: rgba($primary-color, 0.5);
+    transform: scale(1.1);
+  }
+  
+  .bulb-icon {
+    font-size: 1.5rem;
+    color: $secondary-color;
+  }
+  
+  .bulb-text {
+    font-size: 1rem;
+    color: $text-color;
+    font-weight: 500;
+  }
+}
+
+.translator-panel {
+  position: absolute;
+  bottom: 80px;
+  left: 20px;
+  width: 320px;
+  max-height: 60vh;
+  background: $glass-bg;
+  backdrop-filter: blur(15px);
+  border-radius: 15px;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+  
+  h2 {
+    font-size: 1.2rem;
+    background: linear-gradient(90deg, $primary-color, $secondary-color);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    color: $text-secondary;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: color $transition-speed ease;
+    
+    &:hover {
+      color: $highlight-color;
+    }
+  }
+}
+
+.panel-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+  
+  select {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: $text-color;
+    font-size: 0.9rem;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%234cc9f0" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1rem;
+    cursor: pointer;
+    
+    option {
+      background: $background-dark;
+      color: $text-color;
+      padding: 0.5rem;
+    }
+    
+    &:hover, &:focus {
+      background: rgba($primary-color, 0.2);
+    }
+  }
+  
+  .text-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: $text-color;
+    font-size: 0.9rem;
+    outline: none;
+    resize: vertical;
+    min-height: 50px;
+    max-height: 100px;
+    
+    &::placeholder {
+      color: $text-secondary;
+    }
+  }
+  
+  .file-input {
+    display: none;
+  }
+  
+  .file-upload-btn {
+    background: $glass-bg;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    color: $text-color;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all $transition-speed ease;
+    
+    &:hover {
+      background: rgba($primary-color, 0.5);
+    }
+    
+    .file-icon {
+      font-size: 1rem;
+    }
+  }
+  
+  .transcribe-btn {
+    background: $glass-bg;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    color: $text-color;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all $transition-speed ease;
+    
+    &.stop {
+      background: $highlight-color;
+    }
+    
+    &:hover {
+      background: rgba($primary-color, 0.5);
+    }
+  }
+}
+
+.panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.text-box {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.8rem;
+  flex-shrink: 0;
+  
+  h3 {
+    font-size: 0.9rem;
+    color: $text-secondary;
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    font-size: 0.8rem;
+    color: $text-color;
+    overflow-wrap: break-word;
+  }
+}
+
+.history-box {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1rem;
+  flex: 1;
+  overflow-y: auto;
+  
+  h3 {
+    font-size: 1rem;
+    color: $text-secondary;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+  }
+  
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .history-entry {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 1rem;
+    
+    p {
+      font-size: 1rem; // Increased for better visibility
+      color: $text-color;
+      margin: 0.4rem 0;
+      line-height: 1.5;
+      overflow-wrap: break-word;
+      
+      strong {
+        color: $secondary-color;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .translator-panel {
+    width: 90%;
+    left: 5%;
+    bottom: 0;
+    border-radius: 15px 15px 0 0;
+    max-height: 70vh;
+  }
+
+  .translator-bulb {
+    bottom: 10px;
+    left: 10px;
+  }
+}
