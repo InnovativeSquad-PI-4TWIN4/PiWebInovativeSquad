@@ -3,7 +3,7 @@ import PersonalSpace from './PersonalSpace';
 import RoadmapGenerator from './RoadmapGenerator';
 import Schedule from './schedule';
 import CyberpunkTitle from './CyberpunkTitle';
-
+import RealTimeTranslator from './RealTimeTranslator';
 import './Full.scss';
 
 const Full = () => {
@@ -11,14 +11,12 @@ const Full = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading for smooth transition effect
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 800);
     return () => clearTimeout(timer);
   }, []);
 
-  // Added console log for debugging purposes
   console.log('Active section:', activeSection);
 
   return (
@@ -50,6 +48,14 @@ const Full = () => {
             <span className="tab-icon">◎</span>
             Schedule
           </button>
+          <button 
+            className={`tab-btn ${activeSection === 'translator' ? 'active' : ''}`}
+            onClick={() => setActiveSection('translator')}
+            aria-label="Real-Time Translator"
+          >
+            <span className="tab-icon">🌐</span>
+            Translator
+          </button>
         </div>
       </div>
       
@@ -66,6 +72,10 @@ const Full = () => {
           <div className={`dashboard-section ${activeSection === 'schedule' ? 'active' : ''}`}>
             <Schedule />
           </div>
+          
+          <div className={`dashboard-section ${activeSection === 'translator' ? 'active' : ''}`}>
+            <RealTimeTranslator />
+          </div>
         </div>
       </div>
       
@@ -79,7 +89,7 @@ const Full = () => {
   );
 };
 
-// Added component documentation
 Full.displayName = 'DashboardContainer';
 
 export default Full;
+
