@@ -39,3 +39,32 @@ exports.getUserMatches = async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   };
+  exports.acceptMatch = async (req, res) => {
+    try {
+      const match = await MatchRequest.findByIdAndUpdate(
+        req.params.id,
+        { status: 'accepted' },
+        { new: true }
+      );
+      if (!match) return res.status(404).json({ error: "Match not found" });
+      res.json(match);
+    } catch (err) {
+      console.error("❌ Error accepting match:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
+  
+  exports.rejectMatch = async (req, res) => {
+    try {
+      const match = await MatchRequest.findByIdAndUpdate(
+        req.params.id,
+        { status: 'rejected' },
+        { new: true }
+      );
+      if (!match) return res.status(404).json({ error: "Match not found" });
+      res.json(match);
+    } catch (err) {
+      console.error("❌ Error rejecting match:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };

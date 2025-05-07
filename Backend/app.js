@@ -20,7 +20,7 @@ require("./models/Notification");
 require("./models/Chat");
 require("./models/Packs");
 require("./models/Courses");
-require("./models/ExamResult"); 
+require("./models/ExamResult");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
@@ -44,6 +44,7 @@ const wheelRoutes = require("./routes/wheel.routes");
 const robotRoutes = require('./routes/robot.routes');
 const matchRequestRoutes = require("./routes/matchRequest.routes");
 const learningCircleRoutes = require("./routes/LearningCircleRoutes");
+const matchChatRoutes = require("./routes/matchChat.routes");
 
 // ✅ Initialise app Express
 const app = express();
@@ -70,7 +71,7 @@ io.on("connection", (socket) => {
     io.emit("onlineUsers", Array.from(onlineUsers)); // ✅ envoie à tous
     console.log("🟢 Nouveau client connecté:", socket.id);
   });
-  
+ 
   io.emit("onlineUsers", Array.from(onlineUsers).map(id => id.toString()));
 
   io.emit("onlineUsers", Array.from(onlineUsers).map(id => id.toString()));
@@ -79,7 +80,7 @@ io.on("connection", (socket) => {
     socket.to(roomId).emit("user-joined", { username: "Another user" }); // 👈 notify others
     console.log(`🔔 Someone joined room: ${roomId}`);
   });
-  
+ 
   socket.on("join", (userId) => {
     socket.join(userId);
     console.log(`User ${userId} a rejoint sa room`);
@@ -205,7 +206,7 @@ app.use("/api/wheel", wheelRoutes);
 app.use('/api/robot', robotRoutes);
 app.use("/match-request", matchRequestRoutes);
 app.use("/api/circles", learningCircleRoutes);
-
+app.use("/api/match-chat", matchChatRoutes);
 
 // ✅ Gestion 404
 app.use((req, res, next) => {
