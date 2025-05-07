@@ -230,4 +230,109 @@ server.listen(PORT, () => {
 });
 
 
+//////////////////////////////////////////////////////////////////////////// socker room 
+// ✅ Gestion des sockets
+const participants = {};
+
+io.on("connection", (socket) => {
+  console.log("🟢 Nouveau client connecté:", socket.id);
+
+  // Gestion des utilisateurs en ligne
+  socket.on("join", (userId) => {
+    socket.userId = userId;
+    onlineUsers.add(userId);
+    io.emit("onlineUsers", Array.from(onlineUsers).map(id => id.toString()));
+    console.log(`Utilisateur ${userId} connecté`);
+  });
+
+  // Gestion des salles pour la vidéoconférence et la collaboration
+  socket.on("join-room", ({ roomId, userId, userName }) => {
+    socket.join(roomId);
+    console.log(`✅ ${socket.id} joined room ${roomId} with userId ${userId} and name ${userName}`);
+
+    if (!participants[roomId]) participants[roomId] = [];
+    if (!participants[roomId].some(p => p.userId === userId)) {
+      participants[roomId].push({ userId, userName, joinedAt: new Date() });
+    }
+    socket.to(roomId).emit("user-joined", { userId, userName, participants: participants[roomId] });
+
+    if (codeRooms[roomId]) {
+      socket.emit("init", codeRooms[roomId]);
+    } else {
+      codeRooms[roomId] = "// Start collaborating!";
+      socket.emit("init", codeRooms[roomId]);
+    }
+  });
+
+  // Gestion des changements de code
+  socket.on("code-change", ({ roomId, code }) => {
+    codeRooms[roomId] = code;
+    socket.to(roomId).emit("code-change", code);
+  });
+
+  // Gestion de la déconnexion d'une salle
+  socket.on("leave-room", ({ roomId, userId }) => {
+    socket.leave(roomId);
+    console.log(`❌ ${socket.id} left room ${roomId} with userId ${userId}`);
+    if (participants[roomId]) {
+      participants[roomId] = participants[roomId].map((p) =>
+        p.userId === userId ? { ...p, leftAt: new Date() } : p
+      );
+      io.to(roomId).emit("user-left", { userId, userName: participants[roomId].find(p => p.userId === userId)?.userName, participants: participants[roomId] });
+    }
+  });
+
+  // Gestion des appels WebRTC
+  socket.on("make-call", ({ offer, roomId, to }) => {
+    console.log(`Appel initié de ${socket.id} vers ${to} dans la salle ${roomId}`);
+    io.to(to).emit("call-made", { offer, from: socket.id });
+  });
+
+  socket.on("make-answer", ({ answer, to }) => {
+    console.log(`Réponse envoyée de ${socket.id} à ${to}`);
+    io.to(to).emit("answer-made", { answer, from: socket.id });
+  });
+
+  socket.on("ice-candidate", ({ candidate, roomId, to }) => {
+    console.log(`ICE candidate envoyé de ${socket.id} à ${to} dans la salle ${roomId}`);
+    io.to(to).emit("ice-candidate", { candidate, from: socket.id });
+  });
+
+  // Gestion du chat
+  socket.on("send-message", ({ roomId, userId, userName, message }) => {
+  socket.to(roomId).emit("receive-message", { userId, userName, message });
+});
+
+  // Gestion des appels entrants avec nom
+  socket.on("callUser", ({ userToCall, signalData, from, name }) => {
+    io.to(userToCall).emit("callIncoming", { signal: signalData, from, name });
+  });
+
+  // Gestion du typage
+  socket.on("typing", ({ toUserId, fromUser }) => {
+    socket.to(toUserId).emit("userTyping", fromUser);
+  });
+
+  socket.on("stopTyping", ({ toUserId }) => {
+    socket.to(toUserId).emit("userStopTyping");
+  });
+
+  // Gestion de la déconnexion
+  socket.on("disconnect", () => {
+    if (socket.userId) {
+      onlineUsers.delete(socket.userId);
+      io.emit("onlineUsers", Array.from(onlineUsers).map(id => id.toString()));
+      console.log(`🔴 Client déconnecté: ${socket.id} (userId: ${socket.userId})`);
+      Object.keys(participants).forEach((roomId) => {
+        if (participants[roomId].some(p => p.userId === socket.userId)) {
+          participants[roomId] = participants[roomId].map((p) =>
+            p.userId === socket.userId ? { ...p, leftAt: new Date() } : p
+          );
+          io.to(roomId).emit("user-left", { userId: socket.userId, userName: participants[roomId].find(p => p.userId === socket.userId)?.userName, participants: participants[roomId] });
+        }
+      });
+    }
+  });
+});
+
 module.exports = app
