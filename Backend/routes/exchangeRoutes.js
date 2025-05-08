@@ -14,5 +14,6 @@ router.put("/:requestId",authenticateUser,  exchangeController.respondToRequest)
 router.post('/:roomId/validate', authenticateUser,exchangeController.validateExchange);
 router.post('/fix-code',exchangeController.fixCode);
 router.post("/explain-code", exchangeController.explainCode); // ✅ Nouvelle route
+router.post("/generate-code", exchangeController.generateCode);
 
 module.exports = router;

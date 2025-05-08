@@ -9,6 +9,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import 'highlight.js/styles/atom-one-dark.css'; // 🌙 Dark mode pour le markdown
 const socket = io("http://localhost:3000");
+import './CodeRoom.scss';
 
 const CodeRoom = () => {
   const { roomId } = useParams();
@@ -23,7 +24,9 @@ const CodeRoom = () => {
   const [validationSent, setValidationSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [explanation, setExplanation] = useState("");
-
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
@@ -31,6 +34,7 @@ const CodeRoom = () => {
   const peerConnection = useRef(null);
 
   useEffect(() => {
+    
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -217,9 +221,34 @@ const CodeRoom = () => {
   //     setIsLoading(false);
   //   }
   // };
+  const handleAICodeHelp = async () => {
+    if (!aiPrompt.trim()) return toast.error("Please enter a description!");
+    try {
+      setAiLoading(true);
+  
+      const res = await axios.post("http://localhost:3000/exchange-request/generate-code", {
+        prompt: aiPrompt,
+        language
+      });
+  
+      if (res.data?.generatedCode) {
+        setCode(res.data.generatedCode.trim());
+        toast.success("✅ Code généré avec succès !");
+      } else {
+        toast.error("⚠️ Aucune réponse de l'IA.");
+      }
+  
+    } catch (err) {
+      console.error("AI Error:", err);
+      toast.error("❌ Erreur lors de l'appel à l'IA.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
   
   const handleExplainCode = async () => {
     try {
+      
       setIsLoading(true);
       setExplanation("");
   
@@ -417,15 +446,80 @@ const CodeRoom = () => {
         </div>
 
         {/* Code Editor */}
-        <div style={{ background: 'white', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.15)', marginTop: '20px' }}>
-          <Editor
-            height="400px"
-            language={language}
-            theme="vs-light"
-            value={code}
-            onChange={handleCodeChange}
-          />
+        <div>
+        {language === "html" ? (
+  <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
+    {/* 📝 Editeur HTML à gauche */}
+    <div style={{ flex: 1 }}>
+      <Editor
+        height="400px"
+        language="html"
+        theme="vs-light"
+        value={code}
+        onChange={handleCodeChange}
+      />
+    </div>
+
+    {/* 🔍 Preview à droite */}
+    <div style={{
+      flex: 1,
+      border: "1px solid #ccc",
+      borderRadius: "8px",
+      overflow: "hidden",
+      background: "#fff"
+    }}>
+      <iframe
+        srcDoc={code}
+        title="Live Preview"
+        style={{ width: "100%", height: "100%", border: "none" }}
+      />
+    </div>
+  </div>
+) : (
+  // Pour les autres langages (JS, Python, etc.)
+  <div style={{ marginTop: '20px' }}>
+    <Editor
+      height="400px"
+      language={language}
+      theme="vs-light"
+      value={code}
+      onChange={handleCodeChange}
+    />
+  </div>
+)}
+
         </div>
+        <div style={{ marginTop: "20px", textAlign: "center" }}>
+  <input
+    type="text"
+    value={aiPrompt}
+    onChange={(e) => setAiPrompt(e.target.value)}
+    placeholder="💡 Describe what you want to build (e.g. login form with validation)"
+    style={{
+      width: "60%",
+      padding: "10px",
+      borderRadius: "6px",
+      border: "1px solid #ccc",
+      fontSize: "16px"
+    }}
+  />
+  <button
+    onClick={handleAICodeHelp}
+    disabled={aiLoading}
+    style={{
+      marginLeft: "10px",
+      padding: "10px 20px",
+      backgroundColor: "#00b894",
+      color: "#fff",
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer"
+    }}
+  >
+    👥 AI Help Me Code
+  </button>
+</div>
+
 
         {/* Run Output */}
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
@@ -461,13 +555,21 @@ const CodeRoom = () => {
 >
   🛠 AI Fix Code
 </button>
-<button 
-  onClick={handleExplainCode} 
-  disabled={isLoading}
-  style={{ ...buttonStyle, backgroundColor: '#17a2b8' }}
->
-  📘 Explain Code
-</button>
+
+
+<div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+  <button 
+    onClick={handleExplainCode} 
+    disabled={isLoading}
+    style={{ ...buttonStyle, backgroundColor: '#17a2b8' }}
+  >
+    📘 Explain Code
+  </button>
+
+  {isLoading && <div className="spinner" style={{ width: 24, height: 24 }} />}
+</div>
+
+
 
         </div>
         {explanation && (
