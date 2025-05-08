@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./Packs.scss";
+import "./packs.scss";
 
 const AddPacks = ({ onClose }) => {
   const [title, setTitle] = useState("");

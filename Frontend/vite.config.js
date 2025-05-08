@@ -11,6 +11,9 @@ export default defineConfig({
       buffer: 'buffer',
       util: 'util',
     }
+  }, 
+  build: {
+    outDir: 'dist', // Assurez-vous que la sortie est dans le dossier 'dist'
   },
   define: {
     global: 'window',

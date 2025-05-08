@@ -5,9 +5,10 @@ import { MdManageAccounts } from 'react-icons/md';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../../../context/ThemeContext';
 import NotificationComponent from "../NotificationComponent/NotificationComponent";
-import './Navbar.scss';
+import './navbar.scss';
 import AdminNavbar from '../../backoffice/Adminnavbar/adminnavbar';
 import { MdWorkspacePremium } from "react-icons/md";
+import { MdGroups } from 'react-icons/md';
 
 const Navbar = ({ user, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -74,7 +75,7 @@ const Navbar = ({ user, onLogout }) => {
           <>
             <li><Link to="/">Home</Link></li>
             <li><Link to="/marketplace">MarketPlace</Link></li>
-            <li><Link to="/publication">Forum</Link></li>
+            <li><Link to="/exchange-start">Forum</Link></li>
             <li><Link to="/OurPacks">Our Packs</Link></li>
             <li><Link to="/AvisWebsite">Feedback</Link></li>
             <li><Link to="/Full" className="overview">AI Tools</Link></li>
@@ -126,6 +127,11 @@ const Navbar = ({ user, onLogout }) => {
                         My Career
                         {hasNewAppointment && <span className="notification-dot">🔔</span>}
                       </div>
+                      {/* ✅ New Menu Item for Learning Circles */}
+<div className="menu-item" onClick={() => navigate('/learning-circles')}>
+        <MdGroups className="menu-icon" />
+        Learning Circles
+      </div>
 
                       <div className="menu-item" onClick={handleLogout}>
                         <FiLogOut className="menu-icon logout-icon" />

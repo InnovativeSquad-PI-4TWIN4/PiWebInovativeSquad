@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import './Courses.scss';
+import './courses.scss';
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);

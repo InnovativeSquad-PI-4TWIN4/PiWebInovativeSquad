@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaUserShield } from 'react-icons/fa';
 import { FiLogOut } from 'react-icons/fi';
 import { MdManageAccounts } from 'react-icons/md';
-import './AdminNavbar.scss';
+import './adminnavbar.scss';
 
 const AdminNavbar = ({ user, onLogout }) => {
     const navigate = useNavigate();

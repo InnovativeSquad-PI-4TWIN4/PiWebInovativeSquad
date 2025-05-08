@@ -39,7 +39,7 @@ import Publication from './components/frontoffice/publication/Publication';
 import Profiles from './components/frontoffice/Manageprofile/AllProfiles';
 import ProfileDetail from './components/frontoffice/Manageprofile/ProfileDetails';
 import ExchangeRoom from './components/frontoffice/Packs/ExchangeRoom';
-import PackDetails from "./components/frontoffice/Packs/PackDetails"; 
+import PackDetails from "./components/frontoffice/Packs/PackDetails";
 import ExamCertification from './components/frontoffice/exam/ExamCertification';
 import EmailVerification from './components/frontoffice/signup/EmailVerification';
 import MyCareer from './components/frontoffice/MyCareer/MyCareer';
@@ -51,6 +51,13 @@ import CodeRoom from './components/frontoffice/ExchangePages/CodeRoom'
 import PlanifySession from './components/frontoffice/Marketplace/PlanifySession';
 import Recommendation from './components/frontoffice/Recommendation/Recommendation';
 import WheelOfFortune from './components/frontoffice/WheelOfFortune/WheelOfFortune';
+import ExchangeStart from "./components/frontoffice/publication/ExchangeStart";
+import TinderView from "./components/frontoffice/publication/TinderView";
+import MyMatches from './components/frontoffice/publication/MyMatches';
+import LearningCircles from './components/frontoffice/LearningCircles/LearningCircles';
+import CreateLearningCircle from "./components/frontoffice/LearningCircles/CreateLearningCircle";
+import VideoCall from './components/frontoffice/LearningCircles/VideoCall';
+import ChatPage from './components/frontoffice/publication/ChatPage';
 
 
 
@@ -71,10 +78,10 @@ useEffect(() => {
         setUser(latestUser); // ✅ Forcer la mise à jour si l'objet a changé
       }
     }, 2000); // toutes les 2 secondes
-  
+ 
     return () => clearInterval(interval); // nettoyage
   }, [user]);
-  
+ 
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -132,8 +139,8 @@ useEffect(() => {
       setUser(userData);
     }
   };
-  
-  
+ 
+ 
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -204,6 +211,14 @@ useEffect(() => {
               <Route path="/planify-session" element={<PlanifySession />} />
               <Route path="/recommendations" element={<Recommendation />} />
               <Route path="/wheel-fortune" element={<WheelOfFortune />} />
+              <Route path="/exchange-start" element={<ExchangeStart />} />
+              <Route path="/tinder-view" element={<TinderView />} />
+              <Route path="/my-matches" element={<MyMatches />} />
+              <Route path="/chat/:chatId" element={<ChatPage user={user} />} />
+              <Route path="/learning-circles" element={<LearningCircles />} />
+              <Route path="/create-circle" element={<CreateLearningCircle />} />
+              <Route path="/VideoCall" element={<VideoCall />} />
+              <Route path="/video-call/:roomId" element={<VideoCall />} />
 
 
 

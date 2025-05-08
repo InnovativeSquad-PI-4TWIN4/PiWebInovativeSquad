@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './UpdateProfile.scss';
+import './updateprofile.scss';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 const UpdateProfile = ({ user }) => {

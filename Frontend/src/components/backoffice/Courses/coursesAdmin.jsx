@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaSearch, FaPlus, FaEdit, FaTrash, FaFire, FaCheck, FaCheckCircle } from 'react-icons/fa';
 import AddCourses from "./AddCourses";
-import './CoursesAdmin.scss';
+import './coursesAdmin.scss';
 
 const CoursesAdmin = () => {
   const [courses, setCourses] = useState([]);

@@ -2,50 +2,67 @@ const express = require('express');
 const router = express.Router();
 const { OpenAI } = require('openai');
 
-require('dotenv').config();
-
-// ✅ Initialiser OpenAI avec OpenRouter
+// Configure OpenRouter AI
 const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
-  baseURL: 'https://openrouter.ai/api/v1', 
+  baseURL: "https://openrouter.ai/api/v1"
 });
 
-// ✅ POST route pour générer les skills recommandés
+// POST /api/recommend-skills
 router.post('/recommend-skills', async (req, res) => {
   try {
-    const selectedSkills = req.body.selectedSkills || [];
+    const { selectedSkills } = req.body;
+
+    if (!selectedSkills || selectedSkills.length === 0) {
+      return res.status(400).json({ message: "Aucune compétence fournie." });
+    }
 
     const prompt = `
-Tu es un assistant IA. 
-À partir des compétences suivantes sélectionnées par un utilisateur : [${selectedSkills.join(', ')}], 
-propose 5 compétences supplémentaires utiles, sous forme d'un JSON propre uniquement.
+Tu es un expert du développement logiciel et web.
 
-Format attendu : 
-{
-  "skillsRecommended": ["Compétence1", "Compétence2", "Compétence3", "Compétence4", "Compétence5"]
-}
+À partir de cette liste de compétences existantes :
+[${selectedSkills.join(', ')}]
 
-Réponds uniquement avec le JSON valide, sans explication ni markdown ni commentaires.
+Génère une liste de 5 nouvelles compétences COMPLÉMENTAIRES qui sont uniquement des **technologies, frameworks, bibliothèques ou outils**.
+
+Exemples valides :
+["React", "Node.js", "Express", "Spring Boot", "MongoDB", "Docker", "GitLab", "Angular", "Vue.js", "AWS"]
+
+Exemples invalides :
+["Création d'applications", "Optimisation du code", "Gestion de projet"]
+
+**Réponds uniquement** sous forme d'un tableau JSON, sans aucune explication, ni texte supplémentaire.
+
+Format strict attendu :
+[
+  "Tech1",
+  "Tech2",
+  "Tech3",
+  "Tech4",
+  "Tech5"
+]
 `;
 
     const response = await openai.chat.completions.create({
-      model: 'mistralai/mistral-7b-instruct',  // ✅ modèle valide OpenRouter
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
+      model: "openai/gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.6
     });
 
-    let text = response.choices[0]?.message?.content?.trim() || "";
+    const aiResponse = response.choices[0]?.message?.content;
 
-    if (text.startsWith("```")) {
-      text = text.replace(/^```(\w+)?/, '').replace(/```$/, '').trim();
+    const jsonStart = aiResponse.indexOf("[");
+    const jsonEnd = aiResponse.lastIndexOf("]") + 1;
+    const skills = JSON.parse(aiResponse.substring(jsonStart, jsonEnd));
+
+    if (!Array.isArray(skills)) {
+      return res.status(500).json({ message: "Erreur IA : réponse non conforme." });
     }
 
-    const parsed = JSON.parse(text);
-
-    res.status(200).json(parsed);
+    res.status(200).json({ recommendedSkills: skills });
   } catch (error) {
     console.error("Erreur recommandation skills:", error);
-    res.status(500).json({ error: error?.error || error.message });
+    res.status(500).json({ message: "Erreur serveur lors de la recommandation." });
   }
 });
 

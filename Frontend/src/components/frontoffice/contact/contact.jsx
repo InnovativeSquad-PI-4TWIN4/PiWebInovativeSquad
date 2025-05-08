@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import './Contact.scss';
+import './contact.scss';
 
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });

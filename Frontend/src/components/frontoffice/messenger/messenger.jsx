@@ -1,6 +1,6 @@
 import React, { useEffect, useState ,useRef} from "react";
 import { useNavigate } from "react-router-dom";
-import "./Messenger.scss";
+import "./messenger.scss";
 import { FaTrashAlt } from "react-icons/fa";
 import {  MdDeleteForever } from "react-icons/md";
 import { formatDistanceToNow } from 'date-fns';

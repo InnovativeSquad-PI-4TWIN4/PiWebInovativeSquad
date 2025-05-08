@@ -1,271 +1,3 @@
-// Full.scss - Modern futuristic styling
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-
-// Variables - Updated with comments
-$primary-color: #6e56cf;   // Main purple color
-$secondary-color: #4cc9f0; // Bright blue accent
-$background-dark: #111827; // Dark background
-$background-light: #1e293b; // Lighter background
-$glass-bg: rgba(30, 41, 59, 0.4); // Glass effect background
-$highlight-color: #fb7185; // Pink highlight
-$success-color: #10b981;   // Green success color
-$text-color: #f9fafb;      // Primary text color
-$text-secondary: #94a3b8;  // Secondary text
-$transition-speed: 0.5s;   // Animation speed
-
-
-.dashboard-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: linear-gradient(135deg, $background-dark 0%, #1a2035 100%);
-  color: $text-color;
-  font-family: 'Space Grotesk', sans-serif;
-  position: relative;
-  overflow: hidden;
-  padding: 2rem;
-  transition: opacity 0.6s ease-in-out;
-  
-  &.loading {
-    opacity: 0;
-  }
-  
-  &.loaded {
-    opacity: 1;
-  }
-}
-
-// Header styling
-.dashboard-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2rem;
-  position: relative;
-  z-index: 10;
-}
-
-.dashboard-title {
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  background: linear-gradient(90deg, $primary-color, $secondary-color);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  
-  .highlight {
-    color: $highlight-color;
-    -webkit-text-fill-color: $highlight-color;
-    position: relative;
-    
-    &:after {
-      content: "";
-      position: absolute;
-      bottom: -5px;
-      left: 0;
-      width: 100%;
-      height: 3px;
-      background: $highlight-color;
-      border-radius: 10px;
-    }
-  }
-}
-
-// Tab navigation
-.section-tabs {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.tab-btn {
-  background: $glass-bg;
-  color: $text-secondary;
-  border: none;
-  border-radius: 12px;
-  padding: 0.75rem 1.25rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all $transition-speed ease;
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  
-  &:hover {
-    background: rgba(110, 86, 207, 0.2);
-    transform: translateY(-2px);
-  }
-  
-  &.active {
-    background: linear-gradient(90deg, rgba($primary-color, 0.8), rgba($secondary-color, 0.4));
-    color: $text-color;
-    box-shadow: 0 8px 20px rgba($primary-color, 0.3);
-  }
-  
-  .tab-icon {
-    font-size: 1.2rem;
-  }
-}
-
-// Main content area
-.dashboard-content {
-  flex: 1;
-  position: relative;
-  z-index: 10;
-}
-
-.glass-panel {
-  background: $glass-bg;
-  backdrop-filter: blur(15px);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  min-height: 500px;
-  overflow: hidden;
-  position: relative;
-  
-  &:before {
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(
-      circle at 50% 50%,
-      rgba($secondary-color, 0.08),
-      transparent 30%
-    );
-    pointer-events: none;
-  }
-}
-
-// Section display
-.dashboard-section {
-  display: none;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all $transition-speed ease;
-  
-  &.active {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
-    animation: fadeIn 0.5s ease forwards;
-  }
-}
-
-// Ambient background
-.ambient-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-  overflow: hidden;
-}
-
-.particle {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(30px);
-  opacity: 0.3;
-  animation: float 20s infinite alternate ease-in-out;
-  
-  &-1 {
-    width: 300px;
-    height: 300px;
-    top: -150px;
-    right: -100px;
-    background: $primary-color;
-    animation-delay: 0s;
-  }
-  
-  &-2 {
-    width: 250px;
-    height: 250px;
-    bottom: -100px;
-    left: -50px;
-    background: $secondary-color;
-    animation-delay: 5s;
-  }
-  
-  &-3 {
-    width: 200px;
-    height: 200px;
-    top: 50%;
-    left: 10%;
-    background: $highlight-color;
-    animation-delay: 10s;
-  }
-  
-  &-4 {
-    width: 350px;
-    height: 350px;
-    bottom: 10%;
-    right: 5%;
-    background: $success-color;
-    animation-delay: 15s;
-    opacity: 0.15;
-  }
-}
-
-// Animations
-@keyframes float {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(30px, 30px) scale(1.05);
-  }
-  100% {
-    transform: translate(-30px, 15px) scale(0.95);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// Responsive adjustments
-@media (max-width: 768px) {
-  .dashboard-container {
-    padding: 1rem;
-  }
-  
-  .dashboard-title {
-    font-size: 1.8rem;
-  }
-  
-  .section-tabs {
-    width: 100%;
-  }
-  
-  .tab-btn {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-  }
-  
-  .glass-panel {
-    padding: 1.5rem;
-  }
-}// Full.scss - Modern futuristic styling
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 // Variables
@@ -347,6 +79,7 @@ $transition-speed: 0.5s;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
   justify-content: center;
+  padding: 0 10px;
 }
 
 .tab-btn {
@@ -364,6 +97,8 @@ $transition-speed: 0.5s;
   align-items: center;
   gap: 0.5rem;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  min-width: 150px;
+  justify-content: center;
   
   &:hover {
     background: rgba(110, 86, 207, 0.2);
@@ -371,19 +106,27 @@ $transition-speed: 0.5s;
   }
   
   &.active {
-    background: linear-gradient(90deg, rgba($primary-color, 0.8), rgba($secondary-color, 0.4));
+    background: linear-gradient(90deg, rgba($primary-color, 0.8), rgba($secondary-color, 0.8));
     color: $text-color;
-    box-shadow: 0 8px 20px rgba($primary-color, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    
+    .tab-icon {
+      color: $text-color;
+    }
   }
   
   .tab-icon {
     font-size: 1.2rem;
+    color: $secondary-color;
   }
 }
 
-// Main content area
+// Content area
 .dashboard-content {
   flex: 1;
+  display: flex;
+  justify-content: center;
   position: relative;
   z-index: 10;
 }
@@ -393,113 +136,201 @@ $transition-speed: 0.5s;
   backdrop-filter: blur(15px);
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 1200px;
   min-height: 500px;
-  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   
   &:before {
     content: "";
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(
-      circle at 50% 50%,
-      rgba($secondary-color, 0.08),
-      transparent 30%
-    );
-    pointer-events: none;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    height: 5px;
+    background: linear-gradient(90deg, $primary-color, $secondary-color);
+    border-radius: 5px;
   }
 }
 
-// Section display
+// Dashboard sections
 .dashboard-section {
   display: none;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all $transition-speed ease;
+  animation: fadeIn 0.5s ease;
   
   &.active {
     display: block;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
     opacity: 1;
     transform: translateY(0);
-    animation: fadeIn 0.5s ease forwards;
   }
 }
 
 // Ambient background
 .ambient-background {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   z-index: 1;
-  overflow: hidden;
+  pointer-events: none;
 }
 
 .particle {
   position: absolute;
   border-radius: 50%;
   filter: blur(30px);
-  opacity: 0.3;
-  animation: float 20s infinite alternate ease-in-out;
+  opacity: 0.5;
+  animation: float 15s infinite ease-in-out;
   
   &-1 {
     width: 300px;
     height: 300px;
-    top: -150px;
-    right: -100px;
-    background: $primary-color;
+    background: rgba($primary-color, 0.3);
+    top: 10%;
+    left: 10%;
     animation-delay: 0s;
   }
   
   &-2 {
-    width: 250px;
-    height: 250px;
-    bottom: -100px;
-    left: -50px;
-    background: $secondary-color;
-    animation-delay: 5s;
+    width: 400px;
+    height: 400px;
+    background: rgba($secondary-color, 0.2);
+    bottom: 5%;
+    right: 5%;
+    animation-delay: -3s;
   }
   
   &-3 {
     width: 200px;
     height: 200px;
-    top: 50%;
-    left: 10%;
-    background: $highlight-color;
-    animation-delay: 10s;
+    background: rgba($highlight-color, 0.15);
+    top: 40%;
+    right: 20%;
+    animation-delay: -6s;
   }
   
   &-4 {
-    width: 350px;
-    height: 350px;
-    bottom: 10%;
-    right: 5%;
-    background: $success-color;
-    animation-delay: 15s;
-    opacity: 0.15;
+    width: 250px;
+    height: 250px;
+    background: rgba($success-color, 0.2);
+    bottom: 30%;
+    left: 20%;
+    animation-delay: -9s;
   }
 }
 
-// Animations
 @keyframes float {
-  0% {
-    transform: translate(0, 0) scale(1);
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-20px, 20px);
   }
   50% {
-    transform: translate(30px, 30px) scale(1.05);
+    transform: translate(10px, -15px);
   }
-  100% {
-    transform: translate(-30px, 15px) scale(0.95);
+  75% {
+    transform: translate(15px, 10px);
   }
 }
 
-@keyframes fadeIn {
+// Responsive design
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+  
+  .glass-panel {
+    padding: 1.5rem;
+  }
+  
+  .section-tabs {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+  }
+  
+  .tab-btn {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+// Translator component styling overrides
+.translator-container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px; // Changed from right to left
+  z-index: 1000;
+  font-family: 'Space Grotesk', sans-serif;
+  width: auto;
+  height: auto;
+}
+
+.translator-bulb {
+  position: relative;
+  background: $glass-bg;
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transition: all $transition-speed ease;
+  width: 45px;
+  height: 45px;
+  
+  &:hover {
+    background: rgba($primary-color, 0.5);
+    transform: scale(1.1);
+  }
+  
+  .bulb-icon {
+    font-size: 1.5rem;
+    color: $secondary-color;
+  }
+  
+  .bulb-text {
+    display: none; /* Hide the text for a small button look */
+  }
+}
+
+.translator-panel {
+  position: absolute;
+  bottom: 60px;
+  left: 0; // Changed from right to left
+  width: 380px;
+  max-height: 80vh;
+  background: $glass-bg;
+  backdrop-filter: blur(15px);
+  border-radius: 15px;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease-out;
+}
+
+// Translator specific animations and media queries preserved from original
+@keyframes slideIn {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -510,26 +341,59 @@ $transition-speed: 0.5s;
   }
 }
 
-// Responsive adjustments
 @media (max-width: 768px) {
-  .dashboard-container {
+  .translator-container {
+    bottom: 10px;
+    left: 10px; // Changed from right to left
+  }
+  
+  .translator-panel {
+    width: 90vw;
+    max-width: 380px;
+    bottom: 60px;
+    left: 0; // Changed from right to left
+    max-height: 80vh;
+  }
+}
+
+// Additional styles for translator features section
+.translator-features {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  
+  .feature {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
     padding: 1rem;
-  }
-  
-  .dashboard-title {
-    font-size: 1.8rem;
-  }
-  
-  .section-tabs {
-    width: 100%;
-  }
-  
-  .tab-btn {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-  }
-  
-  .glass-panel {
-    padding: 1.5rem;
+    border-left: 3px solid $secondary-color;
+    
+    h3 {
+      color: $secondary-color;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    p {
+      color: $text-secondary;
+      font-size: 0.9rem;
+    }
+    
+    &:nth-child(2) {
+      border-left-color: $highlight-color;
+      
+      h3 {
+        color: $highlight-color;
+      }
+    }
+    
+    &:nth-child(3) {
+      border-left-color: $success-color;
+      
+      h3 {
+        color: $success-color;
+      }
+    }
   }
 }
