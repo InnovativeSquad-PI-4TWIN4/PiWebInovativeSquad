@@ -260,3 +260,30 @@ ${code}
     res.status(500).json({ message: "AI error with Groq." });
   }
 };
+
+
+exports.explainCode = async (req, res) => {
+  try {
+    const { code, language } = req.body;
+
+    const prompt = `You are an expert developer. Please explain the following ${language} code in clear and concise steps:
+
+\`\`\`${language}
+${code}
+\`\`\`
+
+Return the explanation in markdown format.`;
+
+    const response = await groq.chat.completions.create({
+      model: "llama3-8b-8192",
+      messages: [{ role: "user", content: prompt }]
+    });
+
+    const explanation = response.choices[0].message.content.trim();
+    res.status(200).json({ explanation });
+
+  } catch (error) {
+    console.error("❌ Groq AI Error (explain):", error.message);
+    res.status(500).json({ message: "AI error while explaining the code." });
+  }
+};
