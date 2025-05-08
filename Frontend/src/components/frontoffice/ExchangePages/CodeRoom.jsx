@@ -5,7 +5,9 @@ import { io } from 'socket.io-client';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
-
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import 'highlight.js/styles/atom-one-dark.css'; // 🌙 Dark mode pour le markdown
 const socket = io("http://localhost:3000");
 
 const CodeRoom = () => {
@@ -20,7 +22,8 @@ const CodeRoom = () => {
   const [user, setUser] = useState(null);
   const [validationSent, setValidationSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+  const [explanation, setExplanation] = useState("");
+
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
@@ -214,6 +217,30 @@ const CodeRoom = () => {
   //     setIsLoading(false);
   //   }
   // };
+  
+  const handleExplainCode = async () => {
+    try {
+      setIsLoading(true);
+      setExplanation("");
+  
+      const response = await axios.post("http://localhost:3000/exchange-request/explain-code", {
+        code,
+        language,
+      });
+  
+      if (response.data && response.data.explanation) {
+        setExplanation(response.data.explanation);
+        toast.success("✅ Code explained by AI!");
+      } else {
+        toast.error("❌ No explanation received.");
+      }
+    } catch (error) {
+      console.error("Explain Error:", error);
+      toast.error("❌ Failed to contact AI for explanation.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
     
   const handleRun = () => {
@@ -434,8 +461,31 @@ const CodeRoom = () => {
 >
   🛠 AI Fix Code
 </button>
+<button 
+  onClick={handleExplainCode} 
+  disabled={isLoading}
+  style={{ ...buttonStyle, backgroundColor: '#17a2b8' }}
+>
+  📘 Explain Code
+</button>
 
         </div>
+        {explanation && (
+  <div style={{
+    background: '#1e1e1e',
+    color: '#f8f8f2',
+    padding: '20px',
+    marginTop: '30px',
+    borderRadius: '10px',
+    fontFamily: 'monospace'
+  }}>
+    <h3 style={{ color: '#00e676' }}>💡 AI Explanation</h3>
+    <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
+      {explanation}
+    </ReactMarkdown>
+  </div>
+)}
+
 
         <div style={{ marginTop: '30px', background: '#1e1e1e', color: '#00ff90', padding: '20px', borderRadius: '10px', fontFamily: 'monospace' }}>
           <h3 style={{ color: '#fff' }}>🧪 Output:</h3>
