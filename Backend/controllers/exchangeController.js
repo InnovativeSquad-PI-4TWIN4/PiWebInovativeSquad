@@ -287,3 +287,22 @@ Return the explanation in markdown format.`;
     res.status(500).json({ message: "AI error while explaining the code." });
   }
 };
+
+exports.generateCode = async (req, res) => {
+  const { prompt, language } = req.body;
+  const fullPrompt = `Generate a valid, working example of ${language} code that does the following: ${prompt}.`;
+
+  try {
+    const response = await groq.chat.completions.create({
+      model: "llama3-8b-8192",
+      messages: [{ role: "user", content: fullPrompt }]
+    });
+
+    const generatedCode = response.choices[0].message.content;
+    res.status(200).json({ generatedCode });
+
+  } catch (err) {
+    console.error("AI Code Generation Error:", err);
+    res.status(500).json({ message: "Failed to generate code." });
+  }
+};
