@@ -46,7 +46,8 @@ import MyCareer from './components/frontoffice/MyCareer/MyCareer';
 import VerifyPending from './components/frontoffice/signup/VerifyPending';
 import CodeEditor from './components/frontoffice/ExchangePages/Code_editor'
 import DesignCollab from './components/frontoffice/ExchangePages/design-collab';
-import CodeRoom from './components/frontoffice/ExchangePages/CodeRoom'
+import CodeRoom from './components/frontoffice/ExchangePages/CodeRoom';
+import MatchRoom from './components/frontoffice/MatchRoom/MatchRoom';
 
 import PlanifySession from './components/frontoffice/Marketplace/PlanifySession';
 import Recommendation from './components/frontoffice/Recommendation/Recommendation';
@@ -219,6 +220,7 @@ useEffect(() => {
               <Route path="/create-circle" element={<CreateLearningCircle />} />
               <Route path="/VideoCall" element={<VideoCall />} />
               <Route path="/video-call/:roomId" element={<VideoCall />} />
+              <Route path="/match-room/:roomId" element={<MatchRoom />} />
 
 
 

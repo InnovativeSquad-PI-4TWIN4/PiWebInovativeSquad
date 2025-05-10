@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import io from "socket.io-client";
 import "./MyMatches.scss";
 
 const MyMatches = () => {
@@ -9,86 +11,134 @@ const MyMatches = () => {
 
   const user = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+  const socketRef = useRef(null);
+
+  const fetchMatches = async () => {
+    if (!user || !user._id || !token) {
+      setError("Utilisateur non authentifié.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:3000/match-request/all/${user._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Échec de la récupération des invitations.");
+      const data = await res.json();
+
+      setSent(data.sent || []);
+      setReceived(data.received || []);
+    } catch (err) {
+      setError(err.message || "Erreur inattendue.");
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchMatches = async () => {
-      if (!user || !user._id || !token) {
-        setError("Utilisateur non authentifié.");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const res = await fetch(`http://localhost:3000/match-request/all/${user._id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Erreur lors du chargement des invitations");
+    fetchMatches();
+  
+    if (user && token && !socketRef.current) {
+      const newSocket = io("http://localhost:3000", {
+        query: { userId: user._id },
+        transports: ["websocket"],
+        reconnectionAttempts: 3,
+        reconnectionDelay: 1000,
+      });
+  
+      socketRef.current = newSocket;
+  
+      newSocket.on("connect", () => {
+        console.log("✅ Socket connected:", newSocket.id);
+        newSocket.emit("join", user._id);
+      });
+  
+      newSocket.on("connect_error", (err) => {
+        console.error("❌ Socket error:", err.message);
+      });
+  
+      newSocket.on("match-updated", (updatedMatch) => {
+        console.log("📩 Match updated:", updatedMatch);
+      
+        // ✅ Ajout important : met à jour les données quand la room est créée
+        if (updatedMatch.status === "accepted" && updatedMatch.roomId) {
+          fetchMatches();
         }
-
-        const data = await res.json();
-        setSent(data.sent || []);
-        setReceived(data.received || []);
-      } catch (err) {
-        setError(err.message || "Erreur inattendue.");
-      } finally {
-        setLoading(false);
+      });
+      
+    }
+  
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
       }
     };
-
-    fetchMatches();
-  }, []);
-
+  }, [user?._id]);
+  
   const handleDecision = async (matchId, decision) => {
     try {
       const res = await fetch(`http://localhost:3000/match-request/${decision}/${matchId}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
-
+  
       if (!res.ok) throw new Error("Erreur lors de la mise à jour du statut du match.");
-
+      const responseData = await res.json();
+      const updatedMatch = responseData.match;
+      const roomId = updatedMatch?.roomId;
+  
       if (decision === "accept") {
-        const match = received.find((m) => m._id === matchId);
-        if (!match) throw new Error("Match non trouvé en mémoire.");
-
-        const user1 = match.sender?._id || match.sender;
-        const user2 = match.receiver?._id || user._id;
-
-        const chatRes = await fetch("http://localhost:3000/api/match-chat/create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user1, user2, matchId }),
+        setReceived((prev) => prev.map((m) => m._id === matchId ? updatedMatch : m));
+        setSent((prev) => {
+          const exists = prev.some(m => m._id === matchId);
+          return exists ? prev.map((m) => m._id === matchId ? updatedMatch : m) : [...prev, updatedMatch];
         });
+      
+        const user1Id = updatedMatch.sender?._id || updatedMatch.sender;
+        const user2Id = updatedMatch.receiver?._id || updatedMatch.receiver;
+      
+        if (socketRef.current && user1Id !== user2Id) {
+          socketRef.current.emit("match-updated", {
+            matchId,
+            status: "accepted",
+            roomId,
+            senderId: user1Id,
+            receiverId: user2Id,
+          });
+        }
+  
+       // 👇 Ajout crucial : re-fetch pour rafraîchir le vrai roomId depuis backend
+  await fetchMatches();
 
-        if (!chatRes.ok) throw new Error("Erreur lors de la création du chat.");
-        const createdChat = await chatRes.json();
-
-        await fetch("http://localhost:3000/api/match-chat/notify-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ matchId }),
-        });
-
-        setReceived((prev) =>
-          prev.map((m) =>
-            m._id === matchId ? { ...m, status: "accepted", chatId: createdChat._id } : m
-          )
-        );
-
-        setSent((prev) =>
-          prev.map((m) =>
-            m._id === matchId ? { ...m, status: "accepted", chatId: createdChat._id } : m
-          )
-        );
-      } else {
+  navigate(`/match-room/${roomId}`);
+} else {
         setReceived((prev) => prev.filter((m) => m._id !== matchId));
+  
+        const senderId = updatedMatch.sender?._id || updatedMatch.sender;
+        const receiverId = updatedMatch.receiver?._id || updatedMatch.receiver;
+  
+        if (socketRef.current && senderId !== receiverId) {
+          socketRef.current.emit("match-updated", {
+            matchId,
+            status: "rejected",
+            senderId,
+            receiverId,
+          });
+        }
       }
     } catch (err) {
       alert(err.message);
     }
+  };
+  
+
+  const handleJoinRoom = (roomId) => {
+    navigate(`/match-room/${roomId}`);
   };
 
   return (
@@ -113,11 +163,15 @@ const MyMatches = () => {
                   <p><strong>Your Publication:</strong> {match.publication?.description}</p>
                   {match.status === "pending" ? (
                     <p className="waiting-note">⌛ Awaiting their response...</p>
-                  ) : match.status === "accepted" && match.chatId ? (
+                  ) : match.status === "accepted" && match.roomId ? (
                     <div className="contact-button">
-                      <a href={`/chat/${match.chatId}`} className="contact-link">💬 Contacter</a>
+                      <button onClick={() => handleJoinRoom(match.roomId)} className="join-room-btn">
+                        🚪 Rejoindre la Room
+                      </button>
                     </div>
-                  ) : null}
+                  ) : (
+                    <p className="waiting-note">⏳ Room en cours de création...</p>
+                  )}
                 </div>
               ))
             )}
@@ -142,12 +196,14 @@ const MyMatches = () => {
                         ❌ Reject
                       </button>
                     </div>
-                  ) : match.status === "accepted" && match.chatId ? (
+                  ) : match.status === "accepted" && match.roomId ? (
                     <div className="contact-button">
-                      <a href={`/chat/${match.chatId}`} className="contact-link">💬 Contacter</a>
+                      <button onClick={() => handleJoinRoom(match.roomId)} className="join-room-btn">
+                        🚪 Rejoindre la Room
+                      </button>
                     </div>
                   ) : (
-                    <p className="waiting-note">⏳ Chat en cours de création...</p>
+                    <p className="waiting-note">⏳ Room en cours de création...</p>
                   )}
                 </div>
               ))
