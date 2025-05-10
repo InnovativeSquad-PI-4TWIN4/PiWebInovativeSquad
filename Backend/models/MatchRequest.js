@@ -26,6 +26,11 @@ const matchRequestSchema = new mongoose.Schema({
     ref: "MatchChat", // 👈 ajout ici pour stocker la conversation liée
     default: null,
   },
+  roomId: {
+    type: String,
+    default: null,
+  },
+  
   createdAt: {
     type: Date,
     default: Date.now,
