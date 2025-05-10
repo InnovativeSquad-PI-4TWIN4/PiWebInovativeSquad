@@ -39,6 +39,8 @@ const matchRequestRoutes = require("./routes/matchRequest.routes");
 const learningCircleRoutes = require("./routes/LearningCircleRoutes");
 const matchChatRoutes = require("./routes/matchChat.routes");
 const matchRoomRoutes = require("./routes/MatchRoomRoutes");
+const projectRoutes = require('./routes/project.routes');
+const taskRoutes = require('./routes/task.routes');
 
 const app = express();
 const server = http.createServer(app);
@@ -312,6 +314,8 @@ app.use("/match-request", matchRequestRoutes);
 app.use("/api/circles", learningCircleRoutes);
 app.use("/api/match-chat", matchChatRoutes);
 app.use("/api/match-rooms", matchRoomRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/tasks', taskRoutes);
 
 app.use((req, res, next) => {
   res.status(404).json({ error: "❌ La page demandée n'a pas été trouvée !" });
