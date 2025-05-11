@@ -5,5 +5,6 @@ const { authenticateUser } = require('../middleware/authMiddleware'); // ✅ lig
 
 router.post('/', authenticateUser, projectController.createProject);
 router.get('/', authenticateUser, projectController.getAllProjects);
+router.put('/:projectId/add-member', authenticateUser, projectController.addMemberToProject);
 
 module.exports = router;

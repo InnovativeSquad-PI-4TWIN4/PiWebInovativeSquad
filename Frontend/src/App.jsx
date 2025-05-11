@@ -59,6 +59,7 @@ import LearningCircles from './components/frontoffice/LearningCircles/LearningCi
 import CreateLearningCircle from "./components/frontoffice/LearningCircles/CreateLearningCircle";
 import VideoCall from './components/frontoffice/LearningCircles/VideoCall';
 import ChatPage from './components/frontoffice/publication/ChatPage';
+import ProjectLab from './components/frontoffice/ProjectLab/ProjectLab';
 
 
 
@@ -221,6 +222,10 @@ useEffect(() => {
               <Route path="/VideoCall" element={<VideoCall />} />
               <Route path="/video-call/:roomId" element={<VideoCall />} />
               <Route path="/match-room/:roomId" element={<MatchRoom />} />
+              <Route path="/project-lab" element={<ProjectLab />} />
+
+             
+
 
 
 

@@ -9,6 +9,8 @@ import './navbar.scss';
 import AdminNavbar from '../../backoffice/Adminnavbar/adminnavbar';
 import { MdWorkspacePremium } from "react-icons/md";
 import { MdGroups } from 'react-icons/md';
+import { FaFlask } from "react-icons/fa"; // Icône pour symboliser un "Lab"
+
 
 const Navbar = ({ user, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -80,6 +82,7 @@ const Navbar = ({ user, onLogout }) => {
             <li><Link to="/AvisWebsite">Feedback</Link></li>
             <li><Link to="/Full" className="overview">AI Tools</Link></li>
             <li><Link to="/Personal" className="overview">Personal Space</Link></li>
+            <li><Link to="/project-lab"><FaFlask /> Project Lab</Link></li>
             <li><Link to="/contact">Contact</Link></li>
             
 

@@ -4,8 +4,8 @@ const taskController = require('../controllers/task.controller');
 const { authenticateUser } = require('../middleware/authMiddleware');
 
 router.post('/', authenticateUser, taskController.createTask);
-router.get('/project/:projectId', authenticateUser, taskController.getTasksByProject); // ✅ à ajouter
-router.put('/:id', authenticateUser, taskController.updateTaskStatus);
-router.post('/:id/comments', authenticateUser, taskController.addComment);
+router.get('/project/:projectId', authenticateUser, taskController.getTasksByProject);
+router.put('/:taskId', authenticateUser, taskController.updateTaskStatus); // ✅ FIXED route
+router.delete('/:taskId', authenticateUser, taskController.deleteTask);   // ✅ FIXED route
 
 module.exports = router;
