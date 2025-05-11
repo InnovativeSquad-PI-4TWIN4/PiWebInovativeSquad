@@ -67,7 +67,7 @@ const ProjectModal = ({ onProjectCreated }) => {
 
   return (
     <div className="project-modal">
-      <h2>Créer un nouveau projet</h2>
+      <h2>Create a new project</h2>
       <input
         type="text"
         placeholder="Titre du projet"
@@ -83,7 +83,7 @@ const ProjectModal = ({ onProjectCreated }) => {
       />
 
       <div className="user-selection">
-        <p>Sélectionner les membres à inviter ({selectedUsers.length}) :</p>
+        <p>Select the members to invite ({selectedUsers.length}) :</p>
         <div className="user-list">
           {allUsers.map((user) => (
             <label key={user._id}>
@@ -100,7 +100,7 @@ const ProjectModal = ({ onProjectCreated }) => {
       </div>
 
       <button onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Création...' : 'Créer'}
+        {loading ? 'Création...' : 'Create'}
       </button>
     </div>
   );

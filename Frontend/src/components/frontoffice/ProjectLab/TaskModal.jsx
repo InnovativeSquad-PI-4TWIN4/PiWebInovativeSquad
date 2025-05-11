@@ -80,8 +80,8 @@ const TaskModal = ({ project, onClose }) => {
 
           {hoveredTaskId === task._id && (
             <div className="task-options">
-              <button onClick={() => setEditingTaskId(task._id)}>🔁 Déplacer</button>
-              <button onClick={() => handleDeleteTask(task._id)}>🗑 Supprimer</button>
+              <button onClick={() => setEditingTaskId(task._id)}>🔁 Move</button>
+              <button onClick={() => handleDeleteTask(task._id)}>🗑 Delete</button>
             </div>
           )}
 
@@ -106,7 +106,7 @@ const TaskModal = ({ project, onClose }) => {
   return (
     <div className="task-modal">
       <div className="modal-header">
-        <h2>📝 Tâches du projet : <span>{project.title}</span></h2>
+        <h2>📝 Project tasks : <span>{project.title}</span></h2>
         <button className="close-btn" onClick={onClose}>✖</button>
       </div>
 
@@ -120,14 +120,14 @@ const TaskModal = ({ project, onClose }) => {
 
 
       <div className="add-task-form">
-        <h3>➕ Ajouter une tâche</h3>
+        <h3>➕Add a task</h3>
         <input type="text" placeholder="Titre" value={newTask.title}
           onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} />
         <textarea placeholder="Description" value={newTask.description}
           onChange={(e) => setNewTask({ ...newTask, description: e.target.value })} />
         <input type="date" value={newTask.dueDate}
           onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })} />
-        <button onClick={handleAddTask}>Ajouter</button>
+        <button onClick={handleAddTask}>Add</button>
       </div>
     </div>
   );
