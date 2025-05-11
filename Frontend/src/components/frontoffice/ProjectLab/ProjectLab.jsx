@@ -12,6 +12,8 @@ const ProjectLab = () => {
   const [users, setUsers] = useState([]);
   const [highlightedId, setHighlightedId] = useState(null);
   const [generatedSprint, setGeneratedSprint] = useState(null);
+  const [projectsWithSprint, setProjectsWithSprint] = useState([]);
+  const [sprints, setSprints] = useState([]);
 
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -27,8 +29,6 @@ const ProjectLab = () => {
       if (res.data.length > 0) {
         const latest = res.data[res.data.length - 1];
         setHighlightedId(latest._id);
-
-        // Supprimer le highlight après 3 secondes
         setTimeout(() => setHighlightedId(null), 3000);
       }
     } catch (err) {
@@ -48,6 +48,26 @@ const ProjectLab = () => {
       console.error('Erreur récupération utilisateurs', err);
     }
   };
+
+  const fetchSprints = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/api/sprint", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+  
+      // ✅ Sécurité : ne garder que les sprints avec projectId valide
+      const validSprints = res.data.filter(s => s.projectId && s.projectId._id);
+      const sprintProjectIds = validSprints.map(s => s.projectId._id.toString());
+  
+      setProjectsWithSprint(sprintProjectIds);
+      setSprints(validSprints);
+    } catch (err) {
+      console.error("Erreur récupération des sprints", err);
+    }
+  };
+  
 
   const generateSprint = async (project) => {
     const goal = prompt("🎯 Entrez l’objectif de ce sprint :");
@@ -72,7 +92,8 @@ const ProjectLab = () => {
         }
       );
 
-      setGeneratedSprint(res.data.sprint); // 🎯 Affichage dans modal
+      setGeneratedSprint(res.data.sprint);
+      fetchSprints();
     } catch (error) {
       console.error("❌ Erreur IA :", error);
       alert("Erreur lors de la génération du sprint.");
@@ -83,8 +104,16 @@ const ProjectLab = () => {
     if (user) {
       fetchProjects();
       fetchUsers();
+      fetchSprints();
     }
   }, []);
+
+  const handleViewSprint = (projectId) => {
+    const sprint = sprints.find(s => s.projectId && s.projectId._id && s.projectId._id.toString() === projectId.toString());
+    if (sprint) {
+      setGeneratedSprint(sprint);
+    }
+  };
 
   return (
     <div className="project-lab">
@@ -97,7 +126,9 @@ const ProjectLab = () => {
             className={`project-item ${highlightedId === project._id ? "highlight" : ""}`}
             key={project._id}
           >
-            <h3>{project.title}</h3>
+            <h3>
+              {project.title} {projectsWithSprint.includes(project._id.toString()) && <span className="sprint-badge">✅ Sprint</span>}
+            </h3>
             <p>{project.description}</p>
             <div className="project-actions">
               <button onClick={() => {
@@ -107,9 +138,15 @@ const ProjectLab = () => {
                 View tasks
               </button>
 
-              <button onClick={() => generateSprint(project)}>
-                📅 Generate Sprint
-              </button>
+              {projectsWithSprint.includes(project._id.toString()) ? (
+                <button onClick={() => handleViewSprint(project._id)}>
+                  🔍 View Sprint
+                </button>
+              ) : (
+                <button onClick={() => generateSprint(project)}>
+                  📅 Generate Sprint
+                </button>
+              )}
             </div>
           </div>
         ))}
