@@ -38,19 +38,20 @@ exports.generateSprintPlan = async (req, res) => {
 
     // Extraction simplifiée
     const steps = [];
-    const matches = content.matchAll(/\*\*Sprint (\d+)\*\*(.*?)((?=\*\*Sprint)|$)/gs);
+    const matches = content.matchAll(/\*\*Sprint\s+\d+[^\*]*\*\*((?:.|\n)*?)(?=\*\*Sprint|\*\*Final|\*\*Review|\*\*$)/g);
     for (const match of matches) {
-      const sprintLabel = `Sprint ${match[1]}`;
-      const rawTasks = match[2].trim().split(/\n+/);
-      const cleanedTasks = rawTasks.map(t =>
-        t.replace(/^\*|\t|-/g, '').trim()
-      ).filter(Boolean);
-
-      steps.push({
-        week: sprintLabel,
-        tasks: cleanedTasks
-      });
-    }
+        const rawContent = match[1];
+        const tasks = rawContent
+          .split(/\n+/)
+          .map(line => line.replace(/^[*\-\+]\s*/, '').trim())
+          .filter(Boolean);
+      
+        steps.push({
+          week: `Sprint ${steps.length + 1}`,
+          tasks,
+        });
+      }
+      
 
     console.log("✅ Étapes extraites :\n", steps);
 
