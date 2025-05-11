@@ -36,22 +36,20 @@ exports.generateSprintPlan = async (req, res) => {
     const content = response.data.choices[0].message.content;
     console.log("✅ Plan brut généré par l'IA :\n", content);
 
-    // Extraction simplifiée
     const steps = [];
-    const matches = content.matchAll(/\*\*Sprint\s+\d+[^\*]*\*\*((?:.|\n)*?)(?=\*\*Sprint|\*\*Final|\*\*Review|\*\*$)/g);
+    const matches = content.matchAll(/\*\*Sprint\s+\d+[^\n]*\n+(.*?)((?=\*\*Sprint)|$)/gs);
+
     for (const match of matches) {
-        const rawContent = match[1];
-        const tasks = rawContent
-          .split(/\n+/)
-          .map(line => line.replace(/^[*\-\+]\s*/, '').trim())
-          .filter(Boolean);
-      
-        steps.push({
-          week: `Sprint ${steps.length + 1}`,
-          tasks,
-        });
-      }
-      
+      const tasks = match[1]
+        .split(/\n+/)
+        .map(line => line.replace(/^[*\-\+•✓✔️📌\s]+/, '').trim())
+        .filter(Boolean);
+
+      steps.push({
+        week: `Sprint ${steps.length + 1}`,
+        tasks,
+      });
+    }
 
     console.log("✅ Étapes extraites :\n", steps);
 
@@ -77,7 +75,7 @@ exports.generateSprintPlan = async (req, res) => {
   }
 };
 
-// ✅ Pour tester si tout fonctionne (GET /api/sprint)
+// Optionnel : récupérer tous les sprints
 exports.getAllSprints = async (req, res) => {
   try {
     const all = await SprintPlan.find().populate("projectId generatedBy");
