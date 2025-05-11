@@ -82,7 +82,6 @@ const Navbar = ({ user, onLogout }) => {
             <li><Link to="/AvisWebsite">Feedback</Link></li>
             <li><Link to="/Full" className="overview">AI Tools</Link></li>
             <li><Link to="/Personal" className="overview">Personal Space</Link></li>
-            <li><Link to="/project-lab"><FaFlask /> Project Lab</Link></li>
             <li><Link to="/contact">Contact</Link></li>
             
 
@@ -130,6 +129,11 @@ const Navbar = ({ user, onLogout }) => {
                         My Career
                         {hasNewAppointment && <span className="notification-dot">🔔</span>}
                       </div>
+                      <div className="menu-item" onClick={() => navigate('/project-lab')}>
+  <FaFlask className="menu-icon" />
+  Project Lab
+</div>
+
                       {/* ✅ New Menu Item for Learning Circles */}
 <div className="menu-item" onClick={() => navigate('/learning-circles')}>
         <MdGroups className="menu-icon" />
