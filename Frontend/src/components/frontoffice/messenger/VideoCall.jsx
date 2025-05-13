@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Peer from "simple-peer";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:3000"); // ton backend
+const socket = io("http://backend:3000"); // ton backend
 
 const VideoCallComponent = ({ currentUserId, selectedUser }) => {
   const [stream, setStream] = useState(null);
