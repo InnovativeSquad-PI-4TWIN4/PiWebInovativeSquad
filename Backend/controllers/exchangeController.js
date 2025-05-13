@@ -306,3 +306,126 @@ exports.generateCode = async (req, res) => {
     res.status(500).json({ message: "Failed to generate code." });
   }
 };
+
+// exports.generateQuizFromCode = async (req, res) => {
+//   try {
+//     const { code, language } = req.body;
+
+//     const prompt = `Generate a short quiz based on the following ${language} code.
+// Return exactly two multiple-choice questions as a JSON array.
+// Each question should follow this format:
+
+// {
+//   "question": "string",
+//   "options": ["string", "string", "string", "string"],
+//   "answer": "string"
+// }
+
+// ⚠️ Return ONLY the pure JSON array. Do not include any explanation or text outside the JSON.
+// Do not use backticks or Markdown formatting.
+
+// Code:
+// ${code}
+// `;
+
+//     const response = await groq.chat.completions.create({
+//       model: "llama3-8b-8192",
+//       messages: [{ role: "user", content: prompt }],
+//     });
+
+//     const aiRaw = response.choices[0].message.content.trim();
+//     console.log("🧠 RAW AI Response:", aiRaw);
+
+//     // Match first JSON array found
+//     const match = aiRaw.match(/\[[\s\S]*\]/);
+//     if (!match) {
+//       return res.status(500).json({ message: "Invalid quiz format received from AI" });
+//     }
+
+//     let cleaned = match[0]
+//       .replace(/`/g, '"')     // convert backticks to double quotes
+//       .replace(/\s+/g, ' ')   // collapse excessive whitespace
+//       .replace(/\\"/g, '"');  // unescape stray escapes
+
+//     let quiz;
+//     try {
+//       quiz = JSON.parse(cleaned);
+//     } catch (err) {
+//       console.error("❌ Failed to parse cleaned JSON:", cleaned);
+//       return res.status(500).json({ message: "Invalid JSON format extracted" });
+//     }
+
+//     res.status(200).json({ quiz });
+
+//   } catch (err) {
+//     console.error("❌ Error generating quiz:", err.message);
+//     res.status(500).json({ message: "Error generating quiz" });
+//   }
+// };
+exports.generateQuizFromCode = async (req, res) => {
+  try {
+    const { code, language, answers } = req.body; // on récupère aussi answers
+
+    const prompt = `Generate a short quiz based on the following ${language} code.
+Return exactly two multiple-choice questions as a JSON array.
+Each question should follow this format:
+
+{
+  "question": "string",
+  "options": ["string", "string", "string", "string"],
+  "answer": "string"
+}
+
+⚠️ Return ONLY the pure JSON array. Do not include any explanation or text outside the JSON.
+Do not use backticks or Markdown formatting.
+
+Code:
+${code}
+`;
+
+    const response = await groq.chat.completions.create({
+      model: "llama3-8b-8192",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const aiRaw = response.choices[0].message.content.trim();
+    console.log("🧠 RAW AI Response:", aiRaw);
+
+    // Match first JSON array found
+    const match = aiRaw.match(/\[[\s\S]*\]/);
+    if (!match) {
+      return res.status(500).json({ message: "Invalid quiz format received from AI" });
+    }
+
+    let cleaned = match[0]
+      .replace(/`/g, '"')     // convert backticks to double quotes
+      .replace(/\s+/g, ' ')   // collapse excessive whitespace
+      .replace(/\\"/g, '"');  // unescape stray escapes
+
+    let quiz;
+    try {
+      quiz = JSON.parse(cleaned);
+    } catch (err) {
+      console.error("❌ Failed to parse cleaned JSON:", cleaned);
+      return res.status(500).json({ message: "Invalid JSON format extracted" });
+    }
+
+    // ✅ Si des réponses utilisateur sont envoyées, ajouter isCorrect
+    if (Array.isArray(answers) && answers.length === quiz.length) {
+      quiz = quiz.map((q, i) => {
+        const expected = q.answer?.trim().toLowerCase();
+        const given = answers[i]?.trim().toLowerCase();
+        return {
+          ...q,
+          isCorrect: expected === given
+        };
+      });
+    }
+
+    res.status(200).json({ quiz });
+
+  } catch (err) {
+    console.error("❌ Error generating quiz:", err.message);
+    res.status(500).json({ message: "Error generating quiz" });
+  }
+};
