@@ -9,7 +9,7 @@ import './PremiumCourses.scss';
 import RechargeModal from '../RechargeModal/RechargeModal';
 import SmartQuizModal from "./SmartQuizModal";
 
-const socket = io("http://backend:3000");
+const socket = io("http://localhost:3000");
 
 const PremiumCourses = () => {
   const [courses, setCourses] = useState([]);
