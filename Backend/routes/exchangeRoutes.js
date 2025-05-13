@@ -15,5 +15,6 @@ router.post('/:roomId/validate', authenticateUser,exchangeController.validateExc
 router.post('/fix-code',exchangeController.fixCode);
 router.post("/explain-code", exchangeController.explainCode); // ✅ Nouvelle route
 router.post("/generate-code", exchangeController.generateCode);
+router.post("/quiz", exchangeController.generateQuizFromCode);
 
 module.exports = router;

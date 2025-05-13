@@ -26,7 +26,11 @@ const CodeRoom = () => {
   const [explanation, setExplanation] = useState("");
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
-  
+  const [quiz, setQuiz] = useState([]);
+const [showQuiz, setShowQuiz] = useState(false);
+const [quizAnswers, setQuizAnswers] = useState({});
+const [quizValidated, setQuizValidated] = useState(false);
+
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
@@ -60,15 +64,33 @@ const CodeRoom = () => {
     });
 
     socket.on("call-made", async (data) => {
-      await peerConnection.current.setRemoteDescription(new RTCSessionDescription(data.offer));
-      const answer = await peerConnection.current.createAnswer();
-      await peerConnection.current.setLocalDescription(answer);
+      const pc = peerConnection.current;
+    
+      if (pc.signalingState !== "stable") {
+        console.warn("⏳ Skipping setRemoteDescription because state is:", pc.signalingState);
+        return;
+      }
+    
+      await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+    
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+    
       socket.emit("make-answer", { answer, to: data.socket });
     });
+    
 
     socket.on("answer-made", async (data) => {
-      await peerConnection.current.setRemoteDescription(new RTCSessionDescription(data.answer));
+      const pc = peerConnection.current;
+    
+      if (pc.signalingState !== "have-local-offer") {
+        console.warn("⚠️ Skipping answer because signaling state is not 'have-local-offer'");
+        return;
+      }
+    
+      await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
     });
+    
 
     socket.on("ice-candidate", async (data) => {
       try {
@@ -161,7 +183,19 @@ const CodeRoom = () => {
     // ✅ Show validation form after hangup
   setShowValidation(true);
   };
-
+  const fetchQuiz = async () => {
+    try {
+      const res = await axios.post("http://localhost:3000/exchange-request/quiz", {
+        code,
+        language
+      });
+      setQuiz(res.data.quiz);
+      setShowQuiz(true);
+    } catch (err) {
+      toast.error("❌ Failed to fetch quiz");
+    }
+  };
+  
   const handleCodeChange = (newCode) => {
     setCode(newCode);
     socket.emit("code-change", { roomId, code: newCode });
@@ -259,7 +293,7 @@ const CodeRoom = () => {
   
       if (response.data && response.data.explanation) {
         setExplanation(response.data.explanation);
-        toast.success("✅ Code explained by AI!");
+toast.success("✅ Code explained by AI!", { autoClose: 3000 });
       } else {
         toast.error("❌ No explanation received.");
       }
@@ -320,6 +354,7 @@ const CodeRoom = () => {
 
   const handleLanguageChange = (e) => {
     setLanguage(e.target.value);
+    
   };
   const handleCopy = () => {
     navigator.clipboard.writeText(code)
@@ -372,13 +407,66 @@ const CodeRoom = () => {
       toast.error("❌ Could not validate the exchange"); // ✅ Better error toast
     }
   };
-  
+  const iconButtonStyle = {
+  padding: '10px',
+  border: 'none',
+  borderRadius: '50%',
+  cursor: 'pointer',
+  fontSize: '15px',
+  color: '#fff',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  transition: '0.3s',
+};
+
   
  
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#eef1f5', padding: '20px' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <h1 style={{ textAlign: 'center', color: '#1DA1F2', marginBottom: '10px' }}>💻 Code Room - Private Collaboration</h1>
+  // <div style={{ minHeight: '100vh', backgroundColor: '#121212', padding: '20px', color: '#e0e0e0' }}>
+  <div className={`dashboard-container ${isLoading ? 'loading' : 'loaded'}`}>
+
+    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+  
+   {/* <h1  className="cyberpunk-title">
+            <span className="title-main"> Private Room </span>
+            <span className="title-divider">//</span>
+            <span className="title-highlight">Collaboration</span>
+          </h1> */}
+          <header className="dashboard-header">
+  <div className="cyberpunk-title-container">
+    <div className="title-decorations">
+      <div className="circuit-line left"></div>
+      <div className="circuit-line right"></div>
+    </div>
+    
+    <h1 className="cyberpunk-title">
+      <span className="title-main">Code Room</span>
+      <span className="title-divider">//</span>
+      <span className="title-highlight">Collaboration</span>
+    </h1>
+    
+    <div className="subtitle-container">
+      <div className="loading-bar">
+        <div className="loading-progress"></div>
+      </div>
+      <p className="subtitle">Live Code & Knowledge Sharing</p>
+    </div>
+  </div>
+</header>
+
+  <ToastContainer 
+  position="top-right" 
+  autoClose={3000} 
+  hideProgressBar={false} 
+  newestOnTop={false} 
+  closeOnClick 
+  rtl={false} 
+  pauseOnFocusLoss 
+  draggable 
+  pauseOnHover 
+  theme="colored"
+/>
 
         {/* ⏱️ Timer */}
         {callStartedAt && (
@@ -386,52 +474,112 @@ const CodeRoom = () => {
             ⏳ Call Duration: <strong>{callDuration}</strong>
           </p>
         )}
-{showValidation && (
-  <div style={{ marginTop: "30px", textAlign: "center" }}>
-    <h3>Did you successfully exchange skills?</h3>
-    <button 
-      onClick={() => { submitValidation("success"); setValidationSent(true); }} 
-      disabled={validationSent}
-      style={{
-        margin: "10px",
-        padding: "10px 20px",
-        backgroundColor: validationSent ? "gray" : "green",
-        color: "white",
-        border: "none",
-        borderRadius: "6px",
-        cursor: validationSent ? "not-allowed" : "pointer"
-      }}
+{}
+{showValidation && !quizValidated ? (
+  <div style={{ textAlign: "center", marginTop: "20px" }}>
+    <button onClick={fetchQuiz} style={buttonStyle}>🧪 Start Quiz to Validate</button>
+  </div>
+) : showValidation && quizValidated && !validationSent ? (
+  <div style={{ textAlign: "center", marginTop: "30px" }}>
+    <h3>✅ You passed the quiz. Validate your exchange?</h3>
+    <button
+      onClick={() => { submitValidation("success"); setValidationSent(true); }}
+      style={{ ...buttonStyle, backgroundColor: "green", color: "white", marginRight: "10px" }}
     >
       ✅ Yes, I learned
     </button>
+    <button
+      onClick={() => { submitValidation("fail"); setValidationSent(true); }}
+      style={{ ...buttonStyle, backgroundColor: "red", color: "white" }}
+    >
+      ❌ No, I didn\'t
+    </button>
+  </div>
+) : null}
+
+{showQuiz && (
+  <div style={{ background: "#fff", padding: "20px", borderRadius: "10px", marginTop: "20px", color: "#333", position: "relative" }}>
+    {/* Bouton de fermeture */}
     <button 
-      onClick={() => { submitValidation("fail"); setValidationSent(true); }} 
-      disabled={validationSent}
+      onClick={() => setShowQuiz(false)} 
       style={{
-        margin: "10px",
-        padding: "10px 20px",
-        backgroundColor: validationSent ? "gray" : "red",
-        color: "white",
+        position: "absolute",
+        top: "10px",
+        right: "10px",
+        backgroundColor: "#ff4d4f",
+        color: "#fff",
         border: "none",
-        borderRadius: "6px",
-        cursor: validationSent ? "not-allowed" : "pointer"
+        borderRadius: "4px",
+        padding: "5px 10px",
+        cursor: "pointer"
       }}
     >
-      ❌ No, I didn't
+      ❌ Fermer le Quiz
+    </button>
+
+    <h3 style={{ color: "#1DA1F2" }}>🧠 Validation Quiz</h3>
+    {quiz.map((q, index) => (
+      <div key={index} style={{ marginBottom: "15px" }}>
+        <p><strong>{q.question}</strong></p>
+        {q.options.map((option, i) => (
+          <label 
+            key={i} 
+            style={{ 
+              display: "block", 
+              padding: "8px 12px", 
+              marginBottom: "8px", 
+              backgroundColor: "#f0f0f0", 
+              borderRadius: "5px", 
+              cursor: "pointer", 
+              color: "#000" 
+            }}
+          >
+            <input
+              type="radio"
+              name={`question-${index}`}
+              value={option}
+              onChange={() =>
+                setQuizAnswers(prev => ({ ...prev, [index]: option }))
+              }
+              style={{ marginRight: "10px" }}
+            />
+            {option}
+          </label>
+        ))}
+      </div>
+    ))}
+    <button
+      onClick={() => {
+        const allCorrect = quiz.every(
+          (q, idx) => quizAnswers[idx] === q.answer
+        );
+        if (allCorrect) {
+          toast.success("✅ Quiz passed. You can now validate!");
+          setQuizValidated(true);
+          setShowQuiz(false);
+        } else {
+          toast.error("❌ Incorrect answers. Try again.");
+        }
+      }}
+      style={{ marginTop: "20px", ...buttonStyle }}
+    >
+      ✅ Submit Quiz
     </button>
   </div>
 )}
 
 
+
         {/* 🎙️ Voice Controls */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <button onClick={startCall} style={buttonStyle}>📞 Start Call</button>
-          <button onClick={toggleMute} style={buttonStyle}>
-            {isMuted ? "🎤 Unmute" : "🔇 Mute"}
-          </button>
-          <button onClick={hangUp} style={{ ...buttonStyle, backgroundColor: 'red' }}>❌ Hang Up</button>
-          <button onClick={goBack} style={{ ...buttonStyle, backgroundColor: '#ccc', color: 'black' }}>🔙 Back</button>
-        </div>
+       <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
+  <button onClick={startCall} style={{ ...iconButtonStyle, backgroundColor: '#ffffff' }} title="Start Call">📞</button>
+  <button onClick={toggleMute} style={{ ...iconButtonStyle, backgroundColor: '#ffffff' }} title={isMuted ? "Unmute" : "Mute"}>
+    {isMuted ? "🎤" : "🔇"}
+  </button>
+  <button onClick={hangUp} style={{ ...iconButtonStyle, backgroundColor: '#ffffff' }} title="Hang Up">❌</button>
+  <button onClick={goBack} style={{ ...iconButtonStyle, backgroundColor: '#ffffff' }} title="Back">🔙</button>
+</div>
+
 
         {/* Audio element for remote user */}
         <audio id="remoteAudio" autoPlay style={{ display: 'none' }}></audio>
@@ -451,13 +599,19 @@ const CodeRoom = () => {
   <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
     {/* 📝 Editeur HTML à gauche */}
     <div style={{ flex: 1 }}>
+     
       <Editor
-        height="400px"
-        language="html"
-        theme="vs-light"
-        value={code}
-        onChange={handleCodeChange}
-      />
+  height="900px" // Augmenter la hauteur
+  language={language}
+  theme="vs-dark"
+  value={code}
+  onChange={handleCodeChange}
+  options={{
+    fontSize: 16, // Agrandir le texte aussi si tu veux
+    minimap: { enabled: false }, // Tu peux désactiver la mini-map pour plus de place
+  }}
+/>
+
     </div>
 
     {/* 🔍 Preview à droite */}
@@ -479,12 +633,18 @@ const CodeRoom = () => {
   // Pour les autres langages (JS, Python, etc.)
   <div style={{ marginTop: '20px' }}>
     <Editor
-      height="400px"
-      language={language}
-      theme="vs-light"
-      value={code}
-      onChange={handleCodeChange}
-    />
+  height="600px" // Augmenter la hauteur
+  width="1200px"
+  language={language}
+  theme="vs-dark"
+  value={code}
+  onChange={handleCodeChange}
+  options={{
+    fontSize: 16, // Agrandir le texte aussi si tu veux
+    minimap: { enabled: false }, // Tu peux désactiver la mini-map pour plus de place
+  }}
+/>
+
   </div>
 )}
 
@@ -521,66 +681,60 @@ const CodeRoom = () => {
 </div>
 
 
-        {/* Run Output */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-        <button onClick={handleRun} style={{ ...buttonStyle, backgroundColor: '#1DA1F2' }}>
-  ▶️ Run Code
-</button>
-<button onClick={handleCopy} style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-            📋 Copy Code
-          </button>
-          <button onClick={handleDownload} style={{ padding: '10px 20px', backgroundColor: '#ff9800', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-            📥 Download Code
-          </button>
-          <button onClick={goBack} style={{ padding: '10px 20px', backgroundColor: '#ccc', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-            🔙 Back
-          </button>
-          <button 
-  onClick={() => {
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '20px', flexWrap: 'wrap' }}>
+  <button onClick={handleRun} style={{ ...iconButtonStyle, backgroundColor: '#AAAAAA' }} title="Run Code">▶️</button>
+  <button onClick={handleCopy} style={{ ...iconButtonStyle, backgroundColor: '#AAAAAA' }} title="Copy Code">📋</button>
+  <button onClick={handleDownload} style={{ ...iconButtonStyle, backgroundColor: '#AAAAAA' }} title="Download Code">📥</button>
+  <button onClick={goBack} style={{ ...iconButtonStyle, backgroundColor: '#AAAAAA' }} title="Back">🔙</button>
+  <button onClick={() => {
     if (exampleCodes[language]) {
       setCode(exampleCodes[language]);
     } else {
       alert('No example available for this language.');
     }
-  }}
-  style={{ ...buttonStyle, backgroundColor: '#6a0dad' }}
->
-  🎯 Load Example
-</button>
-
-<button 
-  onClick={handleAutoFix} 
-  disabled={isLoading}
-  style={{ ...buttonStyle, backgroundColor: '#8e44ad' }}
->
-  🛠 AI Fix Code
-</button>
-
-
-<div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-  <button 
-    onClick={handleExplainCode} 
-    disabled={isLoading}
-    style={{ ...buttonStyle, backgroundColor: '#17a2b8' }}
-  >
-    📘 Explain Code
+  }} style={{ ...iconButtonStyle, backgroundColor: '#AAAAAA' }} title="Load Example">
+    🎯
   </button>
-
+  <button onClick={handleAutoFix} disabled={isLoading} style={{ ...iconButtonStyle, backgroundColor: '#AAAAAA' }} title="AI Fix Code">
+    🛠
+  </button>
+  <button onClick={handleExplainCode} disabled={isLoading} style={{ ...iconButtonStyle, backgroundColor: '#AAAAAA' }} title="Explain Code">
+    📘 
+  </button>
   {isLoading && <div className="spinner" style={{ width: 24, height: 24 }} />}
 </div>
 
 
 
-        </div>
-        {explanation && (
+        
+      {explanation && (
   <div style={{
     background: '#1e1e1e',
     color: '#f8f8f2',
     padding: '20px',
     marginTop: '30px',
     borderRadius: '10px',
-    fontFamily: 'monospace'
+    fontFamily: 'monospace',
+    position: 'relative'
   }}>
+    {/* Bouton Fermer */}
+    <button 
+      onClick={() => setExplanation("")} 
+      style={{
+        position: 'absolute',
+        top: '10px',
+        right: '10px',
+        backgroundColor: '#ff4d4f',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '4px',
+        padding: '5px 10px',
+        cursor: 'pointer'
+      }}
+    >
+      ❌ Fermer
+    </button>
+
     <h3 style={{ color: '#00e676' }}>💡 AI Explanation</h3>
     <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
       {explanation}
@@ -589,14 +743,22 @@ const CodeRoom = () => {
 )}
 
 
+
         <div style={{ marginTop: '30px', background: '#1e1e1e', color: '#00ff90', padding: '20px', borderRadius: '10px', fontFamily: 'monospace' }}>
           <h3 style={{ color: '#fff' }}>🧪 Output:</h3>
           <pre>{output || '/* Output will appear here */'}</pre>
         </div>
       </div>
-      <ToastContainer position="top-right" autoClose={3000} />
+    
+<div className="ambient-background">
+  <div className="particle particle-1"></div>
+  <div className="particle particle-2"></div>
+  <div className="particle particle-3"></div>
+  <div className="particle particle-4"></div>
+</div>
 
     </div>
+    
   );
 };
 
@@ -608,5 +770,6 @@ const buttonStyle = {
   cursor: 'pointer',
   fontSize: '16px',
 };
+
 
 export default CodeRoom;
