@@ -8,7 +8,7 @@ import axios from 'axios';
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import 'highlight.js/styles/atom-one-dark.css'; // 🌙 Dark mode pour le markdown
-const socket = io("http://backend:3000");
+const socket = io("http://localhost:3000");
 import './CodeRoom.scss';
 
 const CodeRoom = () => {
