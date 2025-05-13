@@ -12,7 +12,8 @@ const ManageProfile = () => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [exchangeRequests, setExchangeRequests] = useState([]);
-
+ const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -59,7 +60,26 @@ const ManageProfile = () => {
 
   }, [navigate, token]);
   
-  
+  const totalPages = Math.ceil(exchangeRequests.length / itemsPerPage);
+
+  // Calculer les requêtes paginées
+  const paginatedRequests = exchangeRequests.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   const handleMessengerClick = () => {
     navigate("/messenger");
   };
@@ -151,214 +171,220 @@ const ManageProfile = () => {
     if (successfulExchanges < 50) return ((successfulExchanges - 30) / 20) * 100;
     return 100;
   };
-  
+
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="facebook-profile">
-      <div className="cover-photo">
-        <div className="profile-image">
-          {user.image ? (
-            <img src={`http://localhost:3000${user.image}`} alt="Profile" onClick={openImageModal} />
-          ) : (
-            <div className="avatar-placeholder">E</div>
-          )}
-        </div>
-      </div>
-
-      <div className="user-info">
-      <h1>
-  {user.name} {user.surname}
-  {user.role === "client_approuve" && (
-    <FaCheckCircle style={{ color: "#1DA1F2", marginLeft: "8px" }} title="Verified User" />
-  )}
-</h1>
-        <p>@{user.username || user.email?.split("@")[0]}</p>
-        <p className="wallet-btn" onClick={() => setIsWalletOpen(true)}>
-          <FaWallet /> {user.wallet} points
-        </p>
-
-        <div className="btn-row">
-          <button onClick={() => navigate("/update-profile")} className="btn">Update Profile</button>
-          <button onClick={handleDelete} className="btn danger">Delete</button>
-          <button onClick={handleViewProfiles} className="btn primary">View Other Profiles</button>
-          {user.role !== "client_approuve" && (
-            <button onClick={handleRequestApproval} className="btn approve">
-              <FaCheckCircle /> Request Approval
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="main-section">
-        <div className="messenger-link" onClick={handleMessengerClick}>
-          <FaFacebookMessenger size={28} color="#1DA1F2" />
-          <span>Go to SkillBridge Messenger</span>
-        </div>
-
-        <div className="right-section">
-          <div className="left-section">
-            <div className="intro">
-            <h3>Skills</h3>
-<ul style={{ listStyleType: "none", padding: 0 }}>
-  {user.Skill?.length ? (
-    user.Skill.map((s, i) => (
-      <li key={i} style={{ 
-        background: "#e0f7fa", 
-        padding: "8px 12px", 
-        marginBottom: "8px", 
-        borderRadius: "8px",
-        color: "#00796b",
-        fontWeight: "bold"
-      }}>
-        {s}
-      </li>
-    ))
-  ) : (
-    <p>No skills</p>
-  )}
-</ul>
-
-<div style={{ marginBottom: '10px', fontSize: '18px' }}>
-  Niveau : {user?.level || 1} 🏆
-</div>
-
-{user && (
-  <div style={{ marginTop: '10px' }}>
-    <div style={{ fontSize: '14px', color: '#aaa' }}>
-      Progression : {user.successfulExchanges || 0} échanges validés
-    </div>
-    <div style={{ background: '#eee', borderRadius: '8px', overflow: 'hidden', height: '12px', marginTop: '5px' }}>
-      <div
-        style={{
-          width: `${getProgressPercentage(user.successfulExchanges || 0)}%`,
-          background: '#4CAF50',
-          height: '100%',
-          transition: 'width 0.5s ease-in-out'
-        }}
-      />
-    </div>
-  </div>
-)}
-
-
-              <h3>Subscriptions</h3>
-              <ul>
-                {user.abonnement?.length ? user.abonnement.map((pack, i) => {
-                  const result = user.examResults?.find((r) => r.packId === pack._id || r.packId === pack._id?.toString());
-                  return (
-                    <li key={i}>
-                      {pack.title}
-                      {result && (
-                        <span style={{ color: "green", fontWeight: "bold", marginLeft: "10px" }}>
-                          ✅ Score: {result.score} — Certified
-                        </span>
-                      )}
-                    </li>
-                  );
-                }) : <p>No packs</p>}
-              </ul>
-
-              
-              <h3>Exchange Requests</h3>
-{exchangeRequests.length === 0 ? (
-  <p>No requests yet.</p>
-) : (
-  <table className="exchange-table">
-    <thead>
-      <tr>
-        <th>From</th>
-        <th>To</th>
-        <th>Offer</th>
-        <th>Request</th>
-        <th>Status</th>
-        <th>Room</th>  
-
-      </tr>
-    </thead>
-    <tbody>
-  {exchangeRequests.map((req) => (
-    <tr key={req._id}>
-      <td>{req.senderId.name} {req.senderId.surname}</td>
-      <td>{req.receiverId.name} {req.receiverId.surname}</td>
-      <td>{req.skillOffered}</td>
-      <td>{req.skillRequested}</td>
-      <td className={`status-cell ${req.status}`}>
-  {req.status === "pending" && req.receiverId._id === user._id ? (
-    <div className="action-buttons-request">
-
-      <button className="accept-btn" onClick={() => respondToRequest(req._id, "accepted")}>✅ Accept</button>
-
-      <button className="reject-btn" onClick={() => respondToRequest(req._id, "rejected")}>
-        ❌ Reject
-      </button>
-    </div>
-  ) : (
-    <span className={`status-label ${req.status}`}>
-      {req.status === "accepted" && "✅ Accepted"}
-      {req.status === "rejected" && "❌ Rejected"}
-      {req.status === "pending" && "⏳ Pending"}
-    </span>
-  )}
-</td>
-  {/* ✅ Nouvelle cellule Room */}
-  <td>
-  {req.validations && req.validations.length >= 2 ? (
-    <span style={{ color: "green", fontWeight: "bold" }}>
-      ✅ Exchange Success
-    </span>
-  ) : req.status === "accepted" && req.roomId ? (
-          <a 
-            href={`http://localhost:5173/code-room/${req.roomId}`} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="go-to-room-link"
-          >
-            🚀 Go to Room
-          </a>
+  <div className="facebook-profile">
+    <div className="cover-photo">
+      <div className="profile-image">
+        {user.image ? (
+          <img src={`http://localhost:3000${user.image}`} alt="Profile" onClick={openImageModal} />
         ) : (
-          <span style={{ color: "#aaa", fontStyle: "italic" }}>N/A</span>
+          <div className="avatar-placeholder">E</div>
         )}
-      </td>
-    </tr>
-  ))}
-</tbody>
+      </div>
+    </div>
 
-  </table>
-)}
+    <div className="user-info">
+      <h1>
+        {user.name} {user.surname}
+        {user.role === "client_approuve" && (
+          <FaCheckCircle style={{ color: "#1DA1F2", marginLeft: "8px" }} title="Verified User" />
+        )}
+      </h1>
+      <p>@{user.username || user.email?.split("@")[0]}</p>
+      <p className="wallet-btn" onClick={() => setIsWalletOpen(true)}>
+        <FaWallet /> {user.wallet} points
+      </p>
 
+      <div className="btn-row">
+        <button onClick={() => navigate("/update-profile")} className="btn">Update Profile</button>
+        <button onClick={handleDelete} className="btn danger">Delete</button>
+        <button onClick={handleViewProfiles} className="btn primary">View Other Profiles</button>
+        {user.role !== "client_approuve" && (
+          <button onClick={handleRequestApproval} className="btn approve">
+            <FaCheckCircle /> Request Approval
+          </button>
+        )}
+      </div>
+    </div>
+
+    <div className="main-section">
+      <div className="messenger-link" onClick={handleMessengerClick}>
+        <FaFacebookMessenger size={28} color="#1DA1F2" />
+        <span>Go to SkillBridge Messenger</span>
+      </div>
+
+      <div className="right-section">
+        <div className="left-section">
+          <div className="intro">
+            <h3>Skills</h3>
+            <ul style={{ listStyleType: "none", padding: 0 }}>
+              {user.Skill?.length ? (
+                user.Skill.map((s, i) => (
+                  <li key={i} style={{ 
+                    background: "#e0f7fa", 
+                    padding: "8px 12px", 
+                    marginBottom: "8px", 
+                    borderRadius: "8px",
+                    color: "#00796b",
+                    fontWeight: "bold"
+                  }}>
+                    {s}
+                  </li>
+                ))
+              ) : (
+                <p>No skills</p>
+              )}
+            </ul>
+
+            <div style={{ marginBottom: '10px', fontSize: '18px' }}>
+              Niveau : {user?.level || 1} 🏆
             </div>
+
+            {user && (
+              <div style={{ marginTop: '10px' }}>
+                <div style={{ fontSize: '14px', color: '#aaa' }}>
+                  Progression : {user.successfulExchanges || 0} échanges validés
+                </div>
+                <div style={{ background: '#eee', borderRadius: '8px', overflow: 'hidden', height: '12px', marginTop: '5px' }}>
+                  <div
+                    style={{
+                      width: `${getProgressPercentage(user.successfulExchanges || 0)}%`,
+                      background: '#4CAF50',
+                      height: '100%',
+                      transition: 'width 0.5s ease-in-out'
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            <h3>Subscriptions</h3>
+            <ul>
+              {user.abonnement?.length ? user.abonnement.map((pack, i) => {
+                const result = user.examResults?.find((r) => r.packId === pack._id || r.packId === pack._id?.toString());
+                return (
+                  <li key={i}>
+                    {pack.title}
+                    {result && (
+                      <span style={{ color: "green", fontWeight: "bold", marginLeft: "10px" }}>
+                        ✅ Score: {result.score} — Certified
+                      </span>
+                    )}
+                  </li>
+                );
+              }) : <p>No packs</p>}
+            </ul>
+
+            <h3>Exchange Requests</h3>
+            {exchangeRequests.length === 0 ? (
+              <p>No requests yet.</p>
+            ) : (
+              <>
+                <table className="exchange-table">
+                  <thead>
+                    <tr>
+                      <th>From</th>
+                      <th>To</th>
+                      <th>Offer</th>
+                      <th>Request</th>
+                      <th>Status</th>
+                      <th>Room</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedRequests.map((req) => (
+                      <tr key={req._id}>
+                        <td>{req.senderId.name} {req.senderId.surname}</td>
+                        <td>{req.receiverId.name} {req.receiverId.surname}</td>
+                        <td>{req.skillOffered}</td>
+                        <td>{req.skillRequested}</td>
+                        <td className={`status-cell ${req.status}`}>
+                          {req.status === "pending" && req.receiverId._id === user._id ? (
+                            <div className="action-buttons-request">
+                              <button className="accept-btn" onClick={() => respondToRequest(req._id, "accepted")}>✅ Accept</button>
+                              <button className="reject-btn" onClick={() => respondToRequest(req._id, "rejected")}>
+                                ❌ Reject
+                              </button>
+                            </div>
+                          ) : (
+                            <span className={`status-label ${req.status}`}>
+                              {req.status === "accepted" && "✅ Accepted"}
+                              {req.status === "rejected" && "❌ Rejected"}
+                              {req.status === "pending" && "⏳ Pending"}
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          {req.validations && req.validations.length >= 2 ? (
+                            <span style={{ color: "green", fontWeight: "bold" }}>
+                              ✅ Exchange Success
+                            </span>
+                          ) : req.status === "accepted" && req.roomId ? (
+                            <a 
+                              href={`http://localhost:5173/code-room/${req.roomId}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="go-to-room-link"
+                            >
+                              🚀 Go to Room
+                            </a>
+                          ) : (
+                            <span style={{ color: "#aaa", fontStyle: "italic" }}>N/A</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Pagination controls */}
+                <div className="pagination">
+                  <button onClick={handlePrevPage} disabled={currentPage === 1}>
+                    Précédent
+                  </button>
+                  <span>
+                    Page {currentPage} / {totalPages}
+                  </span>
+                  <button onClick={handleNextPage} disabled={currentPage === totalPages}>
+                    Suivant
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
-
-      <AnimatePresence>
-        {isWalletOpen && (
-          <motion.div
-            className="wallet-popup"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            onClick={() => setIsWalletOpen(false)}
-          >
-            <GiTwoCoins size={50} />
-            <h4>Wallet Balance</h4>
-            <p>{user.wallet} points</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {isImageModalOpen && (
-        <div className="image-modal" onClick={closeImageModal}>
-          <div className="modal-content">
-            <img src={`http://localhost:3000${user.image}`} alt="Profile" className="expanded-image" />
-          </div>
-        </div>
-      )}
-
     </div>
-  );
-};
 
+    <AnimatePresence>
+      {isWalletOpen && (
+        <motion.div
+          className="wallet-popup"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          onClick={() => setIsWalletOpen(false)}
+        >
+          <GiTwoCoins size={50} />
+          <h4>Wallet Balance</h4>
+          <p>{user.wallet} points</p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+
+    {isImageModalOpen && (
+      <div className="image-modal" onClick={closeImageModal}>
+        <div className="modal-content">
+          <img src={`http://localhost:3000${user.image}`} alt="Profile" className="expanded-image" />
+        </div>
+      </div>
+    )}
+
+  </div>
+);
+};
 export default ManageProfile;
