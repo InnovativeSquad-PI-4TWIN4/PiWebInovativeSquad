@@ -1,0 +1,142 @@
+.match-room-container {
+    max-width: 1200px; // Élargi pour accueillir le chat et la vidéo
+    margin: 30px auto;
+    padding: 0 15px;
+    color: white;
+  
+    h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #00e0ff;
+    }
+  
+    .room-content {
+      display: flex;
+      gap: 20px;
+  
+      .chat-section {
+        flex: 1; // Prend la moitié de l'espace
+        background: #2a2a3d;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  
+        h3 {
+          font-size: 18px;
+          margin-bottom: 10px;
+          color: #ffd86f;
+        }
+  
+        .messages {
+          max-height: 400px; // Hauteur ajustée pour plus de messages
+          overflow-y: auto;
+          margin-bottom: 16px;
+          padding: 8px;
+          background: #1e1e2e;
+          border-radius: 8px;
+  
+          .message {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #33334d;
+            border-radius: 8px;
+            word-wrap: break-word;
+  
+            strong {
+              color: #00ffa1;
+            }
+  
+            span {
+              color: #b0b3b8;
+            }
+  
+            small {
+              margin-left: 8px;
+              color: #666;
+              font-size: 0.8em;
+            }
+          }
+        }
+  
+        .chat-form {
+          display: flex;
+          gap: 8px;
+  
+          .chat-input {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            background: #1e1e2e;
+            color: white;
+            outline: none;
+  
+            &::placeholder {
+              color: #b0b3b8;
+            }
+          }
+  
+          .send-btn {
+            background: #00e0ff;
+            color: #1e1e2e;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+  
+            &:hover {
+              background: #00b3cc;
+            }
+          }
+        }
+      }
+  
+      .video-section {
+        flex: 1; // Prend la moitié de l'espace
+        background: #2a2a3d;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  
+        h3 {
+          font-size: 18px;
+          margin-bottom: 10px;
+          color: #ffd86f;
+        }
+  
+        .video-container {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+  
+          .video-wrapper {
+            position: relative;
+            width: 100%;
+            height: 200px; // Hauteur des vidéos
+            background: #1e1e2e;
+            border-radius: 8px;
+            overflow: hidden;
+  
+            video {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+  
+            span {
+              position: absolute;
+              bottom: 5px;
+              left: 10px;
+              color: #b0b3b8;
+              font-size: 14px;
+              background: rgba(0, 0, 0, 0.5);
+              padding: 2px 8px;
+              border-radius: 4px;
+            }
+          }
+        }
+      }
+    }
+  }

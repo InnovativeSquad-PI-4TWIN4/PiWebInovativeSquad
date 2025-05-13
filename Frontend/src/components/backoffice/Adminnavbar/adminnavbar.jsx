@@ -49,10 +49,7 @@ const AdminNavbar = ({ user, onLogout }) => {
                                     </div>
 
                                     <div className="menu-links">
-                                        <div className="menu-item" onClick={() => navigate('/manage-profile')}>
-                                            <MdManageAccounts className="menu-icon" />
-                                            Manage Profile
-                                        </div>
+                                        
 
                                         <div className="menu-item logout" onClick={handleLogout}>
                                             <FiLogOut className="menu-icon logout-icon" />
