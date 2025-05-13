@@ -71,7 +71,7 @@ const Navbar = ({ user, onLogout }) => {
       </Link>
 
       <ul className="navbar-links">
-        <li><Link to="/overview" className="overview">Challenges</Link></li>
+       
 
         {user ? (
           <>
@@ -82,7 +82,7 @@ const Navbar = ({ user, onLogout }) => {
             <li><Link to="/AvisWebsite">Feedback</Link></li>
             <li><Link to="/Full" className="overview">AI Tools</Link></li>
             <li><Link to="/Personal" className="overview">Personal Space</Link></li>
-            <li><Link to="/contact">Contact</Link></li>
+            
             
 
 
@@ -106,9 +106,10 @@ const Navbar = ({ user, onLogout }) => {
                   <div className="dropdown-menu">
                     <div className="user-info">
                       <div className="user-initials-lg">
-                        {user.name.charAt(0).toUpperCase()}
-                        {user.surname.charAt(0).toUpperCase()}
-                      </div>
+  {user.name.charAt(0).toUpperCase()}
+  {user.surname.charAt(0).toUpperCase()}
+</div>
+
                       <div className="user-details">
                         <p className="user-name">{user.name} {user.surname}</p>
                         <p className="user-email">{user.email}</p>
