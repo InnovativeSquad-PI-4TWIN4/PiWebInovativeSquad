@@ -110,7 +110,7 @@ const DashbordAdmin = () => {
           <li className={activeTab === "coursesadmin" ? "active" : ""} onClick={() => setActiveTab("coursesadmin")}><FaChartBar /> Courses</li>
           <li className={activeTab === "PackAdmin" ? "active" : ""} onClick={() => setActiveTab("PackAdmin")}><FaChartBar /> Packs</li>
           <li className={activeTab === "publications" ? "active" : ""} onClick={() => setActiveTab("publications")}><FaChartBar /> Publications</li>
-          <li className={activeTab === "settings" ? "active" : ""} onClick={() => setActiveTab("settings")}><FaCog /> Settings</li>
+         
         </ul>
       </div>
 

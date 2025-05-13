@@ -1,3 +1,4 @@
+// Home.jsx
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom'; 
@@ -11,15 +12,15 @@ const Home = () => {
   const navigate = useNavigate(); 
 
   const handleClick = () => {
-      navigate('/overview'); 
-    };
+    navigate('/overview'); 
+  };
+
   const features = [
     {
       icon: '📚',
       title: 'Learn New Skills',
       description: 'Join thousands of learners and exchange skills with experts.',
     },
-    
     {
       icon: '🎓',
       title: 'Teach What You Know',
@@ -36,13 +37,13 @@ const Home = () => {
     {
       name: 'John Doe',
       role: 'Web Developer',
-      testimonial: 'SkillSwap helped me learn new technologies and connect with amazing people!',
+      testimonial: 'SkillBridge helped me learn new technologies and connect with amazing people!',
       image: 'https://randomuser.me/api/portraits/men/1.jpg',
     },
     {
       name: 'Jane Smith',
       role: 'UI/UX Designer',
-      testimonial: 'I found incredible mentors and expanded my skill set thanks to SkillSwap.',
+      testimonial: 'I found incredible mentors and expanded my skill set thanks to SkillBridge.',
       image: 'https://randomuser.me/api/portraits/women/2.jpg',
     },
     {
@@ -55,16 +56,12 @@ const Home = () => {
 
   const [text, setText] = useState('');
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const texts = [
-    'Exchange Skills, Grow Together',
-    'Build Your Network',
-  ];
+  const texts = ['Exchange Skills, Grow Together', 'Build Your Network'];
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTextIndex((prevIndex) => (prevIndex + 1) % texts.length);
-    }, 5000); // Change text every 5 seconds
-
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -77,61 +74,38 @@ const Home = () => {
       if (currentCharIndex < currentText.length) {
         setText(currentText.substring(0, currentCharIndex + 1));
         currentCharIndex++;
-        timeout = setTimeout(typeText, 120); // Adjust typing speed here
+        timeout = setTimeout(typeText, 120);
       } else {
         timeout = setTimeout(() => {
           setText('');
           setCurrentTextIndex((prevIndex) => (prevIndex + 1) % texts.length);
-        }, 4000); // Wait 2 seconds before starting to type the next text
+        }, 4000);
       }
     };
 
     typeText();
-
     return () => clearTimeout(timeout);
   }, [currentTextIndex]);
 
   return (
     <section className="hero">
-      {/* Hero Section */}
       <div className="hero-section">
-        <motion.h1
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-        >
-          {text}
-          <span className="cursor">|</span>
+        <motion.h1 initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
+          {text}<span className="cursor">|</span>
         </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-        >
+        <motion.p initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.5 }}>
           Join SkillBridge and unlock your potential by learning, teaching, and connecting.
         </motion.p>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="cta-button"
-          onClick={handleClick}
-        >
+        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="cta-button" onClick={handleClick}>
           Get Started
         </motion.button>
       </div>
 
-      {/* Features Section */}
       <div className="features-section">
         <h2>Why Choose SkillBridge?</h2>
         <div className="features-grid">
           {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              className="feature-card"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
-            >
+            <motion.div key={index} className="feature-card" initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.2 }}>
               <div className="feature-icon">{feature.icon}</div>
               <h3>{feature.title}</h3>
               <p>{feature.description}</p>
@@ -140,20 +114,14 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Testimonials Section */}
       <div className="testimonials-section">
         <h2>What Our Users Say</h2>
         <Swiper
           spaceBetween={30}
-          slidesPerView={1} // Show one testimonial at a time
+          slidesPerView={1}
           centeredSlides={true}
-          autoplay={{
-            delay: 5000,
-            disableOnInteraction: false,
-          }}
-          pagination={{
-            clickable: true,
-          }}
+          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          pagination={{ clickable: true }}
           modules={[Autoplay, Pagination]}
           className="mySwiper"
         >
@@ -162,7 +130,7 @@ const Home = () => {
               <div className="testimonial-card">
                 <img src={testimonial.image} alt={testimonial.name} />
                 <h3>{testimonial.name}</h3>
-                <p>{testimonial.role}</p>
+                <p className="role">{testimonial.role}</p>
                 <p>{testimonial.testimonial}</p>
               </div>
             </SwiperSlide>
@@ -170,7 +138,6 @@ const Home = () => {
         </Swiper>
       </div>
 
-      {/* Call-to-Action Section */}
       <div className="cta-section">
         <h2>Ready to Join?</h2>
         <p>Enter your email to get started.</p>

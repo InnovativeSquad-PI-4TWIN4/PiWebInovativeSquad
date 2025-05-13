@@ -1,60 +1,41 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;600&display=swap');
 
 .hero {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: z#1a1a1a;
+  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
   color: white;
-  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
 
   .hero-section {
     text-align: center;
-    padding: 4rem 2rem;
-    background: linear-gradient(135deg, #1a1a1a, #2c3e50);
-    width: 100%;
-    position: relative; // Required for the pseudo-element positioning
-    overflow: hidden; // Ensure the blurred image doesn't overflow
-  
-    // Add a pseudo-element for the blue blurred image
+    padding: 6rem 2rem;
+    position: relative;
+    overflow: hidden;
+
     &::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url('../../../assets/img1.jpg'); // Replace with your image path
+      inset: 0;
+      background-image: url('../../../assets/100.jpg');
       background-size: cover;
       background-position: center;
-      //filter: blur(10px) brightness(0.5); // Adjust blur and brightness as needed
-      z-index: 1; // Place it behind the content
-      opacity: 0.5; // Adjust opacity to make it subtle
+      filter: brightness(0.4);
+      z-index: 0;
     }
-  
-    // Ensure all content inside .hero-section is above the blurred image
-    h1,
-    p,
-    .cta-button {
-      position: relative;
-      z-index: 2; // Place content above the pseudo-element
-    }
-  
+
     h1 {
-      font-size: 3rem;
+      font-size: 4rem;
+      font-weight: 700;
+      color: #ffffff;
+      z-index: 1;
+      position: relative;
       margin-bottom: 1rem;
       background: linear-gradient(90deg, #00ff88, #00bfff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      display: inline-block;
-      position: relative;
-      font-family: "Bebas Neue", serif;
-      font-weight: 200;
-      letter-spacing: 0.5px;
-  
+
       .cursor {
         display: inline-block;
         width: 2px;
@@ -63,44 +44,41 @@
         margin-left: 4px;
         animation: blink 1s infinite;
       }
-  
+
       @keyframes blink {
-        0%,
-        50% {
+        0%, 50% {
           opacity: 1;
         }
-        51%,
-        100% {
+        51%, 100% {
           opacity: 0;
         }
       }
     }
-  
+
     p {
-      font-size: 2.2rem;
-      font-family: "Bebas Neue", serif;
-      font-weight: 200;
-      letter-spacing: 0.5px;
-      font-style: normal;
-      color: rgba(255, 255, 255, 0.8);
-      margin-bottom: 2rem;
+      font-size: 1.5rem;
+      max-width: 800px;
+      margin: 0 auto 2rem;
+      z-index: 1;
+      position: relative;
+      color: #e0e0e0;
     }
-  
+
     .cta-button {
-      padding: 1rem 2rem;
-      font-size: 1.1rem;
+      z-index: 1;
+      position: relative;
+      padding: 1rem 2.5rem;
       background: #00ff88;
-      color: #1a1a1a;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s;
-      font-family: "Bebas Neue", serif;
-      font-weight: 200;
-      letter-spacing: 0.5px;
-  
+      color: #000;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 255, 136, 0.4);
+      transition: all 0.3s;
+
       &:hover {
         background: #00bfff;
+        color: #000;
       }
     }
   }
@@ -124,34 +102,34 @@
       justify-content: center;
 
       .feature-card {
-        background: rgba(255, 255, 255, 0.1);
+        background: #1f2937;
+        border: 1px solid #374151;
+        border-radius: 12px;
         padding: 2rem;
-        border-radius: 10px;
-        width: 300px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        transition: transform 0.3s, box-shadow 0.3s;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
 
         &:hover {
-          transform: translateY(-10px);
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+          transform: translateY(-8px);
+          box-shadow: 0 12px 20px rgba(0, 255, 136, 0.2);
         }
 
         .feature-icon {
           font-size: 3rem;
+          color: #00ff88;
           margin-bottom: 1rem;
         }
 
         h3 {
-          font-size: 1.5rem;
-          margin-bottom: 1rem;
-          background: linear-gradient(90deg, #00ff88, #00bfff);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          font-size: 1.4rem;
+          font-weight: 600;
+          color: #ffffff;
+          margin-bottom: 0.5rem;
         }
 
         p {
           font-size: 1rem;
-          color: rgba(255, 255, 255, 0.8);
+          color: #cccccc;
         }
       }
     }
@@ -172,17 +150,17 @@
 
     .mySwiper {
       width: 100%;
-      height: 400px; // Set a fixed height for the Swiper container
-      padding-bottom: 50px; // Space for pagination dots
+      height: 400px;
+      padding-bottom: 50px;
     }
 
     .testimonial-card {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
       padding: 2rem;
       border-radius: 10px;
       max-width: 600px;
       margin: 0 auto;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 
       img {
         width: 80px;
@@ -196,9 +174,15 @@
         margin-bottom: 0.5rem;
       }
 
+      .role {
+        font-size: 0.9rem;
+        color: #00ff88;
+        margin-bottom: 0.5rem;
+      }
+
       p {
         font-size: 1rem;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.85);
       }
     }
   }
@@ -225,6 +209,7 @@
       display: flex;
       gap: 1rem;
       justify-content: center;
+      flex-wrap: wrap;
 
       input {
         padding: 0.75rem 1rem;
