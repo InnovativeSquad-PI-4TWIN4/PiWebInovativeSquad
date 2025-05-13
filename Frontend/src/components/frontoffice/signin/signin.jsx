@@ -17,7 +17,7 @@ const SignIn = ({ onLogin }) => {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:3000/users/signin', { email, password });
+            const response = await axios.post('http://backend:3000/users/signin', { email, password });
 
             if (response.data.token && response.data.user) {
                 localStorage.setItem('token', response.data.token);
