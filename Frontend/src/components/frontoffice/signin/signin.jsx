@@ -38,10 +38,10 @@ const SignIn = ({ onLogin }) => {
     };
 
     const handleGoogleSignIn = () => {
-        window.location.href = 'http://localhost:3000/auth/google/callback';
+        window.location.href = 'http://backend:3000/auth/google/callback';
     };
     const handleFacebookSignIn = () => {
-        window.location.href = 'http://localhost:3000/auth/facebook';
+        window.location.href = 'http://backend:3000/auth/facebook';
     };
     
 
