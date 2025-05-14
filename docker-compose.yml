@@ -5,7 +5,7 @@ services:
     image: mouadhfersi/express-backend:latest
     container_name: backend
     ports:
-      - "3001:3000"  # Modifier le port d'exposition pour éviter le conflit
+      - "3000:3000"  # Modifier le port d'exposition pour éviter le conflit
     networks:
       - app-network
     depends_on:
