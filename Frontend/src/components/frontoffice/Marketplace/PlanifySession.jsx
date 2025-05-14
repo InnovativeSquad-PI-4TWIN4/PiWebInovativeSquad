@@ -51,34 +51,36 @@ const PlanifySession = () => {
   };
 
   return (
-    <div className="planify-session" style={{ padding: 20 }}>
-      <h2>📅 Planifier une session d’échange</h2>
+    <div className="planify-session-page">
+      <div className="planify-session">
+        <h2>📅 Planifier une session d’échange</h2>
 
-      <select value={toUser} onChange={(e) => setToUser(e.target.value)}>
-        <option value="">Choisir un utilisateur</option>
-        {users.map((u) => (
-          <option key={u._id} value={u._id}>
-            {u.name} {u.surname} ({u.email})
-          </option>
-        ))}
-      </select>
+        <select value={toUser} onChange={(e) => setToUser(e.target.value)}>
+          <option value="">Choisir un utilisateur</option>
+          {users.map((u) => (
+            <option key={u._id} value={u._id}>
+              {u.name} {u.surname} ({u.email})
+            </option>
+          ))}
+        </select>
 
-      <input
-        type="text"
-        placeholder="Compétence à partager (ex: ReactJS)"
-        value={skill}
-        onChange={(e) => setSkill(e.target.value)}
-      />
+        <input
+          type="text"
+          placeholder="Compétence à partager (ex: ReactJS)"
+          value={skill}
+          onChange={(e) => setSkill(e.target.value)}
+        />
 
-      <input
-        type="datetime-local"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-      />
+        <input
+          type="datetime-local"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
 
-      <button onClick={handleSubmit} style={{ marginTop: 10 }}>
-        📩 Envoyer l’invitation
-      </button>
+        <button onClick={handleSubmit}>
+          📩 Envoyer l’invitation
+        </button>
+      </div>
     </div>
   );
 };

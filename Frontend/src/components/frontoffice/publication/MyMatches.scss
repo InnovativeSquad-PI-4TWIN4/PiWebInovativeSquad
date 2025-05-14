@@ -1,12 +1,18 @@
 .my-matches-container {
   padding: 2rem;
-  color: white;
-  text-align: center;
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  color: #ffffff;
+  background: linear-gradient(to bottom right, #0f2027, #203a43, #2c5364);
 
   h1 {
-    font-size: 2rem;
-    margin-bottom: 2rem;
-    color: #00e0ff;
+    font-size: 2.5rem;
+    margin-bottom: 2.5rem;
+    color: #00ffe7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
   }
 
   .loading {
@@ -22,47 +28,56 @@
   .match-columns {
     display: flex;
     justify-content: center;
-    gap: 2rem;
+    gap: 3rem;
     flex-wrap: wrap;
   }
 
   .match-column {
-    background: #1e1e2e;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(6px);
     padding: 1.5rem;
-    border-radius: 12px;
-    width: 300px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    transition: all 0.3s ease;
+    border-radius: 16px;
+    width: 340px;
+    box-shadow: 0 0 18px rgba(0, 255, 231, 0.08);
+    transition: 0.3s ease-in-out;
+
+    &:hover {
+      box-shadow: 0 0 24px rgba(0, 255, 231, 0.15);
+    }
 
     h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
       color: #ffd86f;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .empty {
-      color: #b0b3b8;
+      color: #ccc;
       font-style: italic;
     }
 
     .match-card {
-      background: #2a2a3d;
+      background: rgba(15, 25, 45, 0.95);
       padding: 1rem;
-      border-radius: 8px;
+      border-radius: 12px;
       margin-bottom: 1rem;
+      box-shadow: 0 6px 15px rgba(0, 255, 231, 0.06);
       text-align: left;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: 0.3s;
 
       p {
         margin: 0.3rem 0;
-        color: #b0b3b8;
+        color: #d1d1d1;
       }
 
       strong {
-        color: #00ffa1;
+        color: #00ffc3;
       }
 
       &:hover {
-        background-color: #33334d;
+        background: rgba(15, 25, 45, 1);
+        transform: scale(1.02);
       }
 
       .waiting-note {
@@ -74,16 +89,17 @@
       .action-buttons {
         display: flex;
         gap: 0.5rem;
-        margin-top: 0.5rem;
+        margin-top: 0.7rem;
 
         .accept-btn {
           background: #00ffa1;
-          color: #1e1e2e;
+          color: #000;
           border: none;
           padding: 0.5rem 1rem;
-          border-radius: 4px;
+          border-radius: 8px;
           cursor: pointer;
-          transition: background 0.3s ease;
+          font-weight: bold;
+          transition: 0.3s ease;
 
           &:hover {
             background: #00cc81;
@@ -92,12 +108,13 @@
 
         .reject-btn {
           background: #ff5555;
-          color: #1e1e2e;
+          color: #000;
           border: none;
           padding: 0.5rem 1rem;
-          border-radius: 4px;
+          border-radius: 8px;
           cursor: pointer;
-          transition: background 0.3s ease;
+          font-weight: bold;
+          transition: 0.3s ease;
 
           &:hover {
             background: #cc4444;
@@ -110,21 +127,32 @@
 
         .join-room-btn {
           background: #00e0ff;
-          color: #1e1e2e;
+          color: #000;
           border: none;
-          padding: 0.5rem 1rem;
-          border-radius: 4px;
+          padding: 0.6rem 1.2rem;
+          border-radius: 10px;
           cursor: pointer;
-          transition: background 0.3s ease;
+          font-weight: bold;
           width: 100%;
           text-align: center;
-          font-weight: bold;
+          transition: 0.3s ease;
 
           &:hover {
-            background: #00b3cc;
+            background: #00bcd4;
           }
         }
       }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .match-columns {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .match-column {
+      width: 90%;
     }
   }
 }

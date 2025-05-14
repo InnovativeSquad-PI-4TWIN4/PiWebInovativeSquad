@@ -59,8 +59,9 @@ const MyCareer = () => {
     }
   };
 
-  return (
-    <div className="my-career">
+ return (
+  <div className="my-career-page">
+    <div className="career-container">
       <h1>🎯 My Career</h1>
 
       <section className="section">
@@ -132,24 +133,9 @@ const MyCareer = () => {
             {appointments.map((appt, idx) => (
               <li key={idx}>
                 <strong>{appt.fromUser?.name} {appt.fromUser?.surname}</strong> wants to share <strong>{appt.skill}</strong> on <strong>{new Date(appt.date).toLocaleString()}</strong><br />
-                
                 <strong>Status:</strong> {appt.status.toUpperCase()} <br />
-                
-                {appt.status === "pending" && userData?._id === appt.toUser?._id && (
-                  <>
-                    <button onClick={() => handleStatusChange(appt._id, "accepted")} style={{ marginRight: "10px" }}>
-                      ✅ Accept
-                    </button>
-                    <button onClick={() => handleStatusChange(appt._id, "rejected")} style={{ color: "red" }}>
-                      ❌ Reject
-                    </button>
-                  </>
-                )}
-
                 {appt.status === "accepted" && (
-                  <p>
-                    📎 Link: <a href={appt.link} target="_blank" rel="noreferrer">{appt.link}</a>
-                  </p>
+                  <p>📎 Link: <a href={appt.link} target="_blank" rel="noreferrer">{appt.link}</a></p>
                 )}
               </li>
             ))}
@@ -157,7 +143,10 @@ const MyCareer = () => {
         )}
       </section>
     </div>
-  );
+  </div>
+);
+
+
 };
 
 export default MyCareer;

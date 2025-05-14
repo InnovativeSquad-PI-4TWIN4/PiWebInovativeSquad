@@ -58,7 +58,8 @@ const WheelOfFortune = () => {
     }, 2500); // 2,5 secondes pour simuler la rotation
   };
 
-  return (
+ return (
+  <div className="wheel-page">
     <div className="wheel-container">
       <h1>🎉 Wheel of Luck 🎉</h1>
       {eligible ? (
@@ -83,7 +84,9 @@ const WheelOfFortune = () => {
         <p className="not-eligible">Validez au moins un quiz IA pour jouer 🚀</p>
       )}
     </div>
-  );
+  </div>
+);
+
 };
 
 export default WheelOfFortune;

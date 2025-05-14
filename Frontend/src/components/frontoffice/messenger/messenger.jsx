@@ -482,7 +482,7 @@ const Messenger = () => {
 )}
 
 
-                        <div className="message-input">
+                        <div className="message-inputt">
                         {suggestions.length > 0 && (
   <ul className="suggestion-list">
     {suggestions.map((sug, i) => (

@@ -128,7 +128,7 @@ const Navbar = ({ user, onLogout }) => {
                       <div className="menu-item" onClick={() => navigate('/mycareer')}>
                         <MdWorkspacePremium className="menu-icon" />
                         My Career
-                        {hasNewAppointment && <span className="notification-dot">🔔</span>}
+                        {hasNewAppointment && <span className="notification-dot" >🔔</span>}
                       </div>
                       <div className="menu-item" onClick={() => navigate('/project-lab')}>
   <FaFlask className="menu-icon" />

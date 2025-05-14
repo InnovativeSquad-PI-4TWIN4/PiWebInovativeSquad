@@ -173,8 +173,9 @@ const NotificationComponent = () => {
                   <div className="notification-content">
                     <div className="notification-header">
                       <span className="sender-name">
-                        {notification.senderId.name} {notification.senderId.surname}
-                      </span>
+  {notification.senderId?.name || "Unknown"} {notification.senderId?.surname || ""}
+</span>
+
                       <span className="notification-time">{formatTime(notification.createdAt)}</span>
                     </div>
                     <p className="notification-message">

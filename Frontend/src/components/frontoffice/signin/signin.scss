@@ -1,22 +1,24 @@
 .signin-container {
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a, #2c3e50);
+  background: linear-gradient(135deg, #1a1a1a, #2c3e50); // identique à signup
   color: white;
 
   .signin-box {
     background: rgba(255, 255, 255, 0.1);
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(0, 255, 231, 0.12);
     text-align: center;
-    width: 400px;
-    height: 400px;
+    width: 500px; // même largeur que SignUp
+    max-width: 90%;
 
     h2 {
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      color: #00ffe7;
     }
 
     .error {
@@ -26,47 +28,75 @@
 
     input {
       width: 100%;
-      padding: 0.5rem;
-      margin-bottom: 1rem;
+      padding: 12px;
+      margin-bottom: 15px;
       border: none;
-      border-radius: 5px;
-      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
       color: white;
+      font-size: 15px;
 
       &::placeholder {
         color: rgba(255, 255, 255, 0.7);
       }
+
+      &:focus {
+        border: 1px solid #00ffe7;
+        outline: none;
+        box-shadow: 0 0 8px rgba(0, 255, 231, 0.3);
+      }
     }
 
-    button {
+    button[type="submit"] {
       width: 100%;
-      padding: 0.5rem;
+      padding: 12px;
+      background: #e3e7e6;
+      color: #000;
+      font-weight: bold;
+      font-size: 15px;
       border: none;
-      border-radius: 5px;
-      background: #ffffff;
-      color: #1a1a1a;
-      cursor: pointer;
-      transition: background 0.3s;
+      border-radius: 10px;
+      transition: 0.3s;
+      margin-top: 10px;
 
       &:hover {
-        background: #00bfff;
+        background: #00dab0;
+        transform: scale(1.03);
       }
+    }
+
+    .google-btn,
+    .facebook-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: 0.3s;
+      border: none;
+      cursor: pointer;
     }
 
     .google-btn {
-      background: #fcfcfc;
-      margin-top: 1rem;
+      background: #ffffff;
+      color: #333;
 
       &:hover {
-        background: #80dd74;
+        background: #eaeaea;
       }
     }
+
     .facebook-btn {
-      background: #fcfcfc;
-      margin-top: 1rem;
+      background: #4267B2;
+      color: #fff;
 
       &:hover {
-        background: #2200ff;
+        background: #37559a;
       }
     }
 
@@ -82,21 +112,5 @@
         }
       }
     }
-  }
-}
-.google-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  background: #4285f4;
-  margin-top: 1rem;
-
-  &:hover {
-    background: #357abd;
-  }
-
-  .google-icon {
-    font-size: 1.2rem;
   }
 }

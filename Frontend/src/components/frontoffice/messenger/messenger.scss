@@ -134,7 +134,7 @@
     height: 100vh; /* Full screen height */
     display: flex;
     flex-direction: row;
-    color: white;
+    color: rgba(255, 255, 255, 0);
     background-color: #121212;
 
 
@@ -276,7 +276,7 @@
 }
 
 
-.message-input {
+.message-inputt {
     display: flex;
     padding: 10px;
     background: #b5acac63;
