@@ -12,15 +12,8 @@ services:
     networks:
       - app-network
     depends_on:
-      mongo:
-        condition: service_healthy
+      - mongo
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
 
   frontend:
     image: mouadhfersi/react-frontend:latest
@@ -32,8 +25,7 @@ services:
     networks:
       - app-network
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     restart: unless-stopped
 
   mongo:
@@ -50,16 +42,11 @@ services:
     networks:
       - app-network
     restart: unless-stopped
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh mongodb://root:example@localhost:27017/test?authSource=admin --quiet
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
 
 networks:
   app-network:
     driver: bridge
+
 volumes:
   mongo-data:
     driver: local
