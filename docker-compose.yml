@@ -26,7 +26,9 @@ services:
     container_name: mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: root  # Nom d'utilisateur root pour MongoDB
-      MONGO_INITDB_ROOT_PASSWORD: rootpassword  # Mot de passe root pour MongoDB
+      MONGO_INITDB_ROOT_PASSWORD: example  # Mot de passe root pour MongoDB
+    ports :
+      - 27017:27017
     volumes:
       - mongo-data:/data/db  # Volume pour persister les données MongoDB
     networks:
