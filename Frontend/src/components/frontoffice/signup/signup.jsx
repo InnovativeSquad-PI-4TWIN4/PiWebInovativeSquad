@@ -97,7 +97,7 @@ const SignUp = () => {
     else if (capturedImage) formData.append("image", capturedImage);
 
     try {
-      const res = await axios.post('http://backend:3001/users/signup', formData);
+      const res = await axios.post('http://localhost:3001/users/signup', formData);
       alert("Inscription réussie ! Un email de vérification vous a été envoyé.");
       navigate('/verify-pending');
     } catch (err) {
