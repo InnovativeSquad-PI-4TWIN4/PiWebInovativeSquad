@@ -25,7 +25,7 @@ const SignUp = () => {
     if (!skills || skills.length === 0) return;
     setLoadingRecommended(true);
     try {
-      const res = await axios.post('http://backend:3001/api/recommend-skills', {
+      const res = await axios.post('http://localhost:3001/api/recommend-skills', {
         selectedSkills: skills
       });
       if (res.data.recommendedSkills) {
