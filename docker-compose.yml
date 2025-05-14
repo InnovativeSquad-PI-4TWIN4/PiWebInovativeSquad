@@ -1,43 +1,65 @@
 version: '3.8'
-
 services:
   backend:
     image: mouadhfersi/express-backend:latest
     container_name: backend
     ports:
-      - "3001:3000"  # Modifier le port d'exposition pour éviter le conflit
+      - "3001:3000"
+    environment:
+      - MONGO_URI=mongodb://root:example@mongo:27017/myapp?authSource=admin
+      - PORT=3000
+      - NODE_ENV=production
     networks:
       - app-network
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   frontend:
     image: mouadhfersi/react-frontend:latest
     container_name: frontend
     ports:
-      - "5173:80"  # Expose le frontend sur le port 5173
+      - "5173:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
     networks:
       - app-network
     depends_on:
-      - backend  # Le frontend dépend du backend
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
 
   mongo:
-    image: mongo:latest  # Utilisation de MongoDB
+    image: mongo:latest
     container_name: mongo
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root  # Nom d'utilisateur root pour MongoDB
-      MONGO_INITDB_ROOT_PASSWORD: example  # Mot de passe root pour MongoDB
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: myapp
     ports:
       - 27017:27017
     volumes:
-      - mongo-data:/data/db  # Volume pour persister les données MongoDB
+      - mongo-data:/data/db
     networks:
       - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongodb://root:example@localhost:27017/test?authSource=admin --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 networks:
   app-network:
     driver: bridge
-
 volumes:
   mongo-data:
     driver: local
