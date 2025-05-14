@@ -138,29 +138,7 @@ const TinderView = () => {
     </div>
   );
 
-  const renderRecommendations = () => (
-    <div className="stack">
-      <h2>✨ Recommended by AI</h2>
-      <div className="tinder-stack">
-        {loadingRecs ? (
-          <p>Loading smart matches...</p>
-        ) : recommendations.length === 0 ? (
-          <p>No recommendations found.</p>
-        ) : (
-          recommendations.map(match => (
-            <div key={match.publication2?._id} className="tinder-card ai-card">
-              <h3>{match.publication2?.user?.name} {match.publication2?.user?.surname}</h3>
-              <p>{match.publication2?.description}</p>
-              <p>🔗 Score: {(match.similarityScore * 100).toFixed(1)}%</p>
-              <button className="match-btn" onClick={() => handleMatch(match.publication2.user._id, match.publication2._id)}>
-                💌 Match
-              </button>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
+ 
 
   return (
     <div className="tinder-view">
@@ -168,7 +146,6 @@ const TinderView = () => {
       <div className="double-stack-container">
         {renderStack(offers, "offer")}
         {renderStack(requests, "request")}
-        {renderRecommendations()}
       </div>
     </div>
   );

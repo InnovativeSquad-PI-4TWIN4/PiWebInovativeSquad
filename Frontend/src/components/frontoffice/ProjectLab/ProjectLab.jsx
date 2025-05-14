@@ -117,7 +117,7 @@ const ProjectLab = () => {
 
   return (
     <div className="project-lab">
-      <h1>📁 My collaborative projects</h1>
+      <h1>My collaborative projects</h1>
       <ProjectModal onProjectCreated={fetchProjects} users={users} />
 
       <div className="project-list">

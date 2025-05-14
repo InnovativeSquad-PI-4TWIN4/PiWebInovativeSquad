@@ -2,19 +2,63 @@
   min-height: 100vh;
   padding: 2rem;
   text-align: center;
-  color: #fff;
+  font-family: 'Poppins', sans-serif;
 
-  // ✅ Nouveau fond dégradé stylé
-  background: linear-gradient(145deg, #0d0d0d, #1a1a2e, #000000);
+  // 🌌 Fond fluide et cohérent avec le reste
+  background: linear-gradient(to bottom right, #0f2027, #203a43, #2c5364);
   background-repeat: no-repeat;
   background-size: cover;
+  color: #ffffff;
 
   h1 {
-    font-size: 2.5rem;
+    font-size: 3rem;
     color: #00ffe7;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
   }
 
+  .marketplace-cards {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-top: 3rem;
+
+   .select-card {
+  background: rgba(15, 25, 45, 0.85); // plus foncé et profond
+  border: 1px solid rgba(0, 255, 231, 0.08);
+  backdrop-filter: blur(4px);
+  border-radius: 16px;
+  padding: 2rem;
+  width: 220px;
+  color: #00ffe7;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 255, 231, 0.05); // moins fort
+  transition: 0.3s ease-in-out;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  h3 {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  &:hover {
+    transform: translateY(-6px);
+    background: rgba(0, 255, 231, 0.06);
+    box-shadow: 0 0 18px rgba(0, 255, 231, 0.2);
+  
+
+  }
+}
+  }
   .back-btn {
     position: absolute;
     top: 100px;
@@ -27,8 +71,7 @@
     padding: 0.2rem 0.7rem;
     font-weight: bold;
     cursor: pointer;
-    transition: 0.2s ease-in-out;
-    z-index: 1000;
+    transition: 0.3s;
 
     &:hover {
       background-color: #00ffe7;
@@ -37,35 +80,7 @@
     }
   }
 
-  .marketplace-cards {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-    margin-top: 3rem;
-
-    .select-card {
-      background: #1a1a2e;
-      color: #00ffe7;
-      border-radius: 12px;
-      padding: 2rem;
-      cursor: pointer;
-      width: 220px;
-      box-shadow: 0 0 20px rgba(0, 255, 231, 0.2);
-      transition: all 0.3s ease;
-
-      h3 {
-        margin-top: 1rem;
-        font-size: 1.2rem;
-      }
-
-      &:hover {
-        background: #0f0f2e;
-        transform: translateY(-5px);
-      }
-    }
-  }
-
+  // Optional grid if needed later
   .courses-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -74,10 +89,13 @@
   }
 
   .course-card {
-    background: #1a1a2e;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(8px);
     padding: 1.5rem;
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(0, 255, 231, 0.2);
+    text-align: left;
+    transition: 0.3s;
 
     h2 {
       color: #00ffe7;
@@ -85,6 +103,7 @@
 
     p {
       margin: 0.3rem 0;
+      color: #ccc;
     }
 
     .download-btn,
