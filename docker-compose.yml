@@ -6,6 +6,9 @@ services:
     container_name: backend
     ports:
       - "3001:3000"  # Modifier le port d'exposition pour éviter le conflit
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/SkillsBridgePI
+      - FRONTEND_URL=http://localhost:5173
     networks:
       - app-network
     depends_on:
