@@ -1,11 +1,15 @@
-# 🚀 SkillBridge – AI-Powered Skill Exchange & Smart Learning Platform
+# 🚀 SkillBridge – The AI-Powered Skill Exchange & Smart Learning Platform
 
-🌉 Bridging Skills, Minds, and AI – SkillBridge is a MERN stack platform revolutionizing learning through peer-to-peer skill exchange, AI-enhanced e-learning, and intelligent productivity tools. Whether you're mastering a new skill or sharing expertise, SkillBridge connects you with the right resources—and the right people—powered by Google Gemini AI.
+🌉 Bridging Skills, Minds, and AI.
+SkillBridge is an AI-augmented, MERN stack platform that transforms how people learn and share knowledge.
+Built for the future of learning, it connects learners and mentors in a peer-to-peer skill exchange ecosystem, powered by Google Gemini AI and intelligent collaboration tools.
+
+Whether you want to master a new skill, share your expertise, or collaborate on real projects, SkillBridge offers smart, social, and interactive learning experiences.
 
 
 ## 🔥 Core Features
 
-### 🤖 AI-Driven Assistance (Powered by Gemini)
+### 🤖 AI-Driven Assistance (Powered by Gemini & OpenAI)
 - **Gemini Chatbot** – Instant answers, course guidance, and learning support.
 - **Gemini Voice Assistant** – Speak your queries, get real-time responses.
 - **AI Therapist (Gemini-Powered)** – Mental wellness support for stress-free learning.
@@ -35,6 +39,7 @@
 ### 🎯 Productivity Boosters
 - **Skill Progress Dashboard** – Track skill progress & achievements.
 - **Google Calendar Integration** – Sync study sessions and projects.
+- **Gamification & Challenges – Stay motivated with achievements and mini-games.
 - **Real-Time Notifications** – Alerts, invites, and task updates.
 
 ---
@@ -93,24 +98,22 @@ cd ../frontend && npm start
 
 
 🌟 Why SkillBridge?
-✅ Gemini-Powered AI – Smarter than generic chatbots.
-✅ Learn by Exchange – Skills > Certificates.
-✅ Zero Passive Learning – AI schedules, summarizes, and optimizes for you.
-✅ Real-Time Collaboration – Work, chat, call, and code together.
-✅ Safe Learning Environment – Toxicity detection, AI therapist, & sentiment analysis built-in.
+✅ AI-Enhanced Learning – Powered by Gemini & OpenAI.
+✅ Peer-to-Peer Skill Exchange – Learn, teach, and collaborate directly.
+✅ No More Passive Learning – Interactive sessions, AI planners, and real-time tools.
+✅ Real-Time Collaboration Tools – Chat, video, code, and negotiate together.
+✅ Safe & Inclusive Environment – Toxicity detection, AI therapist, sentiment analysis built-in.
 
 
 🤝 **Contribute**
-We welcome contributors!
+We welcome all contributions!
+Fork the repo → Code → PR (bug fixes, UI/UX improvements, new AI features).
+Or open an issue for feature requests.
 
-Fork → Code → PR (Bug fixes, UI/UX, new AI features).
-
-Issues for feature requests.
-
-📌 Repo: github.com/InnovativeSquad-PI-4TWIN4/PiWebInovativeSquad
+📌 Repo: https://github.com/InnovativeSquad-PI-4TWIN4/PiWebInovativeSquad
 
 📜 License
-**ESPRIT © 2025 InnovativeSquad**
 
+© 2025 InnovativeSquad – ESPRIT
 🌉 SkillBridge – Where Knowledge Flows Both Ways.
 ⭐ Star us if you believe in the future of collaborative learning! ⭐
