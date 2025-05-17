@@ -1,25 +1,26 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { FaExchangeAlt } from 'react-icons/fa';
+import { FaExchangeAlt, FaBars } from 'react-icons/fa';
 import { FiLogOut, FiSun, FiMoon } from 'react-icons/fi';
 import { MdManageAccounts } from 'react-icons/md';
-import { Link, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../../../context/ThemeContext';
 import NotificationComponent from "../NotificationComponent/NotificationComponent";
 import './navbar.scss';
 import AdminNavbar from '../../backoffice/Adminnavbar/adminnavbar';
 import { MdWorkspacePremium } from "react-icons/md";
 import { MdGroups } from 'react-icons/md';
-import { FaFlask } from "react-icons/fa"; // Icône pour symboliser un "Lab"
-
+import { FaFlask } from "react-icons/fa";
 
 const Navbar = ({ user, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const [hasNewAppointment, setHasNewAppointment] = useState(false);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const handleLogout = () => {
     onLogout();
@@ -65,27 +66,26 @@ const Navbar = ({ user, onLogout }) => {
 
   return (
     <nav className="navbar">
-      <Link to="/" className="navbar-logo">
+      <NavLink to="/" className="navbar-logo">
         <FaExchangeAlt className="logo-icon" />
         <span>SkillBridge</span>
-      </Link>
+      </NavLink>
 
-      <ul className="navbar-links">
-       
+      <button className="hamburger" onClick={toggleMenu}>
+        <FaBars />
+      </button>
 
+      <ul className={`navbar-links ${isMenuOpen ? 'open' : ''}`}>
         {user ? (
           <>
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/marketplace">MarketPlace</Link></li>
-            <li><Link to="/exchange-start">Forum</Link></li>
-            <li><Link to="/OurPacks">Our Packs</Link></li>
-            <li><Link to="/AvisWebsite">Feedback</Link></li>
-            <li><Link to="/Full" className="overview">AI Tools</Link></li>
-            <li><Link to="/Personal" className="overview">Personal Space</Link></li>
+            <li><NavLink to="/" end onClick={() => setIsMenuOpen(false)}>Home</NavLink></li>
+            <li><NavLink to="/marketplace" onClick={() => setIsMenuOpen(false)}>MarketPlace</NavLink></li>
+            <li><NavLink to="/exchange-start" onClick={() => setIsMenuOpen(false)}>Forum</NavLink></li>
+            <li><NavLink to="/OurPacks" onClick={() => setIsMenuOpen(false)}>Our Packs</NavLink></li>
+            <li><NavLink to="/AvisWebsite" onClick={() => setIsMenuOpen(false)}>Feedback</NavLink></li>
+            <li><NavLink to="/Full" className="overview" onClick={() => setIsMenuOpen(false)}>AI Tools</NavLink></li>
+            <li><NavLink to="/Personal" className="overview" onClick={() => setIsMenuOpen(false)}>Personal Space</NavLink></li>
             
-            
-
-
             <li>
               <button className="theme-toggle" onClick={toggleTheme}>
                 {theme === 'dark' ? <FiSun /> : <FiMoon />}
@@ -106,9 +106,9 @@ const Navbar = ({ user, onLogout }) => {
                   <div className="dropdown-menu">
                     <div className="user-info">
                       <div className="user-initials-lg">
-  {user.name.charAt(0).toUpperCase()}
-  {user.surname.charAt(0).toUpperCase()}
-</div>
+                        {user.name.charAt(0).toUpperCase()}
+                        {user.surname.charAt(0).toUpperCase()}
+                      </div>
 
                       <div className="user-details">
                         <p className="user-name">{user.name} {user.surname}</p>
@@ -120,28 +120,27 @@ const Navbar = ({ user, onLogout }) => {
                     </div>
 
                     <div className="menu-links">
-                      <div className="menu-item" onClick={() => navigate('/manage-profile')}>
+                      <div className="menu-item" onClick={() => { navigate('/manage-profile'); setIsOpen(false); }}>
                         <MdManageAccounts className="menu-icon" />
                         Manage Profile
                       </div>
 
-                      <div className="menu-item" onClick={() => navigate('/mycareer')}>
+                      <div className="menu-item" onClick={() => { navigate('/mycareer'); setIsOpen(false); }}>
                         <MdWorkspacePremium className="menu-icon" />
                         My Career
                         {hasNewAppointment && <span className="notification-dot" >🔔</span>}
                       </div>
-                      <div className="menu-item" onClick={() => navigate('/project-lab')}>
-  <FaFlask className="menu-icon" />
-  Project Lab
-</div>
+                      <div className="menu-item" onClick={() => { navigate('/project-lab'); setIsOpen(false); }}>
+                        <FaFlask className="menu-icon" />
+                        Project Lab
+                      </div>
 
-                      {/* ✅ New Menu Item for Learning Circles */}
-<div className="menu-item" onClick={() => navigate('/learning-circles')}>
-        <MdGroups className="menu-icon" />
-        Learning Circles
-      </div>
+                      <div className="menu-item" onClick={() => { navigate('/learning-circles'); setIsOpen(false); }}>
+                        <MdGroups className="menu-icon" />
+                        Learning Circles
+                      </div>
 
-                      <div className="menu-item" onClick={handleLogout}>
+                      <div className="menu-item" onClick={() => { handleLogout(); setIsOpen(false); }}>
                         <FiLogOut className="menu-icon logout-icon" />
                         Log out
                       </div>
@@ -159,8 +158,8 @@ const Navbar = ({ user, onLogout }) => {
           </>
         ) : (
           <>
-            <li><Link to="/signin">Sign In</Link></li>
-            <li><Link to="/signup" className="signup-btn">Sign Up</Link></li>
+            <li><NavLink to="/signin" onClick={() => setIsMenuOpen(false)}>Sign In</NavLink></li>
+            <li><NavLink to="/signup" className="signup-btn" onClick={() => setIsMenuOpen(false)}>Sign Up</NavLink></li>
             <li>
               <button className="theme-toggle" onClick={toggleTheme}>
                 {theme === 'dark' ? <FiSun /> : <FiMoon />}
