@@ -488,7 +488,7 @@ const Home = () => {
                   Welcome to the <span className="neon-text">Next Gen</span> Learning Experience
                 </h2>
                 <p className="welcome-text">
-                  NeuroSkillSync is an AI-powered skill exchange and learning platform that combines
+                  SkillBridge is an AI-powered skill exchange and learning platform that combines
                   cutting-edge AI technology with human expertise to create a unique learning ecosystem.
                 </p>
                 
